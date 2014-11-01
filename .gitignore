@@ -26,7 +26,6 @@ local.properties
 #######################################
 
 *.suo
-*.user
 *.sln.docstates
 [Dd]ebug/
 [Rr]elease/
