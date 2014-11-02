@@ -8,146 +8,179 @@
 #include <QtGlobal>
 #include <QString>
 
-#pragma pack(push, 1)
-struct DataHeader
+struct __attribute__((packed)) DataHeader
 {
-    quint32 MagicWord;
-    quint32 PreviousSize;
-    quint32 Size;
-    quint8 Reserved;
-    quint8 DeviceId;
-    quint16 DataType;
-    quint64 Time;
+    quint32     MagicWord           ;
+    quint32     PreviousSize        ;
+    quint32     Size                ;
+    quint8      Reserved            ;
+    quint8      DeviceId            ;
+    quint16     DataType            ;
+    quint64     Time                ;
 };
-#pragma pack(pop)
 
 
-#pragma pack(push, 1)
-struct ScanHeader
+struct __attribute__((packed)) ScanHeader
 {
-    quint16 ScanNumber;
-    quint16 ScannerStatus;
-    quint16 SyncPhaseOffset;
-    quint64 ScanStartTime;
-    quint64 ScanEndTime;
-    quint16 AngleTicksPerRotation;
-    qint16 StartAngle;
-    qint16 EndAngle;
-    quint16 ScanPoints;
-    qint16 Reserved1;
-    qint16 Reserved2;
-    qint16 Reserved3;
-    qint16 Reserved4;
-    qint16 Reserved5;
-    qint16 Reserved6;
-    quint16 Reserved7;
+    quint16     ScanNumber          ;
+    quint16     ScannerStatus       ;
+    quint16     SyncPhaseOffset     ;
+    quint64     ScanStartTime       ;
+    quint64     ScanEndTime         ;
+    quint16     AngleTicks          ;
+    qint16      StartAngle          ;
+    qint16      EndAngle            ;
+    quint16     ScanPoints          ;
+    qint16      MountingYawAngle    ;
+    qint16      MountingPitchAngle  ;
+    qint16      MountingRollAngle   ;
+    qint16      MountingX           ;
+    qint16      MountingY           ;
+    qint16      MountingZ           ;
+    quint16     Reserved            ;
 };
-#pragma pack(pop)
 
 
-#pragma pack(push, 1)
-struct ScanPoint
+struct __attribute__((packed)) ScanPoint
 {
-    quint8 LayerEcho;
-    quint8 Flags;
-    qint16 HorizontalAngle;
-    quint16 RadialDistance;
-    quint16 EchoPulseWidth;
-    quint16 Reserved;
+    quint8      LayerEcho           ;
+    quint8      Flags               ;
+    qint16      HorizontalAngle     ;
+    quint16     RadialDistance      ;
+    quint16     EchoPulseWidth      ;
+    quint16     Reserved            ;
 };
-#pragma pack(pop)
 
 
-#pragma pack(push, 1)
-struct ErrorRegisters
+struct __attribute__((packed)) ObjectHeader
 {
-    quint16 ErrorRegister1;
-    quint16 ErrorRegister2;
-    quint16 WarningRegister1;
-    quint16 WarningRegister2;
-    quint16 Reserved1;
-    quint16 Reserved2;
-    quint16 Reserved3;
-    quint16 Reserved4;
+    quint64     ScanStartTime       ;
+    quint16     NumberOfObjects     ;
 };
-#pragma pack(pop)
 
 
-#pragma pack(push, 1)
-struct CommandCommon
+struct __attribute__((packed)) Point2
 {
-    quint16 CommandId;
-    quint16 Reserved;
+    qint16      PositionX           ;
+    qint16      PositionY           ;
 };
-#pragma pack(pop)
 
 
-#pragma pack(push, 1)
-struct CommandSetParameter
+struct __attribute__((packed)) Size2
 {
-    quint16 CommandId;
-    quint16 Reserved;
-    quint16 ParameterIndex;
-    quint32 Parameter;
+    quint16     SizeX               ;
+    quint16     SizeY               ;
 };
-#pragma pack(pop)
 
 
-#pragma pack(push, 1)
-struct CommandGetParameter
+struct __attribute__((packed)) ObjectContent
 {
-    quint16 CommandId;
-    quint16 Reserved;
-    quint16 ParameterIndex;
+    quint16     ObjectId            ;
+    quint16     ObjectAge           ;
+    quint16     ObjectPredictionAge ;
+    quint16     RelativeTimestamp   ;
+    Point2      ReferencePoint      ;
+    Point2      ReferencePointSigma ;
+    Point2      ClosestPoint        ;
+    Point2      BoundingBoxCenter   ;
+    Size2       BoundingBoxSize     ;
+    Point2      ObjectBoxCenter     ;
+    Size2       ObjectBoxSize       ;
+    qint16      ObjectBoxOrientation;
+    Point2      AbsVelocity         ;
+    Size2       AbsVelocitySigma    ;
+    Point2      RelativeVelocity    ;
+    quint16     Reserved1           ;
+    quint16     Reserved2           ;
+    quint16     Reserved3           ;
+    quint16     NumberOfPoints      ;
 };
-#pragma pack(pop)
 
 
-#pragma pack(push, 1)
-struct CommandTime
+struct __attribute__((packed)) ErrorRegisters
 {
-    quint16 CommandId;
-    quint32 Reserved;
-    quint32 Time;
+    quint16     ErrorRegister1      ;
+    quint16     ErrorRegister2      ;
+    quint16     WarningRegister1    ;
+    quint16     WarningRegister2    ;
+    quint16     Reserved1           ;
+    quint16     Reserved2           ;
+    quint16     Reserved3           ;
+    quint16     Reserved4           ;
 };
-#pragma pack(pop)
 
 
-#pragma pack(push, 1)
-struct ReplyGetParameter
+struct __attribute__((packed)) CommandCommon
 {
-    quint16 ReplyId;
-    quint16 ParameterIndex;
-    quint32 Parameter;
+    quint16     CommandId           ;
+    quint16     Reserved            ;
 };
-#pragma pack(pop)
 
 
-#pragma pack(push, 1)
-struct ReplyStatus
+struct __attribute__((packed)) CommandSetParameter
 {
-    quint16 ReplyId;
-    quint16 FirmwareVersion;
-    quint16 FPGAVersion;
-    quint16 ScannerStatus;
-    quint32 Reserved1;
-    quint16 Temperature;
-    quint16 SerialNumber0;
-    quint16 SerialNumber1;
-    quint16 Reserved2;
-    quint16 FPGATime[3];
-    quint16 DSPTime[3];
+    quint16     CommandId           ;
+    quint16     Reserved            ;
+    quint16     ParameterIndex      ;
+    quint32     Parameter           ;
 };
-#pragma pack(pop)
+
+
+struct __attribute__((packed)) CommandGetParameter
+{
+    quint16     CommandId           ;
+    quint16     Reserved            ;
+    quint16     ParameterIndex      ;
+};
+
+
+struct __attribute__((packed)) CommandTime
+{
+    quint16     CommandId           ;
+    quint32     Reserved            ;
+    quint32     Time                ;
+};
+
+
+struct __attribute__((packed)) ReplyGetParameter
+{
+    quint16     ReplyId             ;
+    quint16     ParameterIndex      ;
+    quint32     Parameter           ;
+};
+
+
+struct __attribute__((packed)) ReplyStatus
+{
+    quint16     ReplyId             ;
+    quint16     FirmwareVersion     ;
+    quint16     FPGAVersion         ;
+    quint16     ScannerStatus       ;
+    quint32     Reserved1           ;
+    quint16     Temperature         ;
+    quint16     SerialNumber0       ;
+    quint16     SerialNumber1       ;
+    quint16     Reserved2           ;
+    quint16     FPGATime[3]         ;
+    quint16     DSPTime[3]          ;
+};
 
 
 class Converter
 {
 public:
+
     Converter() = delete;
+
+public:
+
     static void Convert(DataHeader&);
     static void Convert(ScanHeader&);
     static void Convert(ScanPoint&);
+    static void Convert(ObjectHeader&);
+    static void Convert(Point2&);
+    static void Convert(Size2&);
+    static void Convert(ObjectContent&);
     static void Convert(ErrorRegisters&);
     static void Convert(CommandCommon&);
     static void Convert(CommandSetParameter&);
@@ -161,7 +194,11 @@ public:
 class Command
 {
 public:
+
     Command() = delete;
+
+public:
+
     static void Reset(QByteArray&);
     static void GetStatus(QByteArray&);
     static void SaveConfig(QByteArray&);
@@ -175,16 +212,38 @@ public:
 };
 
 
-class QTcpClient : public QObject
+class Sensor : public QObject
 {
     Q_OBJECT
+
 public:
-    QTcpClient(QObject*);
-    bool Connect(const QString&, quint32);
+
+    explicit Sensor();
+    virtual ~Sensor() = default;
+
+public:
+
+    bool Connect(const QString&, quint16);
+    bool Send(const QByteArray&);
+    bool Disconnect();
     bool Connected() const;
+
+signals:
+
+    void Update(QByteArray);
+
 private slots:
+
+    void OnState(QAbstractSocket::SocketState);
+    void OnError(QAbstractSocket::SocketError);
+    void OnDisconnect();
+    void OnConnect();
+    void OnRead();
+
 private:
+
     QTcpSocket mSocket;
+    QByteArray mData;
 };
 
 #endif

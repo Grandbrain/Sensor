@@ -2,110 +2,151 @@
 
 void Converter::Convert(DataHeader& dataHeader)
 {
-    dataHeader.MagicWord                = qbswap(dataHeader.MagicWord);
-    dataHeader.PreviousSize             = qbswap(dataHeader.PreviousSize);
-    dataHeader.Size                     = qbswap(dataHeader.Size);
-    dataHeader.Reserved                 = qbswap(dataHeader.Reserved);
-    dataHeader.DeviceId                 = qbswap(dataHeader.DeviceId);
-    dataHeader.DataType                 = qbswap(dataHeader.DataType);
-    dataHeader.Time                     = qbswap(dataHeader.Time);
+    dataHeader.MagicWord            = qbswap(dataHeader.MagicWord);
+    dataHeader.PreviousSize         = qbswap(dataHeader.PreviousSize);
+    dataHeader.Size                 = qbswap(dataHeader.Size);
+    dataHeader.Reserved             = qbswap(dataHeader.Reserved);
+    dataHeader.DeviceId             = qbswap(dataHeader.DeviceId);
+    dataHeader.DataType             = qbswap(dataHeader.DataType);
+    dataHeader.Time                 = qbswap(dataHeader.Time);
 }
 
 void Converter::Convert(ScanHeader& scanHeader)
 {
-    scanHeader.ScanNumber               = qbswap(scanHeader.ScanNumber);
-    scanHeader.ScannerStatus            = qbswap(scanHeader.ScannerStatus);
-    scanHeader.SyncPhaseOffset          = qbswap(scanHeader.SyncPhaseOffset);
-    scanHeader.ScanStartTime            = qbswap(scanHeader.ScanStartTime);
-    scanHeader.ScanEndTime              = qbswap(scanHeader.ScanEndTime);
-    scanHeader.AngleTicksPerRotation    = qbswap(scanHeader.AngleTicksPerRotation);
-    scanHeader.StartAngle               = qbswap(scanHeader.StartAngle);
-    scanHeader.EndAngle                 = qbswap(scanHeader.EndAngle);
-    scanHeader.ScanPoints               = qbswap(scanHeader.ScanPoints);
-    scanHeader.Reserved1                = qbswap(scanHeader.Reserved1);
-    scanHeader.Reserved2                = qbswap(scanHeader.Reserved2);
-    scanHeader.Reserved3                = qbswap(scanHeader.Reserved3);
-    scanHeader.Reserved4                = qbswap(scanHeader.Reserved4);
-    scanHeader.Reserved5                = qbswap(scanHeader.Reserved5);
-    scanHeader.Reserved6                = qbswap(scanHeader.Reserved6);
-    scanHeader.Reserved7                = qbswap(scanHeader.Reserved7);
+    scanHeader.ScanNumber           = qbswap(scanHeader.ScanNumber);
+    scanHeader.ScannerStatus        = qbswap(scanHeader.ScannerStatus);
+    scanHeader.SyncPhaseOffset      = qbswap(scanHeader.SyncPhaseOffset);
+    scanHeader.ScanStartTime        = qbswap(scanHeader.ScanStartTime);
+    scanHeader.ScanEndTime          = qbswap(scanHeader.ScanEndTime);
+    scanHeader.AngleTicks           = qbswap(scanHeader.AngleTicks);
+    scanHeader.StartAngle           = qbswap(scanHeader.StartAngle);
+    scanHeader.EndAngle             = qbswap(scanHeader.EndAngle);
+    scanHeader.ScanPoints           = qbswap(scanHeader.ScanPoints);
+    scanHeader.MountingYawAngle     = qbswap(scanHeader.MountingYawAngle);
+    scanHeader.MountingPitchAngle   = qbswap(scanHeader.MountingPitchAngle);
+    scanHeader.MountingRollAngle    = qbswap(scanHeader.MountingRollAngle);
+    scanHeader.MountingX            = qbswap(scanHeader.MountingX);
+    scanHeader.MountingY            = qbswap(scanHeader.MountingY);
+    scanHeader.MountingZ            = qbswap(scanHeader.MountingZ);
+    scanHeader.Reserved             = qbswap(scanHeader.Reserved);
 }
 
 void Converter::Convert(ScanPoint& scanPoint)
 {
-    scanPoint.LayerEcho                 = qbswap(scanPoint.LayerEcho);
-    scanPoint.Flags                     = qbswap(scanPoint.Flags);
-    scanPoint.HorizontalAngle           = qbswap(scanPoint.HorizontalAngle);
-    scanPoint.RadialDistance            = qbswap(scanPoint.RadialDistance);
-    scanPoint.EchoPulseWidth            = qbswap(scanPoint.EchoPulseWidth);
-    scanPoint.Reserved                  = qbswap(scanPoint.Reserved);
+    scanPoint.LayerEcho             = qbswap(scanPoint.LayerEcho);
+    scanPoint.Flags                 = qbswap(scanPoint.Flags);
+    scanPoint.HorizontalAngle       = qbswap(scanPoint.HorizontalAngle);
+    scanPoint.RadialDistance        = qbswap(scanPoint.RadialDistance);
+    scanPoint.EchoPulseWidth        = qbswap(scanPoint.EchoPulseWidth);
+    scanPoint.Reserved              = qbswap(scanPoint.Reserved);
+}
+
+void Converter::Convert(ObjectHeader& objectHeader)
+{
+    objectHeader.ScanStartTime      = qbswap(objectHeader.ScanStartTime);
+    objectHeader.NumberOfObjects    = qbswap(objectHeader.NumberOfObjects);
+}
+
+void Converter::Convert(Point2& point)
+{
+    point.PositionX                 = qbswap(point.PositionX);
+    point.PositionY                 = qbswap(point.PositionY);
+}
+
+void Converter::Convert(Size2& size)
+{
+    size.SizeX                      = qbswap(size.SizeX);
+    size.SizeY                      = qbswap(size.SizeY);
+}
+
+void Converter::Convert(ObjectContent& content)
+{
+    content.ObjectId                = qbswap(content.ObjectId);
+    content.ObjectAge               = qbswap(content.ObjectAge);
+    content.ObjectPredictionAge     = qbswap(content.ObjectPredictionAge);
+    content.RelativeTimestamp       = qbswap(content.RelativeTimestamp);
+    content.ObjectBoxOrientation    = qbswap(content.ObjectBoxOrientation);
+    content.Reserved1               = qbswap(content.Reserved1);
+    content.Reserved2               = qbswap(content.Reserved2);
+    content.Reserved3               = qbswap(content.Reserved3);
+    content.NumberOfPoints          = qbswap(content.NumberOfPoints);
+    Convert(content.ReferencePoint);
+    Convert(content.ReferencePointSigma);
+    Convert(content.ClosestPoint);
+    Convert(content.BoundingBoxCenter);
+    Convert(content.BoundingBoxSize);
+    Convert(content.ObjectBoxCenter);
+    Convert(content.ObjectBoxSize);
+    Convert(content.AbsVelocity);
+    Convert(content.AbsVelocitySigma);
+    Convert(content.RelativeVelocity);
 }
 
 void Converter::Convert(ErrorRegisters& errorRegisters)
 {
-    errorRegisters.ErrorRegister1       = qbswap(errorRegisters.ErrorRegister1);
-    errorRegisters.ErrorRegister2       = qbswap(errorRegisters.ErrorRegister2);
-    errorRegisters.WarningRegister1     = qbswap(errorRegisters.WarningRegister1);
-    errorRegisters.WarningRegister2     = qbswap(errorRegisters.WarningRegister2);
-    errorRegisters.Reserved1            = qbswap(errorRegisters.Reserved1);
-    errorRegisters.Reserved2            = qbswap(errorRegisters.Reserved2);
-    errorRegisters.Reserved3            = qbswap(errorRegisters.Reserved3);
-    errorRegisters.Reserved4            = qbswap(errorRegisters.Reserved4);
+    errorRegisters.ErrorRegister1   = qbswap(errorRegisters.ErrorRegister1);
+    errorRegisters.ErrorRegister2   = qbswap(errorRegisters.ErrorRegister2);
+    errorRegisters.WarningRegister1 = qbswap(errorRegisters.WarningRegister1);
+    errorRegisters.WarningRegister2 = qbswap(errorRegisters.WarningRegister2);
+    errorRegisters.Reserved1        = qbswap(errorRegisters.Reserved1);
+    errorRegisters.Reserved2        = qbswap(errorRegisters.Reserved2);
+    errorRegisters.Reserved3        = qbswap(errorRegisters.Reserved3);
+    errorRegisters.Reserved4        = qbswap(errorRegisters.Reserved4);
 }
 
 void Converter::Convert(CommandCommon& commandCommon)
 {
-    commandCommon.CommandId             = qbswap(commandCommon.CommandId);
-    commandCommon.Reserved              = qbswap(commandCommon.Reserved);
+    commandCommon.CommandId         = qbswap(commandCommon.CommandId);
+    commandCommon.Reserved          = qbswap(commandCommon.Reserved);
 }
 
 
 void Converter::Convert(CommandSetParameter& setParameter)
 {
-    setParameter.CommandId              = qbswap(setParameter.CommandId);
-    setParameter.Reserved               = qbswap(setParameter.Reserved);
-    setParameter.ParameterIndex         = qbswap(setParameter.ParameterIndex);
-    setParameter.Parameter              = qbswap(setParameter.Parameter);
+    setParameter.CommandId          = qbswap(setParameter.CommandId);
+    setParameter.Reserved           = qbswap(setParameter.Reserved);
+    setParameter.ParameterIndex     = qbswap(setParameter.ParameterIndex);
+    setParameter.Parameter          = qbswap(setParameter.Parameter);
 }
 
 void Converter::Convert(CommandGetParameter& getParameter)
 {
-    getParameter.CommandId              = qbswap(getParameter.CommandId);
-    getParameter.Reserved               = qbswap(getParameter.Reserved);
-    getParameter.ParameterIndex         = qbswap(getParameter.ParameterIndex);
+    getParameter.CommandId          = qbswap(getParameter.CommandId);
+    getParameter.Reserved           = qbswap(getParameter.Reserved);
+    getParameter.ParameterIndex     = qbswap(getParameter.ParameterIndex);
 }
 
 void Converter::Convert(CommandTime& commandTime)
 {
-    commandTime.CommandId               = qbswap(commandTime.CommandId);
-    commandTime.Reserved                = qbswap(commandTime.Reserved);
-    commandTime.Time                    = qbswap(commandTime.Time);
+    commandTime.CommandId           = qbswap(commandTime.CommandId);
+    commandTime.Reserved            = qbswap(commandTime.Reserved);
+    commandTime.Time                = qbswap(commandTime.Time);
 }
 
 void Converter::Convert(ReplyGetParameter& getParameter)
 {
-    getParameter.ReplyId                = qbswap(getParameter.ReplyId);
-    getParameter.ParameterIndex         = qbswap(getParameter.ParameterIndex);
-    getParameter.Parameter              = qbswap(getParameter.Parameter);
+    getParameter.ReplyId            = qbswap(getParameter.ReplyId);
+    getParameter.ParameterIndex     = qbswap(getParameter.ParameterIndex);
+    getParameter.Parameter          = qbswap(getParameter.Parameter);
 }
 
 void Converter::Convert(ReplyStatus& status)
 {
-    status.ReplyId                      = qbswap(status.ReplyId);
-    status.FirmwareVersion              = qbswap(status.FirmwareVersion);
-    status.FPGAVersion                  = qbswap(status.FPGAVersion);
-    status.ScannerStatus                = qbswap(status.ScannerStatus);
-    status.Reserved1                    = qbswap(status.Reserved1);
-    status.Temperature                  = qbswap(status.Temperature);
-    status.SerialNumber0                = qbswap(status.SerialNumber0);
-    status.SerialNumber1                = qbswap(status.SerialNumber1);
-    status.Reserved2                    = qbswap(status.Reserved2);
-    status.FPGATime[0]                  = qbswap(status.FPGATime[0]);
-    status.FPGATime[1]                  = qbswap(status.FPGATime[1]);
-    status.FPGATime[2]                  = qbswap(status.FPGATime[2]);
-    status.DSPTime[0]                   = qbswap(status.DSPTime[0]);
-    status.DSPTime[1]                   = qbswap(status.DSPTime[1]);
-    status.DSPTime[2]                   = qbswap(status.DSPTime[2]);
+    status.ReplyId                  = qbswap(status.ReplyId);
+    status.FirmwareVersion          = qbswap(status.FirmwareVersion);
+    status.FPGAVersion              = qbswap(status.FPGAVersion);
+    status.ScannerStatus            = qbswap(status.ScannerStatus);
+    status.Reserved1                = qbswap(status.Reserved1);
+    status.Temperature              = qbswap(status.Temperature);
+    status.SerialNumber0            = qbswap(status.SerialNumber0);
+    status.SerialNumber1            = qbswap(status.SerialNumber1);
+    status.Reserved2                = qbswap(status.Reserved2);
+    status.FPGATime[0]              = qbswap(status.FPGATime[0]);
+    status.FPGATime[1]              = qbswap(status.FPGATime[1]);
+    status.FPGATime[2]              = qbswap(status.FPGATime[2]);
+    status.DSPTime[0]               = qbswap(status.DSPTime[0]);
+    status.DSPTime[1]               = qbswap(status.DSPTime[1]);
+    status.DSPTime[2]               = qbswap(status.DSPTime[2]);
 }
 
 
@@ -245,4 +286,69 @@ void Command::SetAddress(QByteArray& array, const QString& address)
     array.clear();
     array.append((char*)&dataHeader, sizeof dataHeader);
     array.append((char*)&parameter, sizeof parameter);
+}
+
+
+
+
+Sensor::Sensor() : QObject()
+{
+    connect(&mSocket, SIGNAL(readyRead()), this, SLOT(OnRead()));
+    connect(&mSocket, SIGNAL(connected()), this, SLOT(OnConnect()));
+    connect(&mSocket, SIGNAL(disconnected()), this, SLOT(OnDisconnect()));
+    connect(&mSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(OnState(QAbstractSocket::SocketState)));
+    connect(&mSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(OnError(QAbstractSocket::SocketError)));
+}
+
+bool Sensor::Connect(const QString& address, quint16 port)
+{
+    mSocket.connectToHost(address, port);
+    return mSocket.waitForConnected();
+}
+
+bool Sensor::Disconnect()
+{
+    mSocket.disconnectFromHost();
+    return mSocket.waitForDisconnected();
+}
+
+bool Sensor::Connected() const
+{
+    QAbstractSocket::SocketState state = mSocket.state();
+    return state == QAbstractSocket::SocketState::ConnectedState;
+}
+
+bool Sensor::Send(const QByteArray& array)
+{
+    if(!Connected()) return false;
+    qint64 size = mSocket.write(array);
+    bool written = mSocket.waitForBytesWritten();
+    if (size != array.size() || !written) return false;
+    return true;
+}
+
+void Sensor::OnState(QAbstractSocket::SocketState)
+{
+
+}
+
+void Sensor::OnError(QAbstractSocket::SocketError)
+{
+    qDebug() << mSocket.errorString();
+}
+
+void Sensor::OnDisconnect()
+{
+
+}
+
+void Sensor::OnConnect()
+{
+}
+
+void Sensor::OnRead()
+{
+    QByteArray data = mSocket.readAll();
+    mData.append(data);
+    emit Update(mData);
 }
