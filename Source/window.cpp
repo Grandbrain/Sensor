@@ -5,6 +5,7 @@ Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window)
 {
     ui->setupUi(this);
     connect(&client, SIGNAL(Update(QByteArray)), this, SLOT(Append(QByteArray)));
+    connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(AboutDialog()));
 }
 
 Window::~Window()
@@ -37,4 +38,10 @@ void Window::Send()
 void Window::Append(QByteArray)
 {
 
+}
+
+void Window::AboutDialog()
+{
+    About about;
+    about.exec();
 }
