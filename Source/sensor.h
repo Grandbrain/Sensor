@@ -1,8 +1,7 @@
 #ifndef SENSOR_H
 #define SENSOR_H
 
-#include <QtNetwork/QHostAddress>
-#include <QtNetwork/QTcpSocket>
+#include <QtNetwork>
 #include <QByteArray>
 #include <QtEndian>
 #include <QtGlobal>
@@ -239,9 +238,12 @@ private slots:
     void OnDisconnect();
     void OnConnect();
     void OnRead();
+    void OnServerConnect();
 
 private:
 
+    QTcpSocket mSocket2;
+    QTcpServer mServer;
     QTcpSocket mSocket;
     QByteArray mData;
 };

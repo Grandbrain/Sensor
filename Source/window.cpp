@@ -1,11 +1,11 @@
 #include "window.h"
+#include "search.h"
 #include "ui_window.h"
 
 Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window)
 {
     ui->setupUi(this);
-    connect(&client, SIGNAL(Update(QByteArray)), this, SLOT(Append(QByteArray)));
-    connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(AboutDialog()));
+    connect(ui->buttonConnect, SIGNAL(released()), SLOT(Search()));
 }
 
 Window::~Window()
@@ -13,35 +13,8 @@ Window::~Window()
     delete ui;
 }
 
-void Window::Connect()
+void Window::Search()
 {
-    QString title = "Connection status";
-    QString host = "stackoverflow.com";
-    quint16 port = 80;
-    client.Connect(host, port);
-    if(client.Connected())
-        QMessageBox::information(this, title, "Successful connection to " + host);
-    else QMessageBox::critical(this, title, "Unable to connect to the host " + host);
-}
-
-void Window::Send()
-{
-    QByteArray array;
-    array.append("GET / HTTP/1.1\n");
-    array.append("Host: stackoverflow.com\n");
-    array.append("\n");
-    if(client.Send(array))
-        QMessageBox::information(this, "Sending status", "Data has been successfully sent!");
-    else QMessageBox::critical(this, "Sending status", "The data was not sent!");
-}
-
-void Window::Append(QByteArray)
-{
-
-}
-
-void Window::AboutDialog()
-{
-    About about;
-    about.exec();
+    search s;
+    s.exec();
 }

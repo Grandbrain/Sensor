@@ -2,9 +2,6 @@
 #define WINDOW_H
 
 #include <QMainWindow>
-#include <QMessageBox>
-#include "sensor.h"
-#include "about.h"
 
 namespace Ui {
 class Window;
@@ -20,14 +17,10 @@ public:
 
 private slots:
 
-    void AboutDialog();
-    void Connect();
-    void Send();
-    void Append(QByteArray);
+    void Search();
 
 private:
     Ui::Window *ui;
-    Sensor client;
 };
 
 #endif
