@@ -19,4 +19,4 @@ private:
     Ui::search *ui;
 };
 
-#endif // SEARCH_H
+#endif

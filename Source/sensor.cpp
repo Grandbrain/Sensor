@@ -178,7 +178,7 @@ void Command::GetStatus(QByteArray& array)
     dataHeader.PreviousSize = 0;
     dataHeader.Size         = sizeof(CommandCommon);
     dataHeader.Reserved     = 0;
-    dataHeader.DeviceId     = 0x07;
+    dataHeader.DeviceId     = 0;
     dataHeader.DataType     = 0x2010;
     dataHeader.Time         = 0;
     CommandCommon commandCommon;
@@ -291,17 +291,30 @@ void Command::SetAddress(QByteArray& array, const QString& address)
 
 
 
-Sensor::Sensor() : QObject()
+Sensor::Sensor()
 {
-    connect(&mSocket, SIGNAL(readyRead()), this, SLOT(OnRead()));
-    connect(&mSocket, SIGNAL(connected()), this, SLOT(OnConnect()));
-    connect(&mSocket, SIGNAL(disconnected()), this, SLOT(OnDisconnect()));
-    connect(&mSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(OnState(QAbstractSocket::SocketState)));
-    connect(&mSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(OnError(QAbstractSocket::SocketError)));
+    mServer.listen(QHostAddress::Any, 2111);
+
+    connect(&mServer, SIGNAL(newConnection()), SLOT(OnServerConnect()));
+    connect(&mSocket, SIGNAL(readyRead()), SLOT(OnRead()));
+    connect(&mSocket, SIGNAL(connected()), SLOT(OnConnect()));
+    connect(&mSocket, SIGNAL(disconnected()), SLOT(OnDisconnect()));
+    connect(&mSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(OnState(QAbstractSocket::SocketState)));
+    connect(&mSocket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(OnError(QAbstractSocket::SocketError)));
 }
 
 bool Sensor::Connect(const QString& address, quint16 port)
 {
+    QHostAddress a;
+    foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
+        {
+             a = address;
+        break;
+        }
+    }
+    //mSocket2.connectToHost(a, 2111);
+    mSocket2.waitForConnected();
     mSocket.connectToHost(address, port);
     return mSocket.waitForConnected();
 }
@@ -344,6 +357,11 @@ void Sensor::OnDisconnect()
 
 void Sensor::OnConnect()
 {
+}
+
+void Sensor::OnServerConnect()
+{
+    qDebug() << "Server connection!";
 }
 
 void Sensor::OnRead()
