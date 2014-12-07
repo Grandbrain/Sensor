@@ -17,7 +17,7 @@ public:
 
 private slots:
 
-    void Search();
+    void SearchAddress();
 
 private:
     Ui::Window *ui;

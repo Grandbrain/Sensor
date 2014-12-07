@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>Sensor - main window</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="resources.qrc">
-    <normaloff>:/logo/logo.png</normaloff>:/logo/logo.png</iconset>
-  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
@@ -64,8 +60,5 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
  <connections/>
 </ui>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>search</class>
- <widget class="QDialog" name="search">
+ <class>Search</class>
+ <widget class="QDialog" name="Search">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -36,10 +36,6 @@
   </property>
   <property name="windowTitle">
    <string>Поиск устройств</string>
-  </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>:/logo/logo.png</normaloff>:/logo/logo.png</iconset>
   </property>
   <property name="whatsThis">
    <string notr="true"/>
@@ -138,6 +134,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="whatsThis">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Проверка адреса&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Проверить</string>
             </property>
@@ -186,38 +185,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>exitButtonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>search</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>274</x>
-     <y>479</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>274</x>
-     <y>249</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>exitButtonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>search</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>274</x>
-     <y>479</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>274</x>
-     <y>249</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

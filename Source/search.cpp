@@ -1,14 +1,14 @@
 #include "search.h"
 #include "ui_search.h"
 
-search::search(QWidget *parent) :
+Search::Search(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::search)
+    ui(new Ui::Search)
 {
     ui->setupUi(this);
 }
 
-search::~search()
+Search::~Search()
 {
     delete ui;
 }

@@ -4,19 +4,19 @@
 #include <QDialog>
 
 namespace Ui {
-class search;
+class Search;
 }
 
-class search : public QDialog
+class Search : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit search(QWidget *parent = 0);
-    ~search();
+    explicit Search(QWidget *parent = 0);
+    ~Search();
 
 private:
-    Ui::search *ui;
+    Ui::Search *ui;
 };
 
 #endif

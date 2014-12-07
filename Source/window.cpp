@@ -5,7 +5,7 @@
 Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window)
 {
     ui->setupUi(this);
-    connect(ui->buttonConnect, SIGNAL(released()), SLOT(Search()));
+    connect(ui->buttonConnect, SIGNAL(released()), SLOT(SearchAddress()));
 }
 
 Window::~Window()
@@ -13,8 +13,8 @@ Window::~Window()
     delete ui;
 }
 
-void Window::Search()
+void Window::SearchAddress()
 {
-    search s;
+    Search s;
     s.exec();
 }
