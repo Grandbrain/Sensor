@@ -16,10 +16,20 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
-     <widget class="QPushButton" name="buttonConnect">
-      <property name="text">
-       <string>Connect</string>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>1</number>
       </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Диаграмма</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Устройство</string>
+       </attribute>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -35,30 +45,44 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>Файл</string>
     </property>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>Справка</string>
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Поиск</string>
+    </property>
+    <addaction name="action"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menu"/>
    <addaction name="menuHelp"/>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionExit">
    <property name="text">
-    <string>Exit</string>
+    <string>Выход</string>
    </property>
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About Sensor...</string>
+    <string>О программе...</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>Поиск устройств...</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <resources/>
  <connections/>
 </ui>

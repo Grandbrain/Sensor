@@ -328,7 +328,7 @@ bool Sensor::Disconnect()
 bool Sensor::Connected() const
 {
     QAbstractSocket::SocketState state = mSocket.state();
-    return state == QAbstractSocket::SocketState::ConnectedState;
+    return state == QAbstractSocket::ConnectedState;
 }
 
 bool Sensor::Send(const QByteArray& array)

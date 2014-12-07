@@ -7,7 +7,8 @@
 #include <QtGlobal>
 #include <QString>
 
-struct __attribute__((packed)) DataHeader
+#pragma pack(push, 1)
+struct DataHeader
 {
     quint32     MagicWord           ;
     quint32     PreviousSize        ;
@@ -17,9 +18,10 @@ struct __attribute__((packed)) DataHeader
     quint16     DataType            ;
     quint64     Time                ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) ScanHeader
+#pragma pack(push, 1)
+struct ScanHeader
 {
     quint16     ScanNumber          ;
     quint16     ScannerStatus       ;
@@ -38,9 +40,10 @@ struct __attribute__((packed)) ScanHeader
     qint16      MountingZ           ;
     quint16     Reserved            ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) ScanPoint
+#pragma pack(push, 1)
+struct ScanPoint
 {
     quint8      LayerEcho           ;
     quint8      Flags               ;
@@ -49,30 +52,34 @@ struct __attribute__((packed)) ScanPoint
     quint16     EchoPulseWidth      ;
     quint16     Reserved            ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) ObjectHeader
+#pragma pack(push, 1)
+struct ObjectHeader
 {
     quint64     ScanStartTime       ;
     quint16     NumberOfObjects     ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) Point2
+#pragma pack(push, 1)
+struct Point2
 {
     qint16      PositionX           ;
     qint16      PositionY           ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) Size2
+#pragma pack(push, 1)
+struct Size2
 {
     quint16     SizeX               ;
     quint16     SizeY               ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) ObjectContent
+#pragma pack(push, 1)
+struct ObjectContent
 {
     quint16     ObjectId            ;
     quint16     ObjectAge           ;
@@ -94,9 +101,10 @@ struct __attribute__((packed)) ObjectContent
     quint16     Reserved3           ;
     quint16     NumberOfPoints      ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) ErrorRegisters
+#pragma pack(push, 1)
+struct ErrorRegisters
 {
     quint16     ErrorRegister1      ;
     quint16     ErrorRegister2      ;
@@ -107,49 +115,55 @@ struct __attribute__((packed)) ErrorRegisters
     quint16     Reserved3           ;
     quint16     Reserved4           ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) CommandCommon
+#pragma pack(push, 1)
+struct CommandCommon
 {
     quint16     CommandId           ;
     quint16     Reserved            ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) CommandSetParameter
+#pragma pack(push, 1)
+struct CommandSetParameter
 {
     quint16     CommandId           ;
     quint16     Reserved            ;
     quint16     ParameterIndex      ;
     quint32     Parameter           ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) CommandGetParameter
+#pragma pack(push, 1)
+struct CommandGetParameter
 {
     quint16     CommandId           ;
     quint16     Reserved            ;
     quint16     ParameterIndex      ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) CommandTime
+#pragma pack(push, 1)
+struct CommandTime
 {
     quint16     CommandId           ;
     quint32     Reserved            ;
     quint32     Time                ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) ReplyGetParameter
+#pragma pack(push, 1)
+struct ReplyGetParameter
 {
     quint16     ReplyId             ;
     quint16     ParameterIndex      ;
     quint32     Parameter           ;
 };
+#pragma pack(pop)
 
-
-struct __attribute__((packed)) ReplyStatus
+#pragma pack(push, 1)
+struct ReplyStatus
 {
     quint16     ReplyId             ;
     quint16     FirmwareVersion     ;
@@ -163,14 +177,11 @@ struct __attribute__((packed)) ReplyStatus
     quint16     FPGATime[3]         ;
     quint16     DSPTime[3]          ;
 };
+#pragma pack(pop)
 
 
 class Converter
 {
-public:
-
-    Converter() = delete;
-
 public:
 
     static void Convert(DataHeader&);
@@ -194,10 +205,6 @@ class Command
 {
 public:
 
-    Command() = delete;
-
-public:
-
     static void Reset(QByteArray&);
     static void GetStatus(QByteArray&);
     static void SaveConfig(QByteArray&);
@@ -218,7 +225,6 @@ class Sensor : public QObject
 public:
 
     explicit Sensor();
-    virtual ~Sensor() = default;
 
 public:
 

@@ -15,10 +15,6 @@ public:
     explicit Window(QWidget *parent = 0);
     ~Window();
 
-private slots:
-
-    void SearchAddress();
-
 private:
     Ui::Window *ui;
 };
