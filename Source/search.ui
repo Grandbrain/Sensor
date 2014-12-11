@@ -43,9 +43,9 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
+  <layout class="QGridLayout" name="layoutDialog">
    <item row="1" column="0" colspan="3">
-    <widget class="QDialogButtonBox" name="exitButtonBox">
+    <widget class="QDialogButtonBox" name="buttonBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
        <horstretch>0</horstretch>
@@ -67,18 +67,7 @@
        <property name="title">
         <string>Автоматическое подключение</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_4">
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
-           <widget class="QPushButton" name="searchButton">
-            <property name="text">
-             <string>Автоматический поиск</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
+       <layout class="QGridLayout" name="layoutAuto">
         <item row="1" column="0">
          <widget class="QListView" name="foundAddressList">
           <property name="enabled">
@@ -92,6 +81,13 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="buttonSearch">
+          <property name="text">
+           <string>Автоматический поиск</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
@@ -100,9 +96,9 @@
        <property name="title">
         <string>Ручное подключение</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_5">
+       <layout class="QGridLayout" name="layoutManual">
         <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout_3">
+         <layout class="QGridLayout" name="layoutEdits">
           <property name="sizeConstraint">
            <enum>QLayout::SetDefaultConstraint</enum>
           </property>
@@ -114,6 +110,12 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="text">
+             <string>12002</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
            </widget>
           </item>
           <item row="0" column="1">
@@ -123,6 +125,12 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="text">
+             <string>192.168.137.16</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -143,7 +151,7 @@
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="labelAddress">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -156,7 +164,7 @@
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
+           <widget class="QLabel" name="labelPort">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -185,5 +193,38 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Search</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>274</x>
+     <y>479</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>249</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Search</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>274</x>
+     <y>479</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>249</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

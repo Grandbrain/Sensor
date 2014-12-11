@@ -2,6 +2,8 @@
 #define WINDOW_H
 
 #include <QMainWindow>
+#include <QDebug>
+#include "sensor.h"
 
 namespace Ui {
 class Window;
@@ -12,11 +14,16 @@ class Window : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Window(QWidget *parent = 0);
+    explicit Window(QWidget* = 0);
     ~Window();
 
+private slots:
+    void OnConnect();
+    void OnData(ScanHeader);
+
 private:
-    Ui::Window *ui;
+    Ui::Window* ui;
+    Sensor sensor;
 };
 
 #endif

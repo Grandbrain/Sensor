@@ -14,21 +14,93 @@
    <string>Sensor - main window</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout_2">
+   <layout class="QGridLayout" name="layoutMain">
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
        <number>1</number>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="tabDiagramm">
        <attribute name="title">
         <string>Диаграмма</string>
        </attribute>
+       <layout class="QGridLayout" name="layoutDiagramm">
+        <item row="0" column="0">
+         <widget class="QGraphicsView" name="graphicsView"/>
+        </item>
+       </layout>
       </widget>
-      <widget class="QWidget" name="tab_2">
+      <widget class="QWidget" name="tabDevice">
        <attribute name="title">
         <string>Устройство</string>
        </attribute>
+       <layout class="QGridLayout" name="layoutDevice">
+        <item row="0" column="1">
+         <widget class="QGroupBox" name="groupStatus">
+          <property name="title">
+           <string>Статус</string>
+          </property>
+          <layout class="QGridLayout" name="layoutStatus">
+           <item row="0" column="0">
+            <widget class="QTableWidget" name="tableWidget">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="rowCount">
+              <number>8</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column/>
+             <column/>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="buttonUpdateStatus">
+             <property name="text">
+              <string>Обновить</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupInfo">
+          <property name="title">
+           <string>Информация</string>
+          </property>
+          <layout class="QGridLayout" name="layoutInfo"/>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabSettings">
+       <attribute name="title">
+        <string>Страница</string>
+       </attribute>
+       <layout class="QGridLayout" name="layoutSettings"/>
       </widget>
      </widget>
     </item>
@@ -55,14 +127,14 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="menuSearch">
     <property name="title">
      <string>Поиск</string>
     </property>
-    <addaction name="action"/>
+    <addaction name="actionSearch"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menu"/>
+   <addaction name="menuSearch"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -76,7 +148,7 @@
     <string>О программе...</string>
    </property>
   </action>
-  <action name="action">
+  <action name="actionSearch">
    <property name="text">
     <string>Поиск устройств...</string>
    </property>
@@ -84,5 +156,22 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>Window</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>428</x>
+     <y>276</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>428</x>
+     <y>276</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

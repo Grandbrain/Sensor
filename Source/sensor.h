@@ -7,6 +7,7 @@
 #include <QtGlobal>
 #include <QString>
 
+
 #pragma pack(push, 1)
 struct DataHeader
 {
@@ -19,6 +20,7 @@ struct DataHeader
     quint64     Time                ;
 };
 #pragma pack(pop)
+
 
 #pragma pack(push, 1)
 struct ScanHeader
@@ -42,6 +44,7 @@ struct ScanHeader
 };
 #pragma pack(pop)
 
+
 #pragma pack(push, 1)
 struct ScanPoint
 {
@@ -54,6 +57,7 @@ struct ScanPoint
 };
 #pragma pack(pop)
 
+
 #pragma pack(push, 1)
 struct ObjectHeader
 {
@@ -61,6 +65,7 @@ struct ObjectHeader
     quint16     NumberOfObjects     ;
 };
 #pragma pack(pop)
+
 
 #pragma pack(push, 1)
 struct Point2
@@ -70,6 +75,7 @@ struct Point2
 };
 #pragma pack(pop)
 
+
 #pragma pack(push, 1)
 struct Size2
 {
@@ -77,6 +83,7 @@ struct Size2
     quint16     SizeY               ;
 };
 #pragma pack(pop)
+
 
 #pragma pack(push, 1)
 struct ObjectContent
@@ -103,6 +110,7 @@ struct ObjectContent
 };
 #pragma pack(pop)
 
+
 #pragma pack(push, 1)
 struct ErrorRegisters
 {
@@ -117,6 +125,7 @@ struct ErrorRegisters
 };
 #pragma pack(pop)
 
+
 #pragma pack(push, 1)
 struct CommandCommon
 {
@@ -124,6 +133,7 @@ struct CommandCommon
     quint16     Reserved            ;
 };
 #pragma pack(pop)
+
 
 #pragma pack(push, 1)
 struct CommandSetParameter
@@ -135,6 +145,7 @@ struct CommandSetParameter
 };
 #pragma pack(pop)
 
+
 #pragma pack(push, 1)
 struct CommandGetParameter
 {
@@ -143,6 +154,7 @@ struct CommandGetParameter
     quint16     ParameterIndex      ;
 };
 #pragma pack(pop)
+
 
 #pragma pack(push, 1)
 struct CommandTime
@@ -153,6 +165,7 @@ struct CommandTime
 };
 #pragma pack(pop)
 
+
 #pragma pack(push, 1)
 struct ReplyGetParameter
 {
@@ -161,6 +174,7 @@ struct ReplyGetParameter
     quint32     Parameter           ;
 };
 #pragma pack(pop)
+
 
 #pragma pack(push, 1)
 struct ReplyStatus
@@ -178,6 +192,13 @@ struct ReplyStatus
     quint16     DSPTime[3]          ;
 };
 #pragma pack(pop)
+
+
+struct ScanData
+{
+    ScanHeader scanHeader;
+    QVector<ScanPoint> scanPoints;
+};
 
 
 class Converter
@@ -218,6 +239,13 @@ public:
 };
 
 
+class Parser
+{
+public:
+
+};
+
+
 class Sensor : public QObject
 {
     Q_OBJECT
@@ -235,7 +263,7 @@ public:
 
 signals:
 
-    void Update(QByteArray);
+    void Update(const ScanData&);
 
 private slots:
 
@@ -244,14 +272,12 @@ private slots:
     void OnDisconnect();
     void OnConnect();
     void OnRead();
-    void OnServerConnect();
 
 private:
 
-    QTcpSocket mSocket2;
-    QTcpServer mServer;
     QTcpSocket mSocket;
     QByteArray mData;
+    int remainPoints;
 };
 
 #endif

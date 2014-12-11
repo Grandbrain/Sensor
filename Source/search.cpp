@@ -12,3 +12,13 @@ Search::~Search()
 {
     delete ui;
 }
+
+QString Search::GetAddress() const
+{
+    return ui->addressEdit->text();
+}
+
+quint16 Search::GetPort() const
+{
+    return ui->portEdit->text().toUShort();
+}

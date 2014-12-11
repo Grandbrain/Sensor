@@ -293,9 +293,6 @@ void Command::SetAddress(QByteArray& array, const QString& address)
 
 Sensor::Sensor()
 {
-    mServer.listen(QHostAddress::Any, 2111);
-
-    connect(&mServer, SIGNAL(newConnection()), SLOT(OnServerConnect()));
     connect(&mSocket, SIGNAL(readyRead()), SLOT(OnRead()));
     connect(&mSocket, SIGNAL(connected()), SLOT(OnConnect()));
     connect(&mSocket, SIGNAL(disconnected()), SLOT(OnDisconnect()));
@@ -305,16 +302,6 @@ Sensor::Sensor()
 
 bool Sensor::Connect(const QString& address, quint16 port)
 {
-    QHostAddress a;
-    foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
-        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
-        {
-             a = address;
-        break;
-        }
-    }
-    //mSocket2.connectToHost(a, 2111);
-    mSocket2.waitForConnected();
     mSocket.connectToHost(address, port);
     return mSocket.waitForConnected();
 }
@@ -347,7 +334,6 @@ void Sensor::OnState(QAbstractSocket::SocketState)
 
 void Sensor::OnError(QAbstractSocket::SocketError)
 {
-    qDebug() << mSocket.errorString();
 }
 
 void Sensor::OnDisconnect()
@@ -359,14 +345,39 @@ void Sensor::OnConnect()
 {
 }
 
-void Sensor::OnServerConnect()
-{
-    qDebug() << "Server connection!";
-}
-
 void Sensor::OnRead()
 {
     QByteArray data = mSocket.readAll();
-    mData.append(data);
-    emit Update(mData);
+    if((uint)data.size() < sizeof(DataHeader)) return;
+
+    DataHeader header = *reinterpret_cast<DataHeader*>(data.data());
+    Converter::Convert(header);
+    if(header.MagicWord == 0xAFFEC0C2)
+    {
+        ScanHeader scanHeader = *reinterpret_cast<ScanHeader*>(data.data() + sizeof(DataHeader));
+        int count = (data.size() - sizeof(DataHeader) - sizeof(ScanHeader)) / sizeof(ScanPoint);
+        if(count < scanHeader.ScanPoints) remainPoints = scanHeader.ScanPoints - count;
+        mData.append(data);
+    }
+    else if(remainPoints != 0)
+    {
+        mData.append(data);
+        remainPoints -= (data.size() / sizeof(ScanPoint));
+    }
+    else
+    {
+        ScanData scanData;
+        ScanHeader scanHeader = *reinterpret_cast<ScanHeader*>(mData.data() + sizeof(DataHeader));
+        int count = (size - sizeof(DataHeader) - sizeof(ScanHeader)) / sizeof(ScanPoint);
+
+        scanData.scanHeader = scanHeader;
+        for(int i = 0; i < count; i++)
+        {
+            int offset = sizeof(DataHeader) + sizeof(ScanHeader) + i * sizeof(ScanPoint);
+            ScanPoint point = *reinterpret_cast<ScanPoint*>(offset);
+            scanData.scanPoints.append(point);
+        }
+        emit Update(scanData);
+        mData.clear();
+    }
 }
