@@ -3,8 +3,9 @@
 
 #include <QDialog>
 
-namespace Ui {
-class Search;
+namespace Ui
+{
+    class Search;
 }
 
 class Search : public QDialog

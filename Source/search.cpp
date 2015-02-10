@@ -1,10 +1,9 @@
 #include "search.h"
 #include "ui_search.h"
 
-Search::Search(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::Search)
+Search::Search(QWidget *parent) : QDialog(parent), ui(new Ui::Search)
 {
+    setWindowFlags(windowFlags() &~ Qt::WindowContextHelpButtonHint);
     ui->setupUi(this);
 }
 
@@ -15,10 +14,10 @@ Search::~Search()
 
 QString Search::GetAddress() const
 {
-    return ui->addressEdit->text();
+    return ui->editAddress->text();
 }
 
 quint16 Search::GetPort() const
 {
-    return ui->portEdit->text().toUShort();
+    return ui->editPort->text().toUShort();
 }

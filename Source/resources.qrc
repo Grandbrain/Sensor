@@ -1,3 +1,8 @@
 <RCC>
-    <qresource prefix="/logos"/>
+    <qresource prefix="/root">
+        <file>icon.ico</file>
+        <file>splash.png</file>
+        <file>pause.ico</file>
+        <file>play.ico</file>
+    </qresource>
 </RCC>

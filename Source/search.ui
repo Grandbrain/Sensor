@@ -44,32 +44,19 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="layoutDialog">
-   <item row="1" column="0" colspan="3">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+   <item row="0" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="layoutHorizontal">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
      </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-     <property name="centerButtons">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="3">
-    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QGroupBox" name="automaticConnectionGroup">
+      <widget class="QGroupBox" name="groupAutomatic">
        <property name="title">
         <string>Автоматическое подключение</string>
        </property>
        <layout class="QGridLayout" name="layoutAuto">
         <item row="1" column="0">
-         <widget class="QListView" name="foundAddressList">
+         <widget class="QListView" name="listFound">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -86,13 +73,16 @@
           <property name="text">
            <string>Автоматический поиск</string>
           </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
        </layout>
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="manualConnectionGroup">
+      <widget class="QGroupBox" name="groupManual">
        <property name="title">
         <string>Ручное подключение</string>
        </property>
@@ -103,7 +93,7 @@
            <enum>QLayout::SetDefaultConstraint</enum>
           </property>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="portEdit">
+           <widget class="QLineEdit" name="editPort">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -119,7 +109,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="addressEdit">
+           <widget class="QLineEdit" name="editAddress">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -135,18 +125,18 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QPushButton" name="testConnectionButton">
+           <widget class="QPushButton" name="buttonTest">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="whatsThis">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Проверка адреса&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
             <property name="text">
              <string>Проверить</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -183,9 +173,70 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
+          <property name="acceptDrops">
+           <bool>false</bool>
+          </property>
+          <property name="undoRedoEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="acceptRichText">
+           <bool>false</bool>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::NoTextInteraction</set>
+          </property>
          </widget>
         </item>
        </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="layoutButtonBox">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonAccept">
+       <property name="text">
+        <string>ОК</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonReject">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Отмена</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
     </layout>
@@ -195,14 +246,14 @@
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
+   <sender>buttonReject</sender>
+   <signal>released()</signal>
    <receiver>Search</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>274</x>
-     <y>479</y>
+     <x>502</x>
+     <y>478</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -211,14 +262,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
+   <sender>buttonAccept</sender>
+   <signal>released()</signal>
    <receiver>Search</receiver>
-   <slot>reject()</slot>
+   <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>274</x>
-     <y>479</y>
+     <x>421</x>
+     <y>478</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>

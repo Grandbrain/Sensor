@@ -59,59 +59,6 @@ struct ScanPoint
 
 
 #pragma pack(push, 1)
-struct ObjectHeader
-{
-    quint64     ScanStartTime       ;
-    quint16     NumberOfObjects     ;
-};
-#pragma pack(pop)
-
-
-#pragma pack(push, 1)
-struct Point2
-{
-    qint16      PositionX           ;
-    qint16      PositionY           ;
-};
-#pragma pack(pop)
-
-
-#pragma pack(push, 1)
-struct Size2
-{
-    quint16     SizeX               ;
-    quint16     SizeY               ;
-};
-#pragma pack(pop)
-
-
-#pragma pack(push, 1)
-struct ObjectContent
-{
-    quint16     ObjectId            ;
-    quint16     ObjectAge           ;
-    quint16     ObjectPredictionAge ;
-    quint16     RelativeTimestamp   ;
-    Point2      ReferencePoint      ;
-    Point2      ReferencePointSigma ;
-    Point2      ClosestPoint        ;
-    Point2      BoundingBoxCenter   ;
-    Size2       BoundingBoxSize     ;
-    Point2      ObjectBoxCenter     ;
-    Size2       ObjectBoxSize       ;
-    qint16      ObjectBoxOrientation;
-    Point2      AbsVelocity         ;
-    Size2       AbsVelocitySigma    ;
-    Point2      RelativeVelocity    ;
-    quint16     Reserved1           ;
-    quint16     Reserved2           ;
-    quint16     Reserved3           ;
-    quint16     NumberOfPoints      ;
-};
-#pragma pack(pop)
-
-
-#pragma pack(push, 1)
 struct ErrorRegisters
 {
     quint16     ErrorRegister1      ;
@@ -194,38 +141,11 @@ struct ReplyStatus
 #pragma pack(pop)
 
 
-struct ScanData
-{
-    ScanHeader scanHeader;
-    QVector<ScanPoint> scanPoints;
-};
-
-
-class Converter
+class Utilites
 {
 public:
 
-    static void Convert(DataHeader&);
-    static void Convert(ScanHeader&);
-    static void Convert(ScanPoint&);
-    static void Convert(ObjectHeader&);
-    static void Convert(Point2&);
-    static void Convert(Size2&);
-    static void Convert(ObjectContent&);
-    static void Convert(ErrorRegisters&);
-    static void Convert(CommandCommon&);
-    static void Convert(CommandSetParameter&);
-    static void Convert(CommandGetParameter&);
-    static void Convert(CommandTime&);
-    static void Convert(ReplyGetParameter&);
-    static void Convert(ReplyStatus&);
-};
-
-
-class Command
-{
-public:
-
+    static void SwapBytes(DataHeader&);
     static void Reset(QByteArray&);
     static void GetStatus(QByteArray&);
     static void SaveConfig(QByteArray&);
@@ -236,13 +156,6 @@ public:
     static void SetPort(QByteArray&, quint32);
     static void SetMask(QByteArray&, quint32);
     static void SetGateway(QByteArray&, quint32);
-};
-
-
-class Parser
-{
-public:
-
 };
 
 
@@ -263,7 +176,7 @@ public:
 
 signals:
 
-    void Update(const ScanData&);
+    //void Update(const ScanData&);
 
 private slots:
 
