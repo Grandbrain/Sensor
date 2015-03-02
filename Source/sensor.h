@@ -7,7 +7,6 @@
 #include <QtGlobal>
 #include <QString>
 
-
 #pragma pack(push, 1)
 struct DataHeader
 {
@@ -141,21 +140,19 @@ struct ReplyStatus
 #pragma pack(pop)
 
 
-class Utilites
+class Command
 {
 public:
-
-    static void SwapBytes(DataHeader&);
-    static void Reset(QByteArray&);
-    static void GetStatus(QByteArray&);
-    static void SaveConfig(QByteArray&);
-    static void ResetDefaults(QByteArray&);
-    static void StartMeasure(QByteArray&);
-    static void StopMeasure(QByteArray&);
-    static void SetAddress(QByteArray&, const QString&);
-    static void SetPort(QByteArray&, quint32);
-    static void SetMask(QByteArray&, quint32);
-    static void SetGateway(QByteArray&, quint32);
+    static QByteArray Reset();
+    static QByteArray GetStatus();
+    static QByteArray SaveConfig();
+    static QByteArray ResetDefaults();
+    static QByteArray StartMeasure();
+    static QByteArray StopMeasure();
+    static QByteArray SetAddress(const QString&);
+    static QByteArray SetPort(quint32);
+    static QByteArray SetMask(quint32);
+    static QByteArray SetGateway(quint32);
 };
 
 
@@ -164,33 +161,25 @@ class Sensor : public QObject
     Q_OBJECT
 
 public:
-
     explicit Sensor();
 
 public:
-
     bool Connect(const QString&, quint16);
     bool Send(const QByteArray&);
     bool Disconnect();
     bool Connected() const;
 
 signals:
-
-    //void Update(const ScanData&);
+    void OnChart(const QByteArray&);
+    void OnState(const QByteArray&);
+    void OnError(const QByteArray&);
+    void OnSocket(QAbstractSocket::SocketError);
 
 private slots:
-
-    void OnState(QAbstractSocket::SocketState);
-    void OnError(QAbstractSocket::SocketError);
-    void OnDisconnect();
-    void OnConnect();
     void OnRead();
 
 private:
-
     QTcpSocket mSocket;
-    QByteArray mData;
-    int remainPoints;
 };
 
 #endif

@@ -1,162 +1,111 @@
 #include "sensor.h"
 
-void Utilites::SwapBytes(DataHeader& dataHeader)
+void Swap(DataHeader& header)
 {
-    dataHeader.MagicWord    = qbswap(dataHeader.MagicWord);
-    dataHeader.PreviousSize = qbswap(dataHeader.PreviousSize);
-    dataHeader.Size         = qbswap(dataHeader.Size);
-    dataHeader.Reserved     = qbswap(dataHeader.Reserved);
-    dataHeader.DeviceId     = qbswap(dataHeader.DeviceId);
-    dataHeader.DataType     = qbswap(dataHeader.DataType);
-    dataHeader.Time         = qbswap(dataHeader.Time);
+    header.MagicWord    = qbswap(header.MagicWord);
+    header.PreviousSize = qbswap(header.PreviousSize);
+    header.Size         = qbswap(header.Size);
+    header.Reserved     = qbswap(header.Reserved);
+    header.DeviceId     = qbswap(header.DeviceId);
+    header.DataType     = qbswap(header.DataType);
+    header.Time         = qbswap(header.Time);
 }
 
-void Utilites::Reset(QByteArray& array)
+DataHeader Create(quint32 size, quint16 type)
 {
-    DataHeader dataHeader;
-    dataHeader.MagicWord    = 0xAFFEC0C2;
-    dataHeader.PreviousSize = 0;
-    dataHeader.Size         = sizeof(CommandCommon);
-    dataHeader.Reserved     = 0;
-    dataHeader.DeviceId     = 0x07;
-    dataHeader.DataType     = 0x2010;
-    dataHeader.Time         = 0;
-    CommandCommon commandCommon;
-    commandCommon.CommandId = 0x0000;
-    commandCommon.Reserved  = 0;
-    SwapBytes(dataHeader);
+    DataHeader header;
+    header.MagicWord    = 0xAFFEC0C2;
+    header.PreviousSize = 0;
+    header.Size         = size;
+    header.Reserved     = 0;
+    header.DeviceId     = 0x07;
+    header.DataType     = type;
+    header.Time         = 0;
+    return header;
+}
+
+CommandCommon Create(quint16 id)
+{
+    CommandCommon command;
+    command.CommandId   = id;
+    command.Reserved    = 0;
+    return command;
+}
+
+CommandSetParameter Create(quint16 id, quint16 index, quint32 value)
+{
+    CommandSetParameter command;
+    command.CommandId       = id;
+    command.Reserved        = 0;
+    command.ParameterIndex  = index;
+    command.Parameter       = value;
+    return command;
+}
+
+template<class A, class B> QByteArray Push(A& a, B& b)
+{
+    QByteArray array;
+    Swap(a);
     array.clear();
-    array.append((char*)&dataHeader, sizeof dataHeader);
-    array.append((char*)&commandCommon, sizeof commandCommon);
+    array.append((char*)&a, sizeof a);
+    array.append((char*)&b, sizeof b);
+    return array;
 }
 
-void Utilites::GetStatus(QByteArray& array)
+QByteArray Command::Reset()
 {
-    DataHeader dataHeader;
-    dataHeader.MagicWord    = 0xAFFEC0C2;
-    dataHeader.PreviousSize = 0;
-    dataHeader.Size         = sizeof(CommandCommon);
-    dataHeader.Reserved     = 0;
-    dataHeader.DeviceId     = 0;
-    dataHeader.DataType     = 0x2010;
-    dataHeader.Time         = 0;
-    CommandCommon commandCommon;
-    commandCommon.CommandId = 0x0001;
-    commandCommon.Reserved  = 0;
-    SwapBytes(dataHeader);
-    array.clear();
-    array.append((char*)&dataHeader, sizeof dataHeader);
-    array.append((char*)&commandCommon, sizeof commandCommon);
+    CommandCommon command = Create(0x0000);
+    DataHeader header = Create(sizeof command, 0x2010);
+    return Push(header, command);
 }
 
-void Utilites::SaveConfig(QByteArray& array)
+QByteArray Command::GetStatus()
 {
-    DataHeader dataHeader;
-    dataHeader.MagicWord    = 0xAFFEC0C2;
-    dataHeader.PreviousSize = 0;
-    dataHeader.Size         = sizeof(CommandCommon);
-    dataHeader.Reserved     = 0;
-    dataHeader.DeviceId     = 0x07;
-    dataHeader.DataType     = 0x2010;
-    dataHeader.Time         = 0;
-    CommandCommon commandCommon;
-    commandCommon.CommandId = 0x0004;
-    commandCommon.Reserved  = 0;
-    SwapBytes(dataHeader);
-    array.clear();
-    array.append((char*)&dataHeader, sizeof dataHeader);
-    array.append((char*)&commandCommon, sizeof commandCommon);
+    CommandCommon command = Create(0x0001);
+    DataHeader header = Create(sizeof command, 0x2010);
+    return Push(header, command);
 }
 
-void Command::ResetDefaults(QByteArray& array)
+QByteArray Command::SaveConfig()
 {
-    DataHeader dataHeader;
-    dataHeader.MagicWord    = 0xAFFEC0C2;
-    dataHeader.PreviousSize = 0;
-    dataHeader.Size         = sizeof(CommandCommon);
-    dataHeader.Reserved     = 0;
-    dataHeader.DeviceId     = 0x07;
-    dataHeader.DataType     = 0x2010;
-    dataHeader.Time         = 0;
-    CommandCommon commandCommon;
-    commandCommon.CommandId = 0x001A;
-    commandCommon.Reserved  = 0;
-    Converter::Convert(dataHeader);
-    array.clear();
-    array.append((char*)&dataHeader, sizeof dataHeader);
-    array.append((char*)&commandCommon, sizeof commandCommon);
+    CommandCommon command = Create(0x0004);
+    DataHeader header = Create(sizeof command, 0x2010);
+    return Push(header, command);
 }
 
-void Command::StartMeasure(QByteArray& array)
+QByteArray Command::ResetDefaults()
 {
-    DataHeader dataHeader;
-    dataHeader.MagicWord    = 0xAFFEC0C2;
-    dataHeader.PreviousSize = 0;
-    dataHeader.Size         = sizeof(CommandCommon);
-    dataHeader.Reserved     = 0;
-    dataHeader.DeviceId     = 0x07;
-    dataHeader.DataType     = 0x2010;
-    dataHeader.Time         = 0;
-    CommandCommon commandCommon;
-    commandCommon.CommandId = 0x0020;
-    commandCommon.Reserved  = 0;
-    Converter::Convert(dataHeader);
-    array.clear();
-    array.append((char*)&dataHeader, sizeof dataHeader);
-    array.append((char*)&commandCommon, sizeof commandCommon);
+    CommandCommon command = Create(0x001A);
+    DataHeader header = Create(sizeof command, 0x2010);
+    return Push(header, command);
 }
 
-void Command::StopMeasure(QByteArray& array)
+QByteArray Command::StartMeasure()
 {
-    DataHeader dataHeader;
-    dataHeader.MagicWord    = 0xAFFEC0C2;
-    dataHeader.PreviousSize = 0;
-    dataHeader.Size         = sizeof(CommandCommon);
-    dataHeader.Reserved     = 0;
-    dataHeader.DeviceId     = 0x07;
-    dataHeader.DataType     = 0x2010;
-    dataHeader.Time         = 0;
-    CommandCommon commandCommon;
-    commandCommon.CommandId = 0x0021;
-    commandCommon.Reserved  = 0;
-    Converter::Convert(dataHeader);
-    array.clear();
-    array.append((char*)&dataHeader, sizeof dataHeader);
-    array.append((char*)&commandCommon, sizeof commandCommon);
+    CommandCommon command = Create(0x0020);
+    DataHeader header = Create(sizeof command, 0x2010);
+    return Push(header, command);
 }
 
-void Command::SetAddress(QByteArray& array, const QString& address)
+QByteArray Command::StopMeasure()
+{
+    CommandCommon command = Create(0x0021);
+    DataHeader header = Create(sizeof command, 0x2010);
+    return Push(header, command);
+}
+
+QByteArray Command::SetAddress(const QString& address)
 {
     QHostAddress addr(address);
-    DataHeader dataHeader;
-    dataHeader.MagicWord    = 0xAFFEC0C2;
-    dataHeader.PreviousSize = 0;
-    dataHeader.Size         = sizeof(CommandSetParameter);
-    dataHeader.Reserved     = 0;
-    dataHeader.DeviceId     = 0x07;
-    dataHeader.DataType     = 0x2010;
-    dataHeader.Time         = 0;
-    CommandSetParameter parameter;
-    parameter.CommandId     = 0x0010;
-    parameter.Reserved      = 0;
-    parameter.ParameterIndex= 0x1000;
-    parameter.Parameter     = addr.toIPv4Address();
-    Converter::Convert(dataHeader);
-    array.clear();
-    array.append((char*)&dataHeader, sizeof dataHeader);
-    array.append((char*)&parameter, sizeof parameter);
+    CommandSetParameter command = Create(0x0010, 0x1000, addr.toIPv4Address());
+    DataHeader header = Create(sizeof command, 0x2010);
+    return Push(header, command);
 }
-
-
-
 
 Sensor::Sensor()
 {
     connect(&mSocket, SIGNAL(readyRead()), SLOT(OnRead()));
-    connect(&mSocket, SIGNAL(connected()), SLOT(OnConnect()));
-    connect(&mSocket, SIGNAL(disconnected()), SLOT(OnDisconnect()));
-    connect(&mSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(OnState(QAbstractSocket::SocketState)));
-    connect(&mSocket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(OnError(QAbstractSocket::SocketError)));
+    connect(&mSocket, SIGNAL(error(QAbstractSocket::SocketError)), SIGNAL(OnSocket(QAbstractSocket::SocketError)));
 }
 
 bool Sensor::Connect(const QString& address, quint16 port)
@@ -186,32 +135,15 @@ bool Sensor::Send(const QByteArray& array)
     return true;
 }
 
-void Sensor::OnState(QAbstractSocket::SocketState)
-{
-
-}
-
-void Sensor::OnError(QAbstractSocket::SocketError)
-{
-}
-
-void Sensor::OnDisconnect()
-{
-
-}
-
-void Sensor::OnConnect()
-{
-}
-
 void Sensor::OnRead()
 {
-    /*QByteArray data = mSocket.readAll();
-    if((uint)data.size() < sizeof(DataHeader)) return;
+    QByteArray data = mSocket.readAll();
 
     DataHeader header = *reinterpret_cast<DataHeader*>(data.data());
-    Converter::Convert(header);
-    if(header.MagicWord == 0xAFFEC0C2)
+    Swap(header);
+    //if(header.MagicWord == 0xAFFEC0C2)
+
+    /*if(header.MagicWord == 0xAFFEC0C2)
     {
         ScanHeader scanHeader = *reinterpret_cast<ScanHeader*>(data.data() + sizeof(DataHeader));
         int count = (data.size() - sizeof(DataHeader) - sizeof(ScanHeader)) / sizeof(ScanPoint);

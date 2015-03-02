@@ -1,5 +1,5 @@
 #include <QApplication>
-#include <QSplashScreen>
+#include "splash.h"
 #include <QTimer>
 #include "window.h"
 
@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     a.setStyle("fusion");
 
     Window w;
-    QSplashScreen splash(QPixmap(":/root/splash.png"));
+    Splash splash;
     splash.show();
 
     QTimer::singleShot(2000, &splash, SLOT(close()));

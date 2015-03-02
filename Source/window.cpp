@@ -88,9 +88,6 @@ bool Window::eventFilter(QObject* object, QEvent* event)
             if(value < ui->verticalSlider->maximum())
             {
                 scale(1);
-                //ui->verticalSlider->blockSignals(true);
-                //ui->verticalSlider->setValue(value + 1);
-                //ui->verticalSlider->blockSignals(false);
             }
         }
         else
@@ -98,9 +95,6 @@ bool Window::eventFilter(QObject* object, QEvent* event)
             if(value > ui->verticalSlider->minimum())
             {
                 scale(-1);
-                //ui->verticalSlider->blockSignals(true);
-                //ui->verticalSlider->setValue(value - 1);
-                //ui->verticalSlider->blockSignals(false);
             }
         }
         return true;

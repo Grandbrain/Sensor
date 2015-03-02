@@ -12,7 +12,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
+    <width>300</width>
     <height>500</height>
    </rect>
   </property>
@@ -24,13 +24,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>550</width>
+    <width>300</width>
     <height>500</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>550</width>
+    <width>300</width>
     <height>500</height>
    </size>
   </property>
@@ -49,38 +49,6 @@
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
-     <item>
-      <widget class="QGroupBox" name="groupAutomatic">
-       <property name="title">
-        <string>Автоматическое подключение</string>
-       </property>
-       <layout class="QGridLayout" name="layoutAuto">
-        <item row="1" column="0">
-         <widget class="QListView" name="listFound">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QPushButton" name="buttonSearch">
-          <property name="text">
-           <string>Автоматический поиск</string>
-          </property>
-          <property name="autoDefault">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
      <item>
       <widget class="QGroupBox" name="groupManual">
        <property name="title">
