@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Search</class>
- <widget class="QDialog" name="Search">
-  <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
-  </property>
-  <property name="enabled">
-   <bool>true</bool>
-  </property>
+ <class>Connect</class>
+ <widget class="QDialog" name="Connect">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -35,13 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Поиск устройств</string>
-  </property>
-  <property name="whatsThis">
-   <string notr="true"/>
-  </property>
-  <property name="modal">
-   <bool>true</bool>
+   <string>Подключение устройства</string>
   </property>
   <layout class="QGridLayout" name="layoutDialog">
    <item row="0" column="0" colspan="2">
@@ -60,6 +48,25 @@
           <property name="sizeConstraint">
            <enum>QLayout::SetDefaultConstraint</enum>
           </property>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>Время:</string>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::NoTextInteraction</set>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QLineEdit" name="editPort">
             <property name="sizePolicy">
@@ -68,11 +75,23 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="mouseTracking">
+             <bool>false</bool>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="acceptDrops">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>12002</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -84,27 +103,23 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="text">
-             <string>192.168.137.16</string>
+            <property name="mouseTracking">
+             <bool>false</bool>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="acceptDrops">
+             <bool>false</bool>
+            </property>
+            <property name="inputMask">
+             <string>000.000.000.000</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QPushButton" name="buttonTest">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Проверить</string>
-            </property>
-            <property name="autoDefault">
-             <bool>false</bool>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -116,8 +131,14 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
             <property name="text">
              <string>Адрес:</string>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::NoTextInteraction</set>
             </property>
            </widget>
           </item>
@@ -129,17 +150,78 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
             <property name="text">
              <string>Порт:</string>
             </property>
+            <property name="textInteractionFlags">
+             <set>Qt::NoTextInteraction</set>
+            </property>
            </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="editTime">
+            <property name="mouseTracking">
+             <bool>false</bool>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="acceptDrops">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>1000</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <layout class="QHBoxLayout" name="layoutConnect">
+            <item>
+             <widget class="QPushButton" name="buttonConnect">
+              <property name="contextMenuPolicy">
+               <enum>Qt::NoContextMenu</enum>
+              </property>
+              <property name="text">
+               <string>Подключить</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::NoContextMenu</enum>
+              </property>
+              <property name="text">
+               <string>Отключить</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
-        <item row="1" column="0">
+        <item row="3" column="0">
          <widget class="QTextEdit" name="textEdit">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
           </property>
           <property name="acceptDrops">
            <bool>false</bool>
@@ -155,13 +237,26 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="0">
+         <widget class="QProgressBar" name="progressBar">
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
+          </property>
+          <property name="maximum">
+           <number>0</number>
+          </property>
+          <property name="textVisible">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
     </layout>
    </item>
    <item row="3" column="0" colspan="2">
-    <layout class="QHBoxLayout" name="layoutButtonBox">
+    <layout class="QHBoxLayout" name="layoutBox">
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -180,11 +275,8 @@
        <property name="text">
         <string>ОК</string>
        </property>
-       <property name="autoDefault">
-        <bool>true</bool>
-       </property>
        <property name="default">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -211,12 +303,22 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>editAddress</tabstop>
+  <tabstop>editPort</tabstop>
+  <tabstop>editTime</tabstop>
+  <tabstop>buttonConnect</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>textEdit</tabstop>
+  <tabstop>buttonAccept</tabstop>
+  <tabstop>buttonReject</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
    <sender>buttonReject</sender>
    <signal>released()</signal>
-   <receiver>Search</receiver>
+   <receiver>Connect</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -232,7 +334,7 @@
   <connection>
    <sender>buttonAccept</sender>
    <signal>released()</signal>
-   <receiver>Search</receiver>
+   <receiver>Connect</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

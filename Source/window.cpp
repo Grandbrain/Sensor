@@ -1,14 +1,14 @@
 #include "window.h"
 #include "about.h"
-#include "search.h"
+#include "connect.h"
 #include "ui_window.h"
 
-Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window), played(false)
+Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window)
 {
     ui->setupUi(this);
-    connect(ui->actionSearch, SIGNAL(triggered()), SLOT(OnConnect()));
+    connect(ui->actionConnect, SIGNAL(triggered()), SLOT(OnConnect()));
     connect(ui->actionAbout, SIGNAL(triggered()), SLOT(OnAbout()));
-    connect(ui->verticalSlider, SIGNAL(valueChanged(int)), SLOT(OnSliderChange(int)));
+    connect(ui->slider, SIGNAL(valueChanged(int)), SLOT(OnSliderChange(int)));
     connect(ui->buttonPlay, SIGNAL(released()), SLOT(OnPlay()));
 
     QGraphicsScene* scene;
@@ -29,13 +29,9 @@ Window::~Window()
 
 void Window::OnConnect()
 {
-    Search search(this);
-    int result = search.exec();
+    Connect connect(this);
+    int result = connect.exec();
     if(result == QDialog::Rejected) return;
-}
-
-void Window::OnData(ScanHeader)
-{
 }
 
 void Window::OnAbout()
@@ -46,6 +42,7 @@ void Window::OnAbout()
 
 void Window::OnPlay()
 {
+    static bool played = false;
     QIcon icon;
     if(played) icon.addFile(":/root/play.ico");
     else icon.addFile(":/root/pause.ico");
@@ -63,9 +60,9 @@ void Window::OnSliderChange(int value)
 
 void Window::scale(int amount)
 {
-    ui->verticalSlider->blockSignals(true);
-    ui->verticalSlider->setValue(ui->verticalSlider->value() + amount);
-    ui->verticalSlider->blockSignals(false);
+    ui->slider->blockSignals(true);
+    ui->slider->setValue(ui->slider->value() + amount);
+    ui->slider->blockSignals(false);
     double scaleIn = 1.08;
     double scaleOut = 1.0 / scaleIn;
     if(amount < 0)
@@ -80,22 +77,9 @@ bool Window::eventFilter(QObject* object, QEvent* event)
 {
     if(object != ui->graphicsView->viewport()) return false;
     if(event->type() != QEvent::Wheel) return false;
-
-        int value = ui->verticalSlider->value();
-        QWheelEvent* wheelEvent = (QWheelEvent*)event;
-        if(wheelEvent->delta() > 0)
-        {
-            if(value < ui->verticalSlider->maximum())
-            {
-                scale(1);
-            }
-        }
-        else
-        {
-            if(value > ui->verticalSlider->minimum())
-            {
-                scale(-1);
-            }
-        }
-        return true;
+    int value = ui->slider->value();
+    QWheelEvent* wheel = (QWheelEvent*)event;
+    if((wheel->delta() > 0) && (value < ui->slider->maximum())) scale(1);
+    else if(value > ui->slider->minimum()) scale(-1);
+    return true;
 }

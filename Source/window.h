@@ -1,6 +1,7 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <QScopedPointer>
 #include <QGraphicsEllipseItem>
 #include <QGraphicsScene>
 #include <QMainWindow>
@@ -22,7 +23,6 @@ public:
 
 private slots:
     void OnConnect();
-    void OnData(ScanHeader);
     void OnAbout();
     void OnSliderChange(int);
     void OnPlay();
@@ -33,8 +33,7 @@ private:
 
 private:
     Ui::Window* ui;
-    Sensor sensor;
-    bool played;
+    QScopedPointer<Sensor> sensor;
 };
 
 #endif

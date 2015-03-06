@@ -22,7 +22,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabDiagramm">
        <attribute name="title">
@@ -33,7 +33,7 @@
          <widget class="QGraphicsView" name="graphicsView"/>
         </item>
         <item row="0" column="2">
-         <layout class="QVBoxLayout" name="verticalLayout">
+         <layout class="QVBoxLayout" name="layoutVertical">
           <item>
            <widget class="QPushButton" name="buttonPlay">
             <property name="sizePolicy">
@@ -49,7 +49,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QSlider" name="verticalSlider">
+           <widget class="QSlider" name="slider">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -58,6 +58,9 @@
             </property>
             <property name="maximum">
              <number>30</number>
+            </property>
+            <property name="pageStep">
+             <number>1</number>
             </property>
             <property name="tracking">
              <bool>true</bool>
@@ -151,7 +154,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QPushButton" name="buttonUpdateStatus">
+            <widget class="QPushButton" name="buttonStatus">
              <property name="text">
               <string>Обновить</string>
              </property>
@@ -266,14 +269,15 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
-   <widget class="QMenu" name="menuSearch">
+   <widget class="QMenu" name="menuConnect">
     <property name="title">
-     <string>Поиск</string>
+     <string>Подключение</string>
     </property>
-    <addaction name="actionSearch"/>
+    <addaction name="actionConnect"/>
+    <addaction name="actionDisconnect"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuSearch"/>
+   <addaction name="menuConnect"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -287,9 +291,17 @@
     <string>О программе SensorPRO...</string>
    </property>
   </action>
-  <action name="actionSearch">
+  <action name="actionConnect">
    <property name="text">
-    <string>Поиск устройств...</string>
+    <string>Подключить...</string>
+   </property>
+  </action>
+  <action name="actionDisconnect">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Отключить</string>
    </property>
   </action>
  </widget>
