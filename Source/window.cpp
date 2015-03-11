@@ -1,25 +1,16 @@
 #include "window.h"
 #include "about.h"
-#include "connect.h"
 #include "ui_window.h"
+#include <QMessageBox>
 
-Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window)
+Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
 {
     ui->setupUi(this);
+    ui->textEdit->viewport()->setCursor(Qt::ArrowCursor);
     connect(ui->actionConnect, SIGNAL(triggered()), SLOT(OnConnect()));
     connect(ui->actionAbout, SIGNAL(triggered()), SLOT(OnAbout()));
     connect(ui->slider, SIGNAL(valueChanged(int)), SLOT(OnSliderChange(int)));
     connect(ui->buttonPlay, SIGNAL(released()), SLOT(OnPlay()));
-
-    QGraphicsScene* scene;
-    scene = new QGraphicsScene(this);
-    ui->graphicsView->setScene(scene);
-    QBrush redBrush(Qt::red);
-    QPen blackpen(Qt::black);
-    blackpen.setWidth(6);
-    scene->addEllipse(10, 10, 100, 100, blackpen, redBrush);
-    ui->graphicsView->viewport()->installEventFilter(this);
-    ui->graphicsView->setRenderHint(QPainter::HighQualityAntialiasing);
 }
 
 Window::~Window()
@@ -29,9 +20,8 @@ Window::~Window()
 
 void Window::OnConnect()
 {
-    Connect connect(this);
-    int result = connect.exec();
-    if(result == QDialog::Rejected) return;
+    Connect c(nullptr, this);
+    c.exec();
 }
 
 void Window::OnAbout()
@@ -42,12 +32,6 @@ void Window::OnAbout()
 
 void Window::OnPlay()
 {
-    static bool played = false;
-    QIcon icon;
-    if(played) icon.addFile(":/root/play.ico");
-    else icon.addFile(":/root/pause.ico");
-    played = !played;
-    ui->buttonPlay->setIcon(icon);
 }
 
 void Window::OnSliderChange(int value)
@@ -73,13 +57,30 @@ void Window::scale(int amount)
             ui->graphicsView->scale(scaleIn, scaleIn);
 }
 
+void Window::mousePressEvent(QMouseEvent* event)
+{
+    //if(ui->lineEdit_5->rect().contains(ui->lineEdit_5->mapFromGlobal(QCursor::pos())))
+        QMessageBox::information(this, "Mouse event", "Line edit 5!");
+}
+
 bool Window::eventFilter(QObject* object, QEvent* event)
 {
     if(object != ui->graphicsView->viewport()) return false;
     if(event->type() != QEvent::Wheel) return false;
     int value = ui->slider->value();
     QWheelEvent* wheel = (QWheelEvent*)event;
-    if((wheel->delta() > 0) && (value < ui->slider->maximum())) scale(1);
+    if(wheel->delta() > 0) { if(value < ui->slider->maximum()) scale(1); }
     else if(value > ui->slider->minimum()) scale(-1);
     return true;
 }
+
+
+/*QGraphicsScene* scene;
+scene = new QGraphicsScene(this);
+ui->graphicsView->setScene(scene);
+QBrush redBrush(Qt::red);
+QPen blackpen(Qt::black);
+blackpen.setWidth(6);
+scene->addEllipse(10, 10, 100, 100, blackpen, redBrush);
+ui->graphicsView->viewport()->installEventFilter(this);
+ui->graphicsView->setRenderHint(QPainter::HighQualityAntialiasing);*/

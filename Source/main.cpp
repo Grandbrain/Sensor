@@ -1,13 +1,12 @@
 #include <QApplication>
-#include "splash.h"
 #include <QTimer>
+#include "splash.h"
 #include "window.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setStyle("fusion");
-
     Window w;
     Splash splash;
     splash.show();

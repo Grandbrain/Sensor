@@ -1,12 +1,9 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <QScopedPointer>
-#include <QGraphicsEllipseItem>
-#include <QGraphicsScene>
 #include <QMainWindow>
 #include <QWheelEvent>
-#include "sensor.h"
+#include "connect.h"
 
 namespace Ui
 {
@@ -19,7 +16,7 @@ class Window : public QMainWindow
 
 public:
     explicit Window(QWidget* = 0);
-    ~Window();
+    virtual ~Window();
 
 private slots:
     void OnConnect();
@@ -29,11 +26,11 @@ private slots:
 
 private:
     bool eventFilter(QObject*, QEvent*);
+    void mousePressEvent(QMouseEvent*);
     void scale(int);
 
 private:
     Ui::Window* ui;
-    QScopedPointer<Sensor> sensor;
 };
 
 #endif

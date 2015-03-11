@@ -14,7 +14,7 @@ class Splash : public QWidget
 
 public:
     explicit Splash(QWidget* = 0);
-    ~Splash();
+    virtual ~Splash();
 
 private:
     Ui::Splash *ui;

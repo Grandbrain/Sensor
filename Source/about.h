@@ -13,8 +13,8 @@ class About : public QDialog
     Q_OBJECT
 
 public:
-    explicit About(QWidget *parent = 0);
-    ~About();
+    explicit About(QWidget* = 0);
+    virtual ~About();
 
 private:
     Ui::About *ui;
