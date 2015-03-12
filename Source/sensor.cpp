@@ -482,13 +482,9 @@ public:
 };
 
 
-Sensor::Sensor()
+Sensor::Sensor(QObject* parent) : QObject(parent)
 {
     mDelay = 0;
-    mPoints.second = false;
-    mParams.second = false;
-    mErrors.second = false;
-    mStatus.second = false;
     connect(&mSocket, SIGNAL(readyRead()), SLOT(OnReadyRead()));
     connect(&mSocket, SIGNAL(connected()), SIGNAL(OnConnected()));
     connect(&mSocket, SIGNAL(disconnected()), SIGNAL(OnDisconnected()));
@@ -655,17 +651,17 @@ bool Sensor::GetAngleTicksPerRotation()
     return Send(Utils::GetAngleTicksPerRotation());
 }
 
-QPair<qint16, qint16> Sensor::GetStartAngleBoundaryValues()
+QPair<qint16, qint16> Sensor::GetStartAngleBoundary()
 {
     return qMakePair(-1919, 1600);
 }
 
-QPair<qint16, qint16> Sensor::GetEndAngleBoundaryValues()
+QPair<qint16, qint16> Sensor::GetEndAngleBoundary()
 {
     return qMakePair(-1920, 1599);
 }
 
-QPair<qint16, qint16> Sensor::GetSyncAngleBoundaryValues()
+QPair<qint16, qint16> Sensor::GetSyncAngleBoundary()
 {
     return qMakePair(-5760, 5759);
 }
@@ -679,7 +675,7 @@ QVector<quint16> Sensor::GetScanFrequencyValues()
     return vector;
 }
 
-QVector<quint16> Sensor::GetAngularResolutionTypeValues()
+QVector<quint16> Sensor::GetAngularResolutionValues()
 {
     QVector<quint16> vector;
     vector.append(0);
@@ -699,10 +695,39 @@ bool Sensor::Send(const QByteArray& array)
     return mSocket.write(array) == array.size();
 }
 
+void Sensor::Parse()
+{
+    if(mArray.size() < sizeof DataHeader) return;
+
+    DataHeader header = *reinterpret_cast<DataHeader*>(mArray.data());
+    Utils::Swap(header);
+    if(header.MagicWord != 0xAFFEC0C2) return;
+    if(header.DataType == 0x2202)
+    {
+
+    }
+    else if(header.DataType == 0x2030)
+    {
+
+    }
+    else if(header.DataType == 0x2020)
+    {
+
+    }
+}
+
 void Sensor::OnReadyRead()
 {
     QByteArray array = mSocket.readAll();
-    if(array.isEmpty()) return;
+    if(array.size() < sizeof quint32) return;
 
-
+    quint32 MagicWord = *reinterpret_cast<quint32*>(array.data());
+    MagicWord = qbswap(MagicWord);
+    if(MagicWord == 0xAFFEC0C2)
+    {
+        Parse();
+        mArray.clear();
+        mArray.append(array);
+    }
+    else mArray.append(array);
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Splash</class>
- <widget class="QWidget" name="Splash">
+ <widget class="QDialog" name="Splash">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -10,20 +10,38 @@
     <height>300</height>
    </rect>
   </property>
-  <layout class="QGridLayout" name="layoutMain">
+  <property name="minimumSize">
+   <size>
+    <width>500</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>500</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QDialog 
+{
+	background-image: url(:/root/splash.png); 
+}</string>
+  </property>
+  <layout class="QGridLayout" name="layoutSplash">
    <property name="bottomMargin">
-    <number>7</number>
+    <number>6</number>
    </property>
    <item row="1" column="0">
     <widget class="QLabel" name="label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
      <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);</string>
+      <string notr="true">QLabel
+{
+	color: rgb(255, 255, 255);
+}</string>
      </property>
      <property name="text">
       <string>Загрузка...</string>

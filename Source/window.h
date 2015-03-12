@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QWheelEvent>
-#include "connect.h"
 
 namespace Ui
 {
@@ -26,11 +25,11 @@ private slots:
 
 private:
     bool eventFilter(QObject*, QEvent*);
-    void mousePressEvent(QMouseEvent*);
     void scale(int);
 
 private:
     Ui::Window* ui;
+    class Sensor* sensor;
 };
 
 #endif

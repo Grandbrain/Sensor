@@ -1,14 +1,15 @@
 #ifndef SPLASH_H
 #define SPLASH_H
 
-#include <QWidget>
+#include <QDialog>
+#include <QTimer>
 
 namespace Ui
 {
     class Splash;
 }
 
-class Splash : public QWidget
+class Splash : public QDialog
 {
     Q_OBJECT
 

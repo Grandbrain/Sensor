@@ -1,18 +1,19 @@
 #include <QApplication>
 #include <QTimer>
-#include "splash.h"
 #include "window.h"
+#include "splash.h"
+#include <QTranslator>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setStyle("fusion");
-    Window w;
-    Splash splash;
-    splash.show();
 
-    QTimer::singleShot(2000, &splash, SLOT(close()));
-    QTimer::singleShot(2000, &w, SLOT(show()));
+    Splash s;
+    s.exec();
+
+    Window w;
+    w.show();
 
     return a.exec();
 }

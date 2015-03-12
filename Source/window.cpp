@@ -1,16 +1,16 @@
 #include "window.h"
-#include "about.h"
 #include "ui_window.h"
-#include <QMessageBox>
+#include "about.h"
+#include "sensor.h"
 
 Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
 {
     ui->setupUi(this);
-    ui->textEdit->viewport()->setCursor(Qt::ArrowCursor);
-    connect(ui->actionConnect, SIGNAL(triggered()), SLOT(OnConnect()));
+    ui->widget_2->hide();
+    ui->progressBar->hide();
+    sensor = new Sensor(this);
     connect(ui->actionAbout, SIGNAL(triggered()), SLOT(OnAbout()));
     connect(ui->slider, SIGNAL(valueChanged(int)), SLOT(OnSliderChange(int)));
-    connect(ui->buttonPlay, SIGNAL(released()), SLOT(OnPlay()));
 }
 
 Window::~Window()
@@ -20,8 +20,6 @@ Window::~Window()
 
 void Window::OnConnect()
 {
-    Connect c(nullptr, this);
-    c.exec();
 }
 
 void Window::OnAbout()
@@ -55,12 +53,6 @@ void Window::scale(int amount)
     else
         for(int i = 0; i < abs(amount); i++)
             ui->graphicsView->scale(scaleIn, scaleIn);
-}
-
-void Window::mousePressEvent(QMouseEvent* event)
-{
-    //if(ui->lineEdit_5->rect().contains(ui->lineEdit_5->mapFromGlobal(QCursor::pos())))
-        QMessageBox::information(this, "Mouse event", "Line edit 5!");
 }
 
 bool Window::eventFilter(QObject* object, QEvent* event)
