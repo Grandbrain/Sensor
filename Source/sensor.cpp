@@ -211,6 +211,22 @@ public:
         Thread::Delay(ms);
     }
 
+    static qreal ConvertTicks(quint16 angleTicks)
+    {
+        const qreal pi = 3.141592653589793238462;
+        const qreal deg2rad = 0.01745329251994329576923690768;
+        qreal angle = static_cast<qreal>(angleTicks);
+        angle /= 32.0;
+        angle *= deg2rad;
+        if(angle > -1000.0 && angle < 1000.0)
+        {
+            while(angle > pi) angle -= 2.0 * pi;
+            while(angle <= -pi) angle += 2.0 * pi;
+        }
+        else angle = 0.0;
+        return angle;
+    }
+
     static void Swap(DataHeader& header)
     {
         header.MagicWord        = qbswap(header.MagicWord);

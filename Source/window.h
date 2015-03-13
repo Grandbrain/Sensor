@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QWheelEvent>
+#include "sensor.h"
 
 namespace Ui
 {
@@ -18,18 +19,17 @@ public:
     virtual ~Window();
 
 private slots:
+    void OnDisconnect();
     void OnConnect();
     void OnAbout();
-    void OnSliderChange(int);
-    void OnPlay();
+    void OnSensorData(const ScanData&);
 
 private:
     bool eventFilter(QObject*, QEvent*);
-    void scale(int);
 
 private:
     Ui::Window* ui;
-    class Sensor* sensor;
+    Sensor sensor;
 };
 
 #endif

@@ -1,13 +1,24 @@
 #include <QApplication>
-#include <QTimer>
+#include <QTranslator>
 #include "window.h"
 #include "splash.h"
-#include <QTranslator>
+
+void translate()
+{
+    QStringList files {"", ""};
+    foreach (QString file, files)
+    {
+        QTranslator* translator = new QTranslator(qApp);
+        translator->load(file);
+        qApp->installTranslator(translator);
+    }
+}
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setStyle("fusion");
+    translate();
 
     Splash s;
     s.exec();

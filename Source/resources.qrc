@@ -2,7 +2,7 @@
     <qresource prefix="/root">
         <file>icon.ico</file>
         <file>splash.png</file>
-        <file>pause.ico</file>
-        <file>play.ico</file>
+        <file>icon.png</file>
+        <file>logo.png</file>
     </qresource>
 </RCC>
