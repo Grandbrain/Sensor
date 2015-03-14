@@ -6,17 +6,31 @@
 
 enum class Parameter
 {
-    Address             ,
-    Port                ,
-    SubnetMask          ,
-    Gateway             ,
-    DataOutputFlags     ,
-    StartAngle          ,
-    EndAngle            ,
-    ScanFrequency       ,
-    SyncAngleOffset     ,
-    AngularResolution   ,
+    Address                 ,
+    Port                    ,
+    SubnetMask              ,
+    Gateway                 ,
+    DataOutputFlags         ,
+    StartAngle              ,
+    EndAngle                ,
+    ScanFrequency           ,
+    SyncAngleOffset         ,
+    AngularResolution       ,
     AngleTicks
+};
+
+enum class Command
+{
+    Reset                   ,
+    GetStatus               ,
+    SaveConfig              ,
+    SetParameter            ,
+    GetParameter            ,
+    ResetParameters         ,
+    StartMeasure            ,
+    StopMeasure             ,
+    SetTimeSeconds          ,
+    SetTimeFractionalSeconds
 };
 
 struct Point
@@ -115,14 +129,13 @@ public:
     virtual                 ~Sensor                     () = default;
 
 public:
-    void                    SetCommandDelay             (ulong);
     void                    Connect                     (const QString&, quint16);
     void                    Disconnect                  ();
     bool                    Connected                   () const;
     bool                    Reset                       ();
     bool                    GetStatus                   ();
     bool                    SaveConfig                  ();
-    bool                    ResetDefaults               ();
+    bool                    ResetParameters             ();
     bool                    StartMeasure                ();
     bool                    StopMeasure                 ();
     bool                    SetTimeSeconds              (quint32);
@@ -163,6 +176,7 @@ signals:
     void                    OnWarnings                  (const ErrorsWarnings&);
     void                    OnParameters                (const Parameters&);
     void                    OnStatus                    (const Status&);
+    void                    OnFailed             (Command);
     void                    OnDisconnected              ();
     void                    OnConnected                 ();
     void                    OnError                     ();
@@ -171,7 +185,6 @@ private slots:
     void                    OnReadyRead                 ();
 
 private:
-    ulong                   mDelay  ;
     QTcpSocket              mSocket ;
     QByteArray              mArray  ;
 };

@@ -161,7 +161,6 @@ struct CommandTime
 #pragma pack(push, 1)
 struct ReplyGetParameter
 {
-    quint16     ReplyId             ;
     quint16     ParameterIndex      ;
     quint32     Parameter           ;
 };
@@ -171,7 +170,6 @@ struct ReplyGetParameter
 #pragma pack(push, 1)
 struct ReplyStatus
 {
-    quint16     ReplyId             ;
     quint16     FirmwareVersion     ;
     quint16     FPGAVersion         ;
     quint16     ScannerStatus       ;
@@ -225,6 +223,11 @@ public:
         }
         else angle = 0.0;
         return angle;
+    }
+
+    static bool CheckBit(quint16 number, quint16 n)
+    {
+        return number & (1 << n);
     }
 
     static void Swap(DataHeader& header)
@@ -500,7 +503,6 @@ public:
 
 Sensor::Sensor(QObject* parent) : QObject(parent)
 {
-    mDelay = 0;
     connect(&mSocket, SIGNAL(readyRead()), SLOT(OnReadyRead()));
     connect(&mSocket, SIGNAL(connected()), SIGNAL(OnConnected()));
     connect(&mSocket, SIGNAL(disconnected()), SIGNAL(OnDisconnected()));
@@ -537,7 +539,7 @@ bool Sensor::SaveConfig()
     return Send(Utils::SaveConfig());
 }
 
-bool Sensor::ResetDefaults()
+bool Sensor::ResetParameters()
 {
     return Send(Utils::ResetDefaults());
 }
@@ -700,35 +702,122 @@ QVector<quint16> Sensor::GetAngularResolutionValues()
     return vector;
 }
 
-void Sensor::SetCommandDelay(ulong delay)
-{
-    mDelay = delay;
-}
-
 bool Sensor::Send(const QByteArray& array)
 {
-    if(mDelay) Utils::Delay(mDelay);
     return mSocket.write(array) == array.size();
 }
 
 void Sensor::Parse()
 {
     if(mArray.size() < sizeof DataHeader) return;
-
     DataHeader header = *reinterpret_cast<DataHeader*>(mArray.data());
     Utils::Swap(header);
     if(header.MagicWord != 0xAFFEC0C2) return;
+
     if(header.DataType == 0x2202)
     {
-
+        if(mArray.size() < sizeof DataHeader + sizeof ScanHeader) return;
+        ScanHeader scanHeader = *reinterpret_cast<ScanHeader*>(mArray.data() + sizeof DataHeader);
+        if(mArray.size() != sizeof DataHeader + sizeof ScanHeader + scanHeader.ScanPoints * sizeof ScanPoint) return;
+        ScanData scanData;
+        scanData.AngleTicks = scanHeader.AngleTicks;
+        scanData.EndAngle = scanHeader.EndAngle;
+        scanData.MountingPitch = scanHeader.MountingPitchAngle;
+        scanData.MountingRoll = scanHeader.MountingRollAngle;
+        scanData.MountingYaw = scanHeader.MountingYawAngle;
+        scanData.MountingX = scanHeader.MountingX;
+        scanData.MountingY = scanHeader.MountingY;
+        scanData.MountingZ = scanHeader.MountingZ;
+        scanData.PointsNumber = scanHeader.ScanPoints;
+        scanData.ScanEndTimeNTP = scanHeader.ScanEndTime;
+        scanData.ScanNumber = scanHeader.ScanNumber;
+        scanData.ScanStartTimeNTP = scanHeader.ScanStartTime;
+        scanData.StartAngle = scanHeader.StartAngle;
+        scanData.SyncPhaseOffset = scanHeader.SyncPhaseOffset;
+        scanData.ExternalSyncSignal = (scanHeader.ScannerStatus & 0x0010) != 0;
+        scanData.FrequencyReached = (scanHeader.ScannerStatus & 0x0008) != 0;
+        scanData.SyncMaster = (scanHeader.ScannerStatus & 0x0040) != 0;
+        scanData.SyncOk = (scanHeader.ScannerStatus & 0x0020) != 0;
+        for(quint16 i = 0; i < scanHeader.ScanPoints; i++)
+        {
+            ScanPoint scanPoint = *reinterpret_cast<ScanPoint*>(mArray.data() +
+                sizeof DataHeader + sizeof ScanHeader + sizeof ScanPoint * i);
+            Point point;
+            point.Transparent = (scanPoint.Flags & 0x01) != 0;
+            point.Clutter = (scanPoint.Flags & 0x02) != 0;
+            point.Dirt = (scanPoint.Flags & 0x08) != 0;
+            point.Layer = scanPoint.LayerEcho & 0x0F;
+            point.Echo = (scanPoint.LayerEcho >> 4) & 0x0F;
+            point.HorizontalAngle = Utils::ConvertTicks(scanPoint.HorizontalAngle);
+            point.RadialDistance = scanPoint.RadialDistance;
+            point.EchoPulseWidth = scanPoint.EchoPulseWidth;
+            scanData.Points.append(point);
+        }
+        emit OnPoints(scanData);
     }
     else if(header.DataType == 0x2030)
     {
-
+        if(mArray.size() != sizeof DataHeader + sizeof ErrorRegisters) return;
+        ErrorRegisters regs = *reinterpret_cast<ErrorRegisters*>(mArray.data() + sizeof DataHeader);
+        ErrorsWarnings err;
+        err.E1CS = (regs.ErrorRegister1 & 0x3C1F) != 0 || (regs.ErrorRegister1 & 0x300) == 0x300;
+        err.E1SBTI = (regs.ErrorRegister1 & 0x04) != 0;
+        err.E1SBO = (regs.ErrorRegister1 & 0x08) != 0;
+        err.E1APDOT = (regs.ErrorRegister1 & 0x200) != 0;
+        err.E1APDUT = (regs.ErrorRegister1 & 0x100) != 0;
+        err.E2CS = (regs.ErrorRegister2 & 0x8F) != 0;
+        err.E2ICD = (regs.ErrorRegister2 & 0x010) != 0;
+        err.E2CCIP = (regs.ErrorRegister2 & 0x020) != 0;
+        err.E2DPT = (regs.ErrorRegister1 & 0x040) != 0;
+        err.W1IT = (regs.WarningRegister1 & 0x08) != 0;
+        err.W1ET = (regs.WarningRegister1 & 0x010) != 0;
+        err.W1CSSF = (regs.WarningRegister1 & 0x080) != 0;
+        err.W2CS = (regs.WarningRegister2 & 0x048) != 0;
+        err.W2EIB = (regs.WarningRegister2 & 0x02) != 0;
+        err.W2CED = (regs.WarningRegister2 & 0x010) != 0;
+        err.W2FC = (regs.WarningRegister2 & 0x020) != 0;
+        err.W2MAF = (regs.WarningRegister2 & 0x040) != 0;
+        emit OnWarnings(err);
     }
     else if(header.DataType == 0x2020)
     {
+        if(mArray.size() < sizeof DataHeader + sizeof quint16) return;
+        quint16 replyId = *reinterpret_cast<quint16*>(mArray.data() + sizeof DataHeader);
+        if(replyId & 0x8000)
+        {
+            replyId &= ~(1 << 15);
+            if(replyId == 0x0000) emit OnFailed(Command::Reset);
+            if(replyId == 0x0001) emit OnFailed(Command::GetStatus);
+            if(replyId == 0x0004) emit OnFailed(Command::SaveConfig);
+            if(replyId == 0x0010) emit OnFailed(Command::SetParameter);
+            if(replyId == 0x0011) emit OnFailed(Command::GetParameter);
+            if(replyId == 0x001A) emit OnFailed(Command::ResetParameters);
+            if(replyId == 0x0020) emit OnFailed(Command::StartMeasure);
+            if(replyId == 0x0021) emit OnFailed(Command::StopMeasure);
+            if(replyId == 0x0030) emit OnFailed(Command::SetTimeSeconds);
+            if(replyId == 0x0031) emit OnFailed(Command::SetTimeFractionalSeconds);
+        }
+        if(replyId == 0x0001)
+        {
 
+        }
+        if(replyId == 0x0011)
+        {
+            if(mArray.size() != sizeof DataHeader + sizeof ReplyGetParameter) return;
+            ReplyGetParameter param = *reinterpret_cast<ReplyGetParameter*>(mArray.data() + sizeof DataHeader);
+            Parameters p;
+            if(param.ParameterIndex == 0x1000)
+            {
+                QHostAddress a(param.Parameter);
+                p.Address = a.toString();
+                p.ParameterChanged = Parameter::Address;
+            }
+            if(param.ParameterIndex == 0x1001)
+            {
+                p.Port = static_cast<quint16>(param.Parameter);
+                p.ParameterChanged = Parameter::Port;
+            }
+        }
     }
 }
 
