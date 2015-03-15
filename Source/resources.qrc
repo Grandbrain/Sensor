@@ -4,5 +4,9 @@
         <file>splash.png</file>
         <file>icon.png</file>
         <file>logo.png</file>
+        <file>error.ico</file>
+        <file>frozen.ico</file>
+        <file>success.ico</file>
+        <file>warning.ico</file>
     </qresource>
 </RCC>

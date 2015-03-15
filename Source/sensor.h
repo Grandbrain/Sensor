@@ -176,7 +176,7 @@ signals:
     void                    OnWarnings                  (const ErrorsWarnings&);
     void                    OnParameters                (const Parameters&);
     void                    OnStatus                    (const Status&);
-    void                    OnFailed             (Command);
+    void                    OnFailed                    (Command);
     void                    OnDisconnected              ();
     void                    OnConnected                 ();
     void                    OnError                     ();

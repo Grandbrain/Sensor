@@ -225,11 +225,6 @@ public:
         return angle;
     }
 
-    static bool CheckBit(quint16 number, quint16 n)
-    {
-        return number & (1 << n);
-    }
-
     static void Swap(DataHeader& header)
     {
         header.MagicWord        = qbswap(header.MagicWord);
