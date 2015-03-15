@@ -794,12 +794,14 @@ void Sensor::Parse()
         }
         if(replyId == 0x0001)
         {
-
+            if(mArray.size() != sizeof DataHeader + sizeof quint16 + sizeof ReplyStatus) return;
+            ReplyStatus param = *reinterpret_cast<ReplyStatus*>(mArray.data() + sizeof DataHeader + sizeof quint16);
+            Status p;
         }
         if(replyId == 0x0011)
         {
-            if(mArray.size() != sizeof DataHeader + sizeof ReplyGetParameter) return;
-            ReplyGetParameter param = *reinterpret_cast<ReplyGetParameter*>(mArray.data() + sizeof DataHeader);
+            if(mArray.size() != sizeof DataHeader + sizeof quint16 + sizeof ReplyGetParameter) return;
+            ReplyGetParameter param = *reinterpret_cast<ReplyGetParameter*>(mArray.data() + sizeof DataHeader + sizeof quint16);
             Parameters p;
             if(param.ParameterIndex == 0x1000)
             {

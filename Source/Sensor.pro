@@ -4,6 +4,7 @@ TARGET          = Sensor
 TEMPLATE        = app
 CONFIG          += c++11;
 
+TRANSLATIONS    += en.ts
 SOURCES         += main.cpp window.cpp sensor.cpp about.cpp splash.cpp
 HEADERS  	+= sensor.h window.h about.h splash.h
 FORMS    	+= window.ui about.ui splash.ui

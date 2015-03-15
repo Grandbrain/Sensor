@@ -5,6 +5,8 @@
 
 void translate()
 {
+    QLocale currentLocale = QLocale::system();
+    if(currentLocale.language() != QLocale::Language::English) return;
     QStringList files {"", ""};
     foreach (QString file, files)
     {
