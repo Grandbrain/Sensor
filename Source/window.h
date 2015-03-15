@@ -23,6 +23,9 @@ private slots:
     void OnConnect();
     void OnAbout();
     void OnSensorData(const ScanData&);
+    void OnSensorError();
+    void OnSensorConnected();
+    void OnSensorDisconnected();
 
 private:
     bool eventFilter(QObject*, QEvent*);

@@ -4,14 +4,31 @@
 
 Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
 {
+    QString range = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
+    QRegExp regex ("^" + range + "\\." + range + "\\." + range + "\\." + range + "$");
+    QValidator* addressValidator = new QRegExpValidator(regex, this);
+    QValidator* portValidator = new QIntValidator(0, 65535, this);
+
     ui->setupUi(this);
-    //ui->progressBar->hide();
+    ui->progressConnection->hide();
+    ui->widgetConnection->hide();
+    ui->tabWidget->setTabEnabled(1, false);
+    ui->tabWidget->setTabEnabled(2, false);
+    ui->editConnectionAddress->setValidator(addressValidator);
+    ui->editConnectionPort->setValidator(portValidator);
+
     QGraphicsScene* scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
     ui->graphicsView->installEventFilter(this);
     ui->graphicsView->setRenderHint(QPainter::HighQualityAntialiasing);
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
+
     connect(ui->actionAbout, SIGNAL(triggered()), SLOT(OnAbout()));
+    connect(ui->buttonConnect, SIGNAL(released()), SLOT(OnConnect()));
+    connect(ui->buttonDisconnect, SIGNAL(released()), SLOT(OnDisconnect()));
+    connect(&sensor, SIGNAL(OnError()), SLOT(OnSensorError()));
+    connect(&sensor, SIGNAL(OnConnected()), SLOT(OnSensorConnected()));
+    connect(&sensor, SIGNAL(OnPoints(ScanData)), SLOT(OnSensorData(ScanData)));
 }
 
 Window::~Window()
@@ -19,13 +36,73 @@ Window::~Window()
     delete ui;
 }
 
+void Window::OnSensorConnected()
+{
+    ui->progressConnection->hide();
+    ui->buttonConnect->setEnabled(false);
+    ui->buttonDisconnect->setEnabled(true);
+    ui->buttonDisconnect->setDefault(true);
+    ui->editConnectionAddress->setEnabled(false);
+    ui->editConnectionPort->setEnabled(false);
+    ui->tabWidget->setTabEnabled(1, true);
+    ui->tabWidget->setTabEnabled(2, true);
+    ui->widgetConnection->show();
+    QTimer::singleShot(30000, ui->widgetConnection, SLOT(hide()));
+}
+
+void Window::OnSensorDisconnected()
+{
+    ui->progressConnection->hide();
+    ui->buttonConnect->setEnabled(true);
+    ui->buttonDisconnect->setEnabled(false);
+    ui->buttonConnect->setDefault(true);
+    ui->editConnectionAddress->setEnabled(true);
+    ui->editConnectionPort->setEnabled(true);
+    ui->tabWidget->setTabEnabled(1, false);
+    ui->tabWidget->setTabEnabled(2, false);
+    ui->labelConnectionMessage->setText(tr("Откоючение успешно выполнено."));
+    ui->widgetConnection->show();
+    QTimer::singleShot(30000, ui->widgetConnection, SLOT(hide()));
+}
+
+void Window::OnSensorError()
+{
+    if(ui->progressConnection->isVisible() && ui->buttonConnect->isEnabled())
+    {
+        if(ui->buttonConnect->isEnabled())
+        {
+            ui->progressConnection->hide();
+            ui->labelConnectionMessage->setText(tr("Не удалось выполнить подключение."));
+            ui->labelConnectionResult->setPixmap(QPixmap(":/root/error.ico"));
+            ui->widgetConnection->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
+            ui->widgetConnection->show();
+            QTimer::singleShot(30000, ui->widgetConnection, SLOT(hide()));
+        }
+        else
+        {
+            ui->progressConnection->hide();
+            ui->labelConnectionMessage->setText(tr("Не удалось отключиться."));
+            ui->labelConnectionResult->setPixmap(QPixmap(":/root/error.ico"));
+            ui->widgetConnection->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
+            ui->widgetConnection->show();
+            QTimer::singleShot(30000, ui->widgetConnection, SLOT(hide()));
+        }
+    }
+}
+
 void Window::OnConnect()
 {
+    QString address = ui->editConnectionAddress->text();
+    QString port = ui->editConnectionPort->text();
+    if(address.isEmpty() || port.isEmpty()) return;
+    ui->progressConnection->show();
+    sensor.Connect(address, port.toUShort());
 }
 
 void Window::OnDisconnect()
 {
-
+    ui->progressConnection->show();
+    sensor.Disconnect();
 }
 
 void Window::OnSensorData(const ScanData& data)

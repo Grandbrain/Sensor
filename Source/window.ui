@@ -114,6 +114,25 @@
            <property name="topMargin">
             <number>5</number>
            </property>
+           <item row="3" column="0" colspan="2">
+            <widget class="QProgressBar" name="progressConnection">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>10</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>0</number>
+             </property>
+             <property name="value">
+              <number>-1</number>
+             </property>
+             <property name="textVisible">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="0" colspan="2">
             <widget class="Line" name="lineConnectionEdits">
              <property name="orientation">
@@ -140,36 +159,23 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QProgressBar" name="progressConnection">
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>10</height>
-              </size>
-             </property>
-             <property name="maximum">
-              <number>0</number>
-             </property>
-             <property name="value">
-              <number>-1</number>
-             </property>
-             <property name="textVisible">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0" colspan="2">
+           <item row="6" column="0" colspan="2">
             <layout class="QHBoxLayout" name="layoutConnectionButtons">
              <item>
               <widget class="QPushButton" name="buttonConnect">
                <property name="text">
                 <string>Подключить</string>
                </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QPushButton" name="buttonDisconnect">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>Отключить</string>
                </property>
@@ -177,7 +183,7 @@
              </item>
             </layout>
            </item>
-           <item row="4" column="0" colspan="2">
+           <item row="5" column="0" colspan="2">
             <widget class="Line" name="lineConnectionButtons">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -195,6 +201,9 @@
              </item>
              <item row="0" column="1">
               <widget class="QLineEdit" name="editConnectionAddress">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
                </property>
@@ -212,6 +221,9 @@
              </item>
              <item row="1" column="1">
               <widget class="QLineEdit" name="editConnectionPort">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
                </property>
@@ -221,6 +233,51 @@
               </widget>
              </item>
             </layout>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QWidget" name="widgetConnection" native="true">
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">.QWidget { border: 2px solid #22B573; background-color: rgb(213, 242, 242); }</string>
+             </property>
+             <layout class="QGridLayout" name="layoutConnectMessage">
+              <item row="0" column="0">
+               <widget class="QLabel" name="labelConnectionResult">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="pixmap">
+                 <pixmap resource="resources.qrc">:/root/success.ico</pixmap>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="labelConnectionMessage">
+                <property name="text">
+                 <string>Подключение успешно выполнено.</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -606,6 +663,35 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>editConnectionAddress</tabstop>
+  <tabstop>editConnectionPort</tabstop>
+  <tabstop>buttonConnect</tabstop>
+  <tabstop>buttonDisconnect</tabstop>
+  <tabstop>buttonCommandStatus</tabstop>
+  <tabstop>graphicsView</tabstop>
+  <tabstop>buttonCommandReset</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>lineEdit_5</tabstop>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>lineEdit_2</tabstop>
+  <tabstop>lineEdit_3</tabstop>
+  <tabstop>lineEdit_4</tabstop>
+  <tabstop>spinBox</tabstop>
+  <tabstop>spinBox_2</tabstop>
+  <tabstop>spinBox_3</tabstop>
+  <tabstop>comboBox</tabstop>
+  <tabstop>comboBox_2</tabstop>
+  <tabstop>checkErrorsDataFlag</tabstop>
+  <tabstop>checkScanDataFlag</tabstop>
+  <tabstop>lineEdit_8</tabstop>
+  <tabstop>lineEdit_9</tabstop>
+  <tabstop>lineEdit_11</tabstop>
+  <tabstop>lineEdit_12</tabstop>
+  <tabstop>lineEdit_6</tabstop>
+  <tabstop>lineEdit_7</tabstop>
+  <tabstop>listErrors</tabstop>
+ </tabstops>
  <resources>
   <include location="resources.qrc"/>
  </resources>
