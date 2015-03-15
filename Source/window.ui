@@ -201,9 +201,6 @@
              </item>
              <item row="0" column="1">
               <widget class="QLineEdit" name="editConnectionAddress">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
                </property>
@@ -221,9 +218,6 @@
              </item>
              <item row="1" column="1">
               <widget class="QLineEdit" name="editConnectionPort">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
                </property>
@@ -521,6 +515,12 @@
                <property name="text">
                 <string>CheckBox</string>
                </property>
+               <property name="checkable">
+                <bool>false</bool>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
             </layout>
@@ -545,7 +545,17 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEdit_8"/>
+            <widget class="QLineEdit" name="lineEdit_8">
+             <property name="styleSheet">
+              <string notr="true">.QLineEdit { background-color: rgb(213, 222, 242); }</string>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_14">
@@ -555,7 +565,11 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEdit_9"/>
+            <widget class="QLineEdit" name="lineEdit_9">
+             <property name="styleSheet">
+              <string notr="true">.QLineEdit { background-color: rgb(213, 222, 242); }</string>
+             </property>
+            </widget>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_15">
@@ -565,42 +579,58 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEdit_11"/>
+            <widget class="QLineEdit" name="lineEdit_11">
+             <property name="styleSheet">
+              <string notr="true">.QLineEdit { background-color: rgb(213, 222, 242); }</string>
+             </property>
+            </widget>
            </item>
-           <item row="3" column="0">
+           <item row="4" column="0">
             <widget class="QLabel" name="label_18">
              <property name="text">
               <string>Серийный номер:</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="lineEdit_12"/>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="lineEdit_12">
+             <property name="styleSheet">
+              <string notr="true">.QLineEdit { background-color: rgb(213, 222, 242); }</string>
+             </property>
+            </widget>
            </item>
-           <item row="4" column="0">
+           <item row="5" column="0">
             <widget class="QLabel" name="label_19">
              <property name="text">
               <string>Метка времени ППВМ:</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="QLineEdit" name="lineEdit_6"/>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="lineEdit_6">
+             <property name="styleSheet">
+              <string notr="true">.QLineEdit { background-color: rgb(213, 222, 242); }</string>
+             </property>
+            </widget>
            </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="label">
              <property name="text">
               <string>Метка времени СМП:</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
-            <widget class="QLineEdit" name="lineEdit_7"/>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="lineEdit_7">
+             <property name="styleSheet">
+              <string notr="true">.QLineEdit { background-color: rgb(213, 222, 242); }</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
         </item>
-        <item row="2" column="0" colspan="2">
+        <item row="1" column="2">
          <widget class="QGroupBox" name="groupDesc">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">

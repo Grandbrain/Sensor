@@ -16,6 +16,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     ui->tabWidget->setTabEnabled(2, false);
     ui->editConnectionAddress->setValidator(addressValidator);
     ui->editConnectionPort->setValidator(portValidator);
+    ui->widgetConnection->installEventFilter(this);
 
     QGraphicsScene* scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
@@ -67,14 +68,15 @@ void Window::OnSensorDisconnected()
 
 void Window::OnSensorError()
 {
-    if(ui->progressConnection->isVisible() && ui->buttonConnect->isEnabled())
+    if(ui->progressConnection->isVisible())
     {
-        if(ui->buttonConnect->isEnabled())
+        if(ui->editConnectionAddress->isEnabled())
         {
             ui->progressConnection->hide();
             ui->labelConnectionMessage->setText(tr("Не удалось выполнить подключение."));
             ui->labelConnectionResult->setPixmap(QPixmap(":/root/error.ico"));
             ui->widgetConnection->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
+            ui->buttonConnect->setEnabled(true);
             ui->widgetConnection->show();
             QTimer::singleShot(30000, ui->widgetConnection, SLOT(hide()));
         }
@@ -84,6 +86,7 @@ void Window::OnSensorError()
             ui->labelConnectionMessage->setText(tr("Не удалось отключиться."));
             ui->labelConnectionResult->setPixmap(QPixmap(":/root/error.ico"));
             ui->widgetConnection->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
+            ui->buttonDisconnect->setEnabled(true);
             ui->widgetConnection->show();
             QTimer::singleShot(30000, ui->widgetConnection, SLOT(hide()));
         }
@@ -92,16 +95,22 @@ void Window::OnSensorError()
 
 void Window::OnConnect()
 {
+    if(ui->widgetConnection->isVisible())
+        ui->widgetConnection->hide();
     QString address = ui->editConnectionAddress->text();
     QString port = ui->editConnectionPort->text();
     if(address.isEmpty() || port.isEmpty()) return;
     ui->progressConnection->show();
+    ui->buttonConnect->setEnabled(false);
     sensor.Connect(address, port.toUShort());
 }
 
 void Window::OnDisconnect()
 {
+    if(ui->widgetConnection->isVisible())
+        ui->widgetConnection->hide();
     ui->progressConnection->show();
+    ui->buttonDisconnect->setEnabled(false);
     sensor.Disconnect();
 }
 
@@ -238,6 +247,13 @@ void Window::OnAbout()
 
 bool Window::eventFilter(QObject* object, QEvent* event)
 {
+    if(object == ui->widgetConnection ||
+       object == ui->labelConnectionMessage ||
+       object == ui->labelConnectionResult)
+    {
+        if(event->type() == QEvent::MouseButtonRelease)
+            ui->widgetConnection->hide();
+    }
     if(object != ui->graphicsView->viewport()) return false;
     if(event->type() != QEvent::Wheel) return false;
     double in = 1.08, out = 1.0 / in;
