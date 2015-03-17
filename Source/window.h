@@ -19,6 +19,7 @@ public:
     virtual ~Window();
 
 private slots:
+    void OnStatus();
     void OnDisconnect();
     void OnConnect();
     void OnAbout();
@@ -26,6 +27,7 @@ private slots:
     void OnSensorError();
     void OnSensorConnected();
     void OnSensorDisconnected();
+    void OnSensorStatus(const Status&);
 
 private:
     bool eventFilter(QObject*, QEvent*);

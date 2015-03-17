@@ -15,8 +15,7 @@ enum class Parameter
     EndAngle                ,
     ScanFrequency           ,
     SyncAngleOffset         ,
-    AngularResolution       ,
-    AngleTicks
+    AngularResolution
 };
 
 enum class Command
@@ -40,8 +39,8 @@ struct Point
     bool                Dirt                ;
     quint8              Layer               ;
     quint8              Echo                ;
-    qint16              HorizontalAngle     ;
-    quint16             RadialDistance      ;
+    qreal               HorizontalAngle     ;
+    qreal               RadialDistance      ;
     quint16             EchoPulseWidth      ;
 };
 
@@ -116,7 +115,6 @@ struct Parameters
     quint16             ScanFrequency       ;
     qint16              SyncAngleOffset     ;
     quint16             AngularResolution   ;
-    quint16             AngleTicks          ;
     qint16              StartAngle          ;
     qint16              EndAngle            ;
 };
@@ -160,7 +158,6 @@ public:
     bool                    GetScanFrequency            ();
     bool                    GetSyncAngleOffset          ();
     bool                    GetAngularResolutionType    ();
-    bool                    GetAngleTicksPerRotation    ();
     QPair<qint16, qint16>   GetStartAngleBoundary       ();
     QPair<qint16, qint16>   GetEndAngleBoundary         ();
     QPair<qint16, qint16>   GetSyncAngleBoundary        ();

@@ -1,6 +1,8 @@
 #include "window.h"
 #include "ui_window.h"
 #include "about.h"
+#include <QDebug>
+#include <QShortcut>
 
 Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
 {
@@ -29,6 +31,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     connect(ui->buttonDisconnect, SIGNAL(released()), SLOT(OnDisconnect()));
     connect(&sensor, SIGNAL(OnError()), SLOT(OnSensorError()));
     connect(&sensor, SIGNAL(OnConnected()), SLOT(OnSensorConnected()));
+    connect(&sensor, SIGNAL(OnDisconnected()), SLOT(OnSensorDisconnected()));
     connect(&sensor, SIGNAL(OnPoints(ScanData)), SLOT(OnSensorData(ScanData)));
 }
 
@@ -53,6 +56,7 @@ void Window::OnSensorConnected()
 
 void Window::OnSensorDisconnected()
 {
+    ui->widgetConnection->hide();
     ui->progressConnection->hide();
     ui->buttonConnect->setEnabled(true);
     ui->buttonDisconnect->setEnabled(false);
@@ -61,9 +65,6 @@ void Window::OnSensorDisconnected()
     ui->editConnectionPort->setEnabled(true);
     ui->tabWidget->setTabEnabled(1, false);
     ui->tabWidget->setTabEnabled(2, false);
-    ui->labelConnectionMessage->setText(tr("Откоючение успешно выполнено."));
-    ui->widgetConnection->show();
-    QTimer::singleShot(30000, ui->widgetConnection, SLOT(hide()));
 }
 
 void Window::OnSensorError()
@@ -95,8 +96,7 @@ void Window::OnSensorError()
 
 void Window::OnConnect()
 {
-    if(ui->widgetConnection->isVisible())
-        ui->widgetConnection->hide();
+    ui->widgetConnection->hide();
     QString address = ui->editConnectionAddress->text();
     QString port = ui->editConnectionPort->text();
     if(address.isEmpty() || port.isEmpty()) return;
@@ -107,11 +107,20 @@ void Window::OnConnect()
 
 void Window::OnDisconnect()
 {
-    if(ui->widgetConnection->isVisible())
-        ui->widgetConnection->hide();
+    ui->widgetConnection->hide();
     ui->progressConnection->show();
     ui->buttonDisconnect->setEnabled(false);
     sensor.Disconnect();
+}
+
+void Window::OnStatus()
+{
+
+}
+
+void Window::OnSensorStatus(const Status& status)
+{
+
 }
 
 void Window::OnSensorData(const ScanData& data)
@@ -121,29 +130,29 @@ void Window::OnSensorData(const ScanData& data)
 
     QPen cyan(QColor(Qt::cyan), 2);
     QPen redEcho0(QColor(139, 0, 0), 2);
-    QPen redEcho1(QColor(205, 0, 0), 1);
-    QPen redEcho2(QColor(238, 0, 0), 1);
-    QPen redEcho3(QColor(255, 0, 0), 1);
-    QPen blueEcho0(QColor(0, 0, 139), 1);
-    QPen blueEcho1(QColor(0, 0, 205), 1);
-    QPen blueEcho2(QColor(0, 0, 238), 1);
-    QPen blueEcho3(QColor(0, 0, 255), 1);
-    QPen greenEcho0(QColor(0, 139, 0), 1);
-    QPen greenEcho1(QColor(0, 205, 0), 1);
-    QPen greenEcho2(QColor(0, 238, 0), 1);
-    QPen greenEcho3(QColor(0, 255, 0), 1);
-    QPen yellowEcho0(QColor(139, 139, 0), 1);
-    QPen yellowEcho1(QColor(205, 205, 0), 1);
-    QPen yellowEcho2(QColor(238, 238, 0), 1);
-    QPen yellowEcho3(QColor(255, 255, 0), 1);
+    QPen redEcho1(QColor(205, 0, 0), 2);
+    QPen redEcho2(QColor(238, 0, 0), 2);
+    QPen redEcho3(QColor(255, 0, 0), 2);
+    QPen blueEcho0(QColor(0, 0, 139), 2);
+    QPen blueEcho1(QColor(0, 0, 205), 2);
+    QPen blueEcho2(QColor(0, 0, 238), 2);
+    QPen blueEcho3(QColor(0, 0, 255), 2);
+    QPen greenEcho0(QColor(0, 139, 0), 2);
+    QPen greenEcho1(QColor(0, 205, 0), 2);
+    QPen greenEcho2(QColor(0, 238, 0), 2);
+    QPen greenEcho3(QColor(0, 255, 0), 2);
+    QPen yellowEcho0(QColor(139, 139, 0), 2);
+    QPen yellowEcho1(QColor(205, 205, 0), 2);
+    QPen yellowEcho2(QColor(238, 238, 0), 2);
+    QPen yellowEcho3(QColor(255, 255, 0), 2);
     QBrush white(QColor(255, 255, 255));
 
     foreach (Point point, data.Points)
     {
         scene->addLine(0, 480, 640, 480, cyan);
         scene->addLine(320, 0, 320, 480, cyan);
-        qreal x = 320 - point.RadialDistance * qSin(point.HorizontalAngle);
-        qreal y = 480 - point.RadialDistance * qCos(point.HorizontalAngle);
+        qreal x = 320 - point.RadialDistance * sin(point.HorizontalAngle);
+        qreal y = 480 - point.RadialDistance * cos(point.HorizontalAngle);
         if(point.Layer == 0)
         {
             if(point.Echo == 0)
@@ -254,7 +263,7 @@ bool Window::eventFilter(QObject* object, QEvent* event)
         if(event->type() == QEvent::MouseButtonRelease)
             ui->widgetConnection->hide();
     }
-    if(object != ui->graphicsView->viewport()) return false;
+    if(object != ui->graphicsView) return false;
     if(event->type() != QEvent::Wheel) return false;
     double in = 1.08, out = 1.0 / in;
     QWheelEvent* wheel = (QWheelEvent*)event;

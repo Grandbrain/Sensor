@@ -1,4 +1,5 @@
 #include "sensor.h"
+#include <QDebug>
 
 #pragma pack(push, 1)
 struct DataHeader
@@ -209,13 +210,11 @@ public:
         Thread::Delay(ms);
     }
 
-    static qreal ConvertTicks(quint16 angleTicks)
+    static qreal ConvertTicks(qint16 angleTicks)
     {
         const qreal pi = 3.141592653589793238462;
         const qreal deg2rad = 0.01745329251994329576923690768;
-        qreal angle = static_cast<qreal>(angleTicks);
-        angle /= 32.0;
-        angle *= deg2rad;
+        qreal angle = static_cast<qreal>(angleTicks) / 32.0 * deg2rad;
         if(angle > -1000.0 && angle < 1000.0)
         {
             while(angle > pi) angle -= 2.0 * pi;
@@ -486,13 +485,6 @@ public:
         DataHeader header = CreateDataHeader(sizeof command, 0x2010);
         return Push(header, command);
     }
-
-    static QByteArray GetAngleTicksPerRotation()
-    {
-        CommandGetParameter command = CreateGetParameter(0x0011, 0x1105);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
-    }
 };
 
 
@@ -659,11 +651,6 @@ bool Sensor::GetAngularResolutionType()
     return Send(Utils::GetAngularResolutionType());
 }
 
-bool Sensor::GetAngleTicksPerRotation()
-{
-    return Send(Utils::GetAngleTicksPerRotation());
-}
-
 QPair<qint16, qint16> Sensor::GetStartAngleBoundary()
 {
     return qMakePair(-1919, 1600);
@@ -744,7 +731,7 @@ void Sensor::Parse()
             point.Layer = scanPoint.LayerEcho & 0x0F;
             point.Echo = (scanPoint.LayerEcho >> 4) & 0x0F;
             point.HorizontalAngle = Utils::ConvertTicks(scanPoint.HorizontalAngle);
-            point.RadialDistance = scanPoint.RadialDistance;
+            point.RadialDistance = static_cast<qreal>(scanPoint.RadialDistance / 1.0);
             point.EchoPulseWidth = scanPoint.EchoPulseWidth;
             scanData.Points.append(point);
         }
@@ -813,6 +800,49 @@ void Sensor::Parse()
             {
                 p.Port = static_cast<quint16>(param.Parameter);
                 p.ParameterChanged = Parameter::Port;
+            }
+            if(param.ParameterIndex == 0x1002)
+            {
+                QHostAddress a(param.Parameter);
+                p.SubnetMask = a.toString();
+                p.ParameterChanged = Parameter::SubnetMask;
+            }
+            if(param.ParameterIndex == 0x1003)
+            {
+                QHostAddress a(param.Parameter);
+                p.Gateway = a.toString();
+                p.ParameterChanged = Parameter::Gateway;
+            }
+            if(param.ParameterIndex == 0x1100)
+            {
+                p.StartAngle = param.Parameter;
+                p.ParameterChanged = Parameter::StartAngle;
+            }
+            if(param.ParameterIndex == 0x1101)
+            {
+                p.EndAngle = param.Parameter;
+                p.ParameterChanged = Parameter::EndAngle;
+            }
+            if(param.ParameterIndex == 0x1102)
+            {
+                p.ScanFrequency = param.Parameter;
+                p.ParameterChanged = Parameter::ScanFrequency;
+            }
+            if(param.ParameterIndex == 0x1103)
+            {
+                p.SyncAngleOffset = param.Parameter;
+                p.ParameterChanged = Parameter::SyncAngleOffset;
+            }
+            if(param.ParameterIndex == 0x1104)
+            {
+                p.AngularResolution = param.Parameter;
+                p.ParameterChanged = Parameter::AngularResolution;
+            }
+            if(param.ParameterIndex = 0x1012)
+            {
+                p.DataOutputFlags.first = (param.Parameter & 0x01) != 0;
+                p.DataOutputFlags.second = (param.Parameter & 0x10) != 0;
+                p.ParameterChanged = Parameter::DataOutputFlags;
             }
         }
     }
