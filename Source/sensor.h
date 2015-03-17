@@ -97,9 +97,9 @@ struct Status
     bool                MotorOn             ;
     QString             FirmwareVersion     ;
     QString             FPGAVersion         ;
-    quint16             SerialNumber0       ;
+    QString             SerialNumber0       ;
     quint16             SerialNumber1       ;
-    qreal               TemperatureC        ;
+    qreal               Temperature         ;
     QDateTime           FPGATime            ;
     QDateTime           DSPTime             ;
 };
@@ -163,6 +163,7 @@ public:
     QPair<qint16, qint16>   GetSyncAngleBoundary        ();
     QVector<quint16>        GetScanFrequencyValues      ();
     QVector<quint16>        GetAngularResolutionValues  ();
+    quint16                 GetAngleTicksPerRotation    ();
 
 private:
     bool                    Send                        (const QByteArray&);

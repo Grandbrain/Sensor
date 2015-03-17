@@ -684,6 +684,11 @@ QVector<quint16> Sensor::GetAngularResolutionValues()
     return vector;
 }
 
+quint16 Sensor::GetAngleTicksPerRotation()
+{
+    return 11520;
+}
+
 bool Sensor::Send(const QByteArray& array)
 {
     return mSocket.write(array) == array.size();
@@ -784,6 +789,16 @@ void Sensor::Parse()
             if(mArray.size() != sizeof DataHeader + sizeof quint16 + sizeof ReplyStatus) return;
             ReplyStatus param = *reinterpret_cast<ReplyStatus*>(mArray.data() + sizeof DataHeader + sizeof quint16);
             Status p;
+            p.MotorOn = (param.ScannerStatus & 0x01) != 0;
+            p.LaserOn = (param.ScannerStatus & 0x02) != 0;
+            p.FrequencyLocked = (param.ScannerStatus & 0x08) != 0;
+            p.ExternalSyncSignal = (param.ScannerStatus & 0x10) != 0;
+            p.PhaseLocked = (param.ScannerStatus & 0x20) != 0;
+            QByteArray a;
+            a.append((char*)&param.FirmwareVersion, sizeof param.FirmwareVersion);
+            QString hex(a.toHex());
+            //p.FirmwareVersion = a.toHex()
+            emit OnStatus(p);
         }
         if(replyId == 0x0011)
         {

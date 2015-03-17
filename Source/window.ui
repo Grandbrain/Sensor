@@ -235,14 +235,14 @@
             </layout>
            </item>
            <item row="4" column="0" colspan="2">
-            <widget class="QWidget" name="widgetConnection" native="true">
+            <widget class="QWidget" name="widgetMessage" native="true">
              <property name="contextMenuPolicy">
               <enum>Qt::NoContextMenu</enum>
              </property>
              <property name="styleSheet">
               <string notr="true">.QWidget { border: 2px solid #22B573; background-color: rgb(213, 242, 242); }</string>
              </property>
-             <layout class="QGridLayout" name="layoutConnectMessage">
+             <layout class="QGridLayout" name="layoutMessage">
               <item row="0" column="0">
                <widget class="QLabel" name="labelConnectionResult">
                 <property name="sizePolicy">
@@ -696,6 +696,9 @@
              <property name="frame">
               <bool>true</bool>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
@@ -801,6 +804,9 @@
                </disabled>
               </palette>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
             </widget>
            </item>
            <item row="2" column="0">
@@ -902,6 +908,9 @@
                 </colorrole>
                </disabled>
               </palette>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -1005,6 +1014,9 @@
                </disabled>
               </palette>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
             </widget>
            </item>
            <item row="5" column="0">
@@ -1106,6 +1118,9 @@
                 </colorrole>
                </disabled>
               </palette>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -1209,6 +1224,9 @@
                </disabled>
               </palette>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
             </widget>
            </item>
            <item row="7" column="0">
@@ -1311,6 +1329,9 @@
                </disabled>
               </palette>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
             </widget>
            </item>
            <item row="8" column="0">
@@ -1343,6 +1364,9 @@
              </item>
              <item>
               <widget class="QCheckBox" name="checkExternalSync">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -1357,6 +1381,12 @@
                </property>
                <property name="contextMenuPolicy">
                 <enum>Qt::NoContextMenu</enum>
+               </property>
+               <property name="checkable">
+                <bool>false</bool>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -1723,6 +1753,9 @@
                </disabled>
               </palette>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
             </widget>
            </item>
           </layout>
@@ -1790,6 +1823,30 @@
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>
   </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::NoToolBarArea</set>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionReset"/>
+  </widget>
   <action name="actionExit">
    <property name="text">
     <string>Выход</string>
@@ -1801,6 +1858,18 @@
   <action name="actionAbout">
    <property name="text">
     <string>О программе SensorPRO...</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/root/icon.ico</normaloff>:/root/icon.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Сброс СМП</string>
+   </property>
+   <property name="toolTip">
+    <string>Сброс настроек сигнального микропроцессора</string>
    </property>
   </action>
  </widget>
