@@ -10,6 +10,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     QRegExp regex ("^" + range + "\\." + range + "\\." + range + "\\." + range + "$");
     QValidator* addressValidator = new QRegExpValidator(regex, this);
     QValidator* portValidator = new QIntValidator(0, 65535, this);
+    installEventFilter(this);
 
     ui->setupUi(this);
     ui->progressConnection->hide();
@@ -256,6 +257,15 @@ void Window::OnAbout()
 
 bool Window::eventFilter(QObject* object, QEvent* event)
 {
+    if(event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent *key = static_cast<QKeyEvent *>(event);
+        if((key->key() == Qt::Key_Enter) || (key->key() == Qt::Key_Return))
+        {
+            if(ui->buttonConnect->isEnabled()) ui->buttonConnect->click();
+            else ui->buttonDisconnect->click();
+        }
+    }
     if(object == ui->widgetConnection ||
        object == ui->labelConnectionMessage ||
        object == ui->labelConnectionResult)
