@@ -1,3 +1,5 @@
+[![Licence](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/Grandbrain/Sensor/blob/master/LICENSE)
+
 Welcome to the Sensor project!
 ======
 
