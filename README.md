@@ -3,7 +3,7 @@
 
 # Welcome to the Sensor project!
 
-[Sensor](https://github.com/Grandbrain/Sensor) is a cross-platform application to use the LD-MRS laser scanners. The program uses the Ethernet protocol and allows to obtain measurement data, change device settings, as well as track the status of the device and to detect errors and warnings. The program is based on the Qt Framework and can run on all platforms supported by this library.
+[Sensor](https://github.com/Grandbrain/Sensor) is a cross-platform application to use the LD-MRS scanners. The program uses the Ethernet protocol and allows to obtain measurement data, change device settings, as well as track the status of the device and to detect errors and warnings. The program is based on the Qt Framework and can run on all platforms supported by this library.
 
 
 ## Contribute
