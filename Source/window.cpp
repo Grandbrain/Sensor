@@ -4,7 +4,8 @@
 #include <QDebug>
 #include <QShortcut>
 
-Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
+Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window),
+    settings("settings.ini", QSettings::IniFormat)
 {
     QString range = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
     QRegExp regex ("^" + range + "\\." + range + "\\." + range + "\\." + range + "$");
@@ -15,8 +16,8 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     ui->setupUi(this);
     ui->progressConnection->hide();
     ui->widgetMessage->hide();
-    ui->tabWidget->setTabEnabled(1, false);
-    ui->tabWidget->setTabEnabled(2, false);
+    //ui->tabWidget->setTabEnabled(1, false);
+    //ui->tabWidget->setTabEnabled(2, false);
     ui->editConnectionAddress->setValidator(addressValidator);
     ui->editConnectionPort->setValidator(portValidator);
     ui->widgetMessage->installEventFilter(this);
@@ -36,6 +37,8 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     connect(&sensor, SIGNAL(OnPoints(ScanData)), SLOT(OnSensorData(ScanData)));
     connect(&sensor, SIGNAL(OnStatus(Status)), SLOT(OnSensorStatus(Status)));
     connect(ui->buttonStatus, SIGNAL(released()), SLOT(OnStatus()));
+
+    ReadSettings();
 }
 
 Window::~Window()
@@ -294,4 +297,38 @@ bool Window::eventFilter(QObject* object, QEvent* event)
     if(wheel->delta() > 0) ui->graphicsView->scale(in, in);
     else ui->graphicsView->scale(out, out);
     return true;
+}
+
+void Window::closeEvent(QCloseEvent* event)
+{
+    WriteSettings();
+    event->accept();
+}
+
+void Window::resizeEvent(QResizeEvent*)
+{
+    if(!isMaximized() || !isMinimized())
+        settings.setValue("size", size());
+}
+
+void Window::changeEvent(QEvent*)
+{
+    if(!isMaximized() || !isMinimized())
+    {
+        resize(settings.value("size", QSize(1200, 670)).toSize());
+    }
+}
+
+void Window::WriteSettings()
+{
+    settings.setValue("size", size());
+    settings.setValue("maximized", isMaximized());
+    settings.setValue("pos", pos());
+}
+
+void Window::ReadSettings()
+{
+    resize(settings.value("size", QSize(1200, 670)).toSize());
+    if(settings.value("maximized", false).toBool()) showMaximized();
+    move(settings.value("pos", QPoint(200, 200)).toPoint());
 }

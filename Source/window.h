@@ -31,9 +31,15 @@ private slots:
 
 private:
     bool eventFilter(QObject*, QEvent*);
+    void closeEvent(QCloseEvent*);
+    void changeEvent(QEvent*);
+    void resizeEvent(QResizeEvent*);
+    void ReadSettings();
+    void WriteSettings();
 
 private:
     Ui::Window* ui;
+    QSettings settings;
     Sensor sensor;
 };
 
