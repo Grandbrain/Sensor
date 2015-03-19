@@ -8,6 +8,5 @@
         <file>frozen.ico</file>
         <file>success.ico</file>
         <file>warning.ico</file>
-        <file>settings.ini</file>
     </qresource>
 </RCC>
