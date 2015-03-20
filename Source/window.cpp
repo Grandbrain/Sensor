@@ -129,10 +129,9 @@ void Window::OnSensorStatus(const Status& status)
     ui->editFirmwareVersion->setText(status.FirmwareVersion);
     ui->editFPGAVersion->setText(status.FPGAVersion);
     ui->editTemperature->setText(QString::number(status.Temperature));
-    ui->editSerialNumber->setText(status.SerialNumber0);
-    ui->editCounterSerial->setText(QString::number(status.SerialNumber1));
-    ui->editFPGA->setText(status.FPGATime.toString());
-    ui->editDSP->setText(status.DSPTime.toString());
+    ui->editSerialNumber->setText(status.SerialNumber);
+    ui->editFPGA->setText(status.FPGATime);
+    ui->editDSP->setText(status.DSPTime);
     ui->editAngleTicks->setText(QString::number(sensor.GetAngleTicksPerRotation()));
     ui->checkExternalSync->setChecked(status.ExternalSyncSignal);
     ui->checkFrequencyLocked->setChecked(status.FrequencyLocked);
@@ -307,21 +306,19 @@ void Window::closeEvent(QCloseEvent* event)
 
 void Window::resizeEvent(QResizeEvent*)
 {
-    if(!isMaximized() || !isMinimized())
-        settings.setValue("size", size());
+    if(isMaximized() || isMinimized()) return;
+    normal = size();
 }
 
 void Window::changeEvent(QEvent*)
 {
-    if(!isMaximized() || !isMinimized())
-    {
-        resize(settings.value("size", QSize(1200, 670)).toSize());
-    }
+    if(isMaximized() || isMinimized()) return;
+    resize(normal);
 }
 
 void Window::WriteSettings()
 {
-    settings.setValue("size", size());
+    settings.setValue("size", normal);
     settings.setValue("maximized", isMaximized());
     settings.setValue("pos", pos());
 }

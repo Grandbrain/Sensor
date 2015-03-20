@@ -40,6 +40,7 @@ private:
 private:
     Ui::Window* ui;
     QSettings settings;
+    QSize normal;
     Sensor sensor;
 };
 

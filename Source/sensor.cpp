@@ -1,5 +1,4 @@
 #include "sensor.h"
-#include <QDebug>
 
 #pragma pack(push, 1)
 struct DataHeader
@@ -203,11 +202,33 @@ public:
         return array;
     }
 
-    static void Delay(ulong ms)
+    static QString ConvertTime(quint16 raw[3])
     {
-        class Thread : QThread
-        {public: static void Delay(ulong ms) {msleep(ms);}};
-        Thread::Delay(ms);
+        QDate date(raw[0], (raw[1] >> 8) & 0xff, raw[1] & 0xff);
+        QTime time((raw[2] >> 8) & 0xff, raw[2] & 0xff);
+        return QDateTime(date, time).toString("hh:mm dd.MM.yyyy");
+    }
+
+    static QString ConvertVersion(quint16 v)
+    {
+        QString version = QString::number(v, 16);
+        int count = 0;
+        for(int i = version.length() - 1; i >= 0; --i)
+        {
+            if(version.at(i) == QChar('0')) ++count;
+            else break;
+        }
+        QString result = version.at(0);
+        for(int i = 1; i < version.length() - count; i++)
+        {
+            if(version.at(i).isDigit())
+            {
+                result.append('.');
+                result.append(version.at(i));
+            }
+            else result.append(version.at(i));
+        }
+        return result;
     }
 
     static qreal ConvertTicks(qint16 angleTicks)
@@ -736,7 +757,7 @@ void Sensor::Parse()
             point.Layer = scanPoint.LayerEcho & 0x0F;
             point.Echo = (scanPoint.LayerEcho >> 4) & 0x0F;
             point.HorizontalAngle = Utils::ConvertTicks(scanPoint.HorizontalAngle);
-            point.RadialDistance = static_cast<qreal>(scanPoint.RadialDistance / 1.0);
+            point.RadialDistance = static_cast<qreal>(scanPoint.RadialDistance);
             point.EchoPulseWidth = scanPoint.EchoPulseWidth;
             scanData.Points.append(point);
         }
@@ -794,10 +815,12 @@ void Sensor::Parse()
             p.FrequencyLocked = (param.ScannerStatus & 0x08) != 0;
             p.ExternalSyncSignal = (param.ScannerStatus & 0x10) != 0;
             p.PhaseLocked = (param.ScannerStatus & 0x20) != 0;
-            QByteArray a;
-            a.append((char*)&param.FirmwareVersion, sizeof param.FirmwareVersion);
-            QString hex(a.toHex());
-            //p.FirmwareVersion = a.toHex()
+            p.Temperature = -(qreal(param.Temperature) - 579.2364) / 3.63;
+            p.DSPTime = Utils::ConvertTime(param.DSPTime);
+            p.FPGATime = Utils::ConvertTime(param.FPGATime);
+            p.FirmwareVersion = Utils::ConvertVersion(param.FirmwareVersion);
+            p.FPGAVersion = Utils::ConvertVersion(param.FPGAVersion);
+            p.SerialNumber = QString::number((param.SerialNumber0 >> 8) & 0xff, 16) + '/' + QString::number(param.SerialNumber0 & 0xff, 16) + ' ' + QString::number(param.SerialNumber1);
             emit OnStatus(p);
         }
         if(replyId == 0x0011)
@@ -859,6 +882,7 @@ void Sensor::Parse()
                 p.DataOutputFlags.second = (param.Parameter & 0x10) != 0;
                 p.ParameterChanged = Parameter::DataOutputFlags;
             }
+            emit OnParameters(p);
         }
     }
 }

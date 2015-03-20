@@ -97,11 +97,10 @@ struct Status
     bool                MotorOn             ;
     QString             FirmwareVersion     ;
     QString             FPGAVersion         ;
-    QString             SerialNumber0       ;
-    quint16             SerialNumber1       ;
+    QString             SerialNumber        ;
     qreal               Temperature         ;
-    QDateTime           FPGATime            ;
-    QDateTime           DSPTime             ;
+    QString             FPGATime            ;
+    QString             DSPTime             ;
 };
 
 struct Parameters
