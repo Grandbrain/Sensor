@@ -12,3 +12,17 @@ There are several ways to contribute to Sensor project:
 * [Submit bugs](https://github.com/Grandbrain/Sensor/issues) and help me verify fixes;
 * Review the [source code changes](https://github.com/Grandbrain/Sensor/pulls);
 * Read and update [documentation](https://github.com/Grandbrain/Sensor/tree/master/Docs) files.
+
+
+## Documentation
+
+*  [Getting started guide](https://github.com/Grandbrain/Sensor/blob/master/Docs/Ethernet(en).pdf)
+*  [Protocol specification](https://github.com/Grandbrain/Sensor/blob/master/Docs/Ethernet(en).pdf)
+
+
+## Building
+
+*  Download and extract the [latest release](https://github.com/Grandbrain/Sensor/releases) of the source code;
+*  Download and install the latest version of [Qt Community](https://www.qt.io/ru/download-open-source);
+*  Run Qt Creator and open the project file Sensor.pro;
+*  
