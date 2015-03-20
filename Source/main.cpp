@@ -3,16 +3,16 @@
 #include "window.h"
 #include "splash.h"
 
-void translate()
+void Translate()
 {
-    QLocale currentLocale = QLocale::system();
-    if(currentLocale.language() != QLocale::Language::English) return;
-    QStringList files {"", ""};
+    QLocale::Language lang = QLocale::system().language();
+    QStringList files;
+    if(lang == QLocale::Language::Russian) files = {"", ""};
+    else files = {"", ""};
     foreach (QString file, files)
     {
-        QTranslator* translator = new QTranslator(qApp);
-        translator->load(file);
-        qApp->installTranslator(translator);
+        QTranslator* trans = new QTranslator(qApp);
+        if(trans->load(file)) qApp->installTranslator(trans);
     }
 }
 
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setStyle("fusion");
-    translate();
+    Translate();
 
     Splash s;
     s.exec();
