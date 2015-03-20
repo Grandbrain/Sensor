@@ -24,13 +24,13 @@ There are several ways to contribute to Sensor project:
 
 *  Download and extract the [latest release](https://github.com/Grandbrain/Sensor/releases) of the source code.
 *  Download and install the latest version of [Qt Community](https://www.qt.io/ru/download-open-source).
-*  Run Qt Creator and open the project file "Sensor.pro".
+*  Launch Qt Creator and open the project file "Sensor.pro".
 *  Rebuild the project by clicking "Rebuild all" in the "Build" menu.
-*  Run the application by clicking "Run" in the "Build" menu.
+*  Launch the application by clicking "Run" in the "Build" menu.
 
 
 ## Usage
 
 * Connect the LD-MRS scanner to the network.
-* Launch the application and connect to the scanner by entering the IP-address and port and clicking "Connect".
+* Launch the application and connect to the scanner by entering its address and clicking "Connect".
 * Use the tabs "Chart" and "Settings" to see the scanner measurement and control its parameters.
