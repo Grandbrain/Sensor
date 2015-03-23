@@ -16,5 +16,6 @@
         <file>Resources/logo.png</file>
         <file>Resources/splash.png</file>
         <file>Resources/icon.png</file>
+        <file>Resources/ru.qm</file>
     </qresource>
 </RCC>

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QWheelEvent>
+#include <QDesktopWidget>
 #include "sensor.h"
 
 namespace Ui
@@ -19,6 +20,7 @@ public:
     virtual ~Window();
 
 private slots:
+    void OnCheck(bool);
     void OnStatus();
     void OnDisconnect();
     void OnConnect();
@@ -28,19 +30,13 @@ private slots:
     void OnSensorConnected();
     void OnSensorDisconnected();
     void OnSensorStatus(const Status&);
+    void OnSensorWarnings(const ErrorsWarnings&);
 
 private:
     bool eventFilter(QObject*, QEvent*);
-    void closeEvent(QCloseEvent*);
-    void changeEvent(QEvent*);
-    void resizeEvent(QResizeEvent*);
-    void ReadSettings();
-    void WriteSettings();
 
 private:
     Ui::Window* ui;
-    QSettings settings;
-    QSize normal;
     Sensor sensor;
 };
 

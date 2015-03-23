@@ -2,10 +2,9 @@
 #include "ui_window.h"
 #include "about.h"
 #include <QDebug>
-#include <QShortcut>
+#include <QScreen>
 
-Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window),
-    settings("settings.ini", QSettings::IniFormat)
+Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
 {
     QString range = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
     QRegExp regex ("^" + range + "\\." + range + "\\." + range + "\\." + range + "$");
@@ -28,6 +27,12 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window),
     ui->graphicsView->setRenderHint(QPainter::HighQualityAntialiasing);
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
 
+    connect(ui->checkExternalSync, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
+    connect(ui->checkFrequencyLocked, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
+    connect(ui->checkLaserOn, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
+    connect(ui->checkMotorOn, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
+    connect(ui->checkPhaseLocked, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
+    connect(ui->buttonStatus, SIGNAL(released()), SLOT(OnStatus()));
     connect(ui->actionAbout, SIGNAL(triggered()), SLOT(OnAbout()));
     connect(ui->buttonConnect, SIGNAL(released()), SLOT(OnConnect()));
     connect(ui->buttonDisconnect, SIGNAL(released()), SLOT(OnDisconnect()));
@@ -36,14 +41,26 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window),
     connect(&sensor, SIGNAL(OnDisconnected()), SLOT(OnSensorDisconnected()));
     connect(&sensor, SIGNAL(OnPoints(ScanData)), SLOT(OnSensorData(ScanData)));
     connect(&sensor, SIGNAL(OnStatus(Status)), SLOT(OnSensorStatus(Status)));
-    connect(ui->buttonStatus, SIGNAL(released()), SLOT(OnStatus()));
-
-    ReadSettings();
+    connect(&sensor, SIGNAL(OnWarnings(ErrorsWarnings)), SLOT(OnSensorWarnings(ErrorsWarnings)));
 }
 
 Window::~Window()
 {
     delete ui;
+}
+
+void Window::OnCheck(bool checked)
+{
+    if(checked && sender() == ui->checkExternalSync) ui->checkExternalSync->setChecked(false);
+    if(checked && sender() == ui->checkFrequencyLocked) ui->checkFrequencyLocked->setChecked(false);
+    if(checked && sender() == ui->checkLaserOn) ui->checkLaserOn->setChecked(false);
+    if(checked && sender() == ui->checkMotorOn) ui->checkMotorOn->setChecked(false);
+    if(checked && sender() == ui->checkPhaseLocked) ui->checkPhaseLocked->setChecked(false);
+    if(!checked && sender() == ui->checkExternalSync) ui->checkExternalSync->setChecked(true);
+    if(!checked && sender() == ui->checkFrequencyLocked) ui->checkFrequencyLocked->setChecked(true);
+    if(!checked && sender() == ui->checkLaserOn) ui->checkLaserOn->setChecked(true);
+    if(!checked && sender() == ui->checkMotorOn) ui->checkMotorOn->setChecked(true);
+    if(!checked && sender() == ui->checkPhaseLocked) ui->checkPhaseLocked->setChecked(true);
 }
 
 void Window::OnSensorConnected()
@@ -122,6 +139,11 @@ void Window::OnDisconnect()
 void Window::OnStatus()
 {
     sensor.GetStatus();
+}
+
+void Window::OnSensorWarnings(const ErrorsWarnings& warnings)
+{
+
 }
 
 void Window::OnSensorStatus(const Status& status)
@@ -296,36 +318,4 @@ bool Window::eventFilter(QObject* object, QEvent* event)
     if(wheel->delta() > 0) ui->graphicsView->scale(in, in);
     else ui->graphicsView->scale(out, out);
     return true;
-}
-
-void Window::closeEvent(QCloseEvent* event)
-{
-    WriteSettings();
-    event->accept();
-}
-
-void Window::resizeEvent(QResizeEvent*)
-{
-    if(isMaximized() || isMinimized()) return;
-    normal = size();
-}
-
-void Window::changeEvent(QEvent*)
-{
-    if(isMaximized() || isMinimized()) return;
-    resize(normal);
-}
-
-void Window::WriteSettings()
-{
-    settings.setValue("size", normal);
-    settings.setValue("maximized", isMaximized());
-    settings.setValue("pos", pos());
-}
-
-void Window::ReadSettings()
-{
-    resize(settings.value("size", QSize(1200, 670)).toSize());
-    if(settings.value("maximized", false).toBool()) showMaximized();
-    move(settings.value("pos", QPoint(200, 200)).toPoint());
 }

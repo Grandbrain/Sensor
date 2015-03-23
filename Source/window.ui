@@ -322,16 +322,16 @@
               </property>
               <layout class="QHBoxLayout" name="layoutGroupCommands">
                <property name="leftMargin">
-                <number>2</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>2</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>2</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>2</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QPushButton" name="buttonReset">
@@ -340,6 +340,10 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(250, 250, 250);
+padding: 4px;</string>
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
@@ -351,9 +355,6 @@
                    <height>32</height>
                   </size>
                  </property>
-                 <property name="flat">
-                  <bool>true</bool>
-                 </property>
                 </widget>
                </item>
                <item>
@@ -363,6 +364,10 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(250, 250, 250);
+padding: 4px;</string>
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
@@ -374,9 +379,6 @@
                    <height>32</height>
                   </size>
                  </property>
-                 <property name="flat">
-                  <bool>true</bool>
-                 </property>
                 </widget>
                </item>
                <item>
@@ -386,6 +388,10 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(250, 250, 250);
+padding: 4px;</string>
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
@@ -397,9 +403,6 @@
                    <height>32</height>
                   </size>
                  </property>
-                 <property name="flat">
-                  <bool>true</bool>
-                 </property>
                 </widget>
                </item>
                <item>
@@ -409,6 +412,10 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(250, 250, 250);
+padding: 4px;</string>
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
@@ -420,9 +427,6 @@
                    <height>32</height>
                   </size>
                  </property>
-                 <property name="flat">
-                  <bool>true</bool>
-                 </property>
                 </widget>
                </item>
                <item>
@@ -432,6 +436,10 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(250, 250, 250);
+padding: 4px;</string>
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
@@ -443,13 +451,14 @@
                    <height>32</height>
                   </size>
                  </property>
-                 <property name="flat">
-                  <bool>true</bool>
-                 </property>
                 </widget>
                </item>
                <item>
                 <widget class="QPushButton" name="buttonResetParams">
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(250, 250, 250);
+padding: 4px;</string>
+                 </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
                    <normaloff>:/root/Resources/params.ico</normaloff>:/root/Resources/params.ico</iconset>
@@ -459,9 +468,6 @@
                    <width>32</width>
                    <height>32</height>
                   </size>
-                 </property>
-                 <property name="flat">
-                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -473,6 +479,10 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(250, 250, 250);
+padding: 4px;</string>
+                 </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
                    <normaloff>:/root/Resources/start.ico</normaloff>:/root/Resources/start.ico</iconset>
@@ -482,9 +492,6 @@
                    <width>32</width>
                    <height>32</height>
                   </size>
-                 </property>
-                 <property name="flat">
-                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -1741,14 +1748,102 @@
                  </item>
                  <item>
                   <widget class="QCheckBox" name="checkExternalSync">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="Button">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>213</red>
+                         <green>222</green>
+                         <blue>242</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                      <colorrole role="Base">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>213</red>
+                         <green>222</green>
+                         <blue>242</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                      <colorrole role="Window">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>213</red>
+                         <green>222</green>
+                         <blue>242</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="Button">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>213</red>
+                         <green>222</green>
+                         <blue>242</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                      <colorrole role="Base">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>213</red>
+                         <green>222</green>
+                         <blue>242</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                      <colorrole role="Window">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>213</red>
+                         <green>222</green>
+                         <blue>242</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="Button">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>213</red>
+                         <green>222</green>
+                         <blue>242</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                      <colorrole role="Base">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>213</red>
+                         <green>222</green>
+                         <blue>242</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                      <colorrole role="Window">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>213</red>
+                         <green>222</green>
+                         <blue>242</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
                    </property>
                    <property name="mouseTracking">
                     <bool>false</bool>
@@ -1759,11 +1854,8 @@
                    <property name="contextMenuPolicy">
                     <enum>Qt::NoContextMenu</enum>
                    </property>
-                   <property name="checkable">
-                    <bool>false</bool>
-                   </property>
                    <property name="checked">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
