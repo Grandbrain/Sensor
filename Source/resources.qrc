@@ -1,12 +1,20 @@
 <RCC>
     <qresource prefix="/root">
-        <file>icon.ico</file>
-        <file>splash.png</file>
-        <file>icon.png</file>
-        <file>logo.png</file>
-        <file>error.ico</file>
-        <file>frozen.ico</file>
-        <file>success.ico</file>
-        <file>warning.ico</file>
+        <file>Resources/error.ico</file>
+        <file>Resources/frozen.ico</file>
+        <file>Resources/get.ico</file>
+        <file>Resources/icon.ico</file>
+        <file>Resources/params.ico</file>
+        <file>Resources/reset.ico</file>
+        <file>Resources/save.ico</file>
+        <file>Resources/set.ico</file>
+        <file>Resources/start.ico</file>
+        <file>Resources/status.ico</file>
+        <file>Resources/stop.ico</file>
+        <file>Resources/success.ico</file>
+        <file>Resources/warning.ico</file>
+        <file>Resources/logo.png</file>
+        <file>Resources/splash.png</file>
+        <file>Resources/icon.png</file>
     </qresource>
 </RCC>

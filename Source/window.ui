@@ -14,7 +14,7 @@
    <bool>true</bool>
   </property>
   <property name="windowTitle">
-   <string notr="true">SensorPRO 1.1.0</string>
+   <string notr="true">Sensor 1.0</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -152,7 +152,7 @@
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap resource="resources.qrc">:/root/logo.png</pixmap>
+              <pixmap resource="resources.qrc">:/root/Resources/logo.png</pixmap>
              </property>
              <property name="textInteractionFlags">
               <set>Qt::NoTextInteraction</set>
@@ -252,7 +252,7 @@
                  </sizepolicy>
                 </property>
                 <property name="pixmap">
-                 <pixmap resource="resources.qrc">:/root/success.ico</pixmap>
+                 <pixmap resource="resources.qrc">:/root/Resources/success.ico</pixmap>
                 </property>
                </widget>
               </item>
@@ -321,6 +321,18 @@
                <string>Команды</string>
               </property>
               <layout class="QHBoxLayout" name="layoutGroupCommands">
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>2</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>2</number>
+               </property>
                <item>
                 <widget class="QPushButton" name="buttonReset">
                  <property name="sizePolicy">
@@ -328,6 +340,19 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/root/Resources/reset.ico</normaloff>:/root/Resources/reset.ico</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
+                 </property>
+                 <property name="flat">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -339,6 +364,19 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/root/Resources/status.ico</normaloff>:/root/Resources/status.ico</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
+                 </property>
+                 <property name="flat">
+                  <bool>true</bool>
+                 </property>
                 </widget>
                </item>
                <item>
@@ -348,6 +386,19 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/root/Resources/save.ico</normaloff>:/root/Resources/save.ico</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
+                 </property>
+                 <property name="flat">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -359,6 +410,19 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/root/Resources/set.ico</normaloff>:/root/Resources/set.ico</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
+                 </property>
+                 <property name="flat">
+                  <bool>true</bool>
+                 </property>
                 </widget>
                </item>
                <item>
@@ -369,28 +433,58 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/root/Resources/get.ico</normaloff>:/root/Resources/get.ico</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
+                 </property>
+                 <property name="flat">
+                  <bool>true</bool>
+                 </property>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="buttonResetParams"/>
+                <widget class="QPushButton" name="buttonResetParams">
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/root/Resources/params.ico</normaloff>:/root/Resources/params.ico</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
+                 </property>
+                 <property name="flat">
+                  <bool>true</bool>
+                 </property>
+                </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="buttonStart">
+                <widget class="QPushButton" name="buttonStartStop">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="buttonStop">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
+                 <property name="icon">
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/root/Resources/start.ico</normaloff>:/root/Resources/start.ico</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
+                 </property>
+                 <property name="flat">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -1959,7 +2053,7 @@
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>О программе SensorPRO...</string>
+    <string>О программе Sensor...</string>
    </property>
   </action>
  </widget>

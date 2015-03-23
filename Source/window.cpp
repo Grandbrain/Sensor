@@ -81,7 +81,7 @@ void Window::OnSensorError()
         {
             ui->progressConnection->hide();
             ui->labelConnectionMessage->setText(tr("Не удалось выполнить подключение."));
-            ui->labelConnectionResult->setPixmap(QPixmap(":/root/error.ico"));
+            ui->labelConnectionResult->setPixmap(QPixmap(":/root/Resources/error.ico"));
             ui->widgetMessage->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
             ui->buttonConnect->setEnabled(true);
             ui->widgetMessage->show();
@@ -91,7 +91,7 @@ void Window::OnSensorError()
         {
             ui->progressConnection->hide();
             ui->labelConnectionMessage->setText(tr("Не удалось отключиться."));
-            ui->labelConnectionResult->setPixmap(QPixmap(":/root/error.ico"));
+            ui->labelConnectionResult->setPixmap(QPixmap(":/root/Resources/error.ico"));
             ui->widgetMessage->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
             ui->buttonDisconnect->setEnabled(true);
             ui->widgetMessage->show();

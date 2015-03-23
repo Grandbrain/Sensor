@@ -28,7 +28,7 @@
   <property name="styleSheet">
    <string notr="true">QDialog 
 {
-	background-image: url(:/root/splash.png); 
+	background-image: url(:/root/Resources/splash.png); 
 }</string>
   </property>
   <layout class="QGridLayout" name="layoutSplash">
