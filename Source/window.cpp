@@ -20,12 +20,26 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     ui->editConnectionAddress->setValidator(addressValidator);
     ui->editConnectionPort->setValidator(portValidator);
     ui->widgetMessage->installEventFilter(this);
+    ui->editAddress->setValidator(addressValidator);
+    ui->editPort->setValidator(portValidator);
+    ui->editSubnet->setValidator(addressValidator);
+    ui->editGateway->setValidator(addressValidator);
+    ui->spinStartAngle->setMaximum(sensor.GetStartAngleBoundary().second);
+    ui->spinStartAngle->setMinimum(sensor.GetStartAngleBoundary().first);
+    ui->spinEndAngle->setMaximum(sensor.GetEndAngleBoundary().second);
+    ui->spinEndAngle->setMinimum(sensor.GetEndAngleBoundary().first);
+    ui->spinSyncOffset->setMinimum(sensor.GetSyncAngleBoundary().first);
+    ui->spinSyncOffset->setMaximum(sensor.GetSyncAngleBoundary().second);
+    foreach (quint16 value, sensor.GetScanFrequencyValues()) ui->comboScanFrequency->addItem(QString::number(value));
+    foreach (quint16 value, sensor.GetAngularResolutionValues()) ui->comboAngularResolution->addItem(QString::number(value));
+    ui->lineParameters->hide();
+    ui->progressParameters->hide();
+    ui->lineStatus->hide();
+    ui->progressStatus->hide();
 
     QGraphicsScene* scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
     ui->graphicsView->installEventFilter(this);
-    ui->graphicsView->setRenderHint(QPainter::HighQualityAntialiasing);
-    ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
 
     connect(ui->checkExternalSync, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
     connect(ui->checkFrequencyLocked, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
@@ -49,18 +63,34 @@ Window::~Window()
     delete ui;
 }
 
+void Window::OnAbout()
+{
+    About about(this);
+    about.exec();
+}
+
 void Window::OnCheck(bool checked)
 {
-    if(checked && sender() == ui->checkExternalSync) ui->checkExternalSync->setChecked(false);
-    if(checked && sender() == ui->checkFrequencyLocked) ui->checkFrequencyLocked->setChecked(false);
-    if(checked && sender() == ui->checkLaserOn) ui->checkLaserOn->setChecked(false);
-    if(checked && sender() == ui->checkMotorOn) ui->checkMotorOn->setChecked(false);
-    if(checked && sender() == ui->checkPhaseLocked) ui->checkPhaseLocked->setChecked(false);
-    if(!checked && sender() == ui->checkExternalSync) ui->checkExternalSync->setChecked(true);
-    if(!checked && sender() == ui->checkFrequencyLocked) ui->checkFrequencyLocked->setChecked(true);
-    if(!checked && sender() == ui->checkLaserOn) ui->checkLaserOn->setChecked(true);
-    if(!checked && sender() == ui->checkMotorOn) ui->checkMotorOn->setChecked(true);
-    if(!checked && sender() == ui->checkPhaseLocked) ui->checkPhaseLocked->setChecked(true);
+    if(checked && sender() == ui->checkExternalSync)
+        ui->checkExternalSync->setChecked(false);
+    if(checked && sender() == ui->checkFrequencyLocked)
+        ui->checkFrequencyLocked->setChecked(false);
+    if(checked && sender() == ui->checkLaserOn)
+        ui->checkLaserOn->setChecked(false);
+    if(checked && sender() == ui->checkMotorOn)
+        ui->checkMotorOn->setChecked(false);
+    if(checked && sender() == ui->checkPhaseLocked)
+        ui->checkPhaseLocked->setChecked(false);
+    if(!checked && sender() == ui->checkExternalSync)
+        ui->checkExternalSync->setChecked(true);
+    if(!checked && sender() == ui->checkFrequencyLocked)
+        ui->checkFrequencyLocked->setChecked(true);
+    if(!checked && sender() == ui->checkLaserOn)
+        ui->checkLaserOn->setChecked(true);
+    if(!checked && sender() == ui->checkMotorOn)
+        ui->checkMotorOn->setChecked(true);
+    if(!checked && sender() == ui->checkPhaseLocked)
+        ui->checkPhaseLocked->setChecked(true);
 }
 
 void Window::OnSensorConnected()
@@ -148,6 +178,11 @@ void Window::OnSensorWarnings(const ErrorsWarnings& warnings)
 
 void Window::OnSensorStatus(const Status& status)
 {
+    ui->checkExternalSync->blockSignals(true);
+    ui->checkFrequencyLocked->blockSignals(true);
+    ui->checkLaserOn->blockSignals(true);
+    ui->checkMotorOn->blockSignals(true);
+    ui->checkPhaseLocked->blockSignals(true);
     ui->editFirmwareVersion->setText(status.FirmwareVersion);
     ui->editFPGAVersion->setText(status.FPGAVersion);
     ui->editTemperature->setText(QString::number(status.Temperature));
@@ -160,6 +195,11 @@ void Window::OnSensorStatus(const Status& status)
     ui->checkLaserOn->setChecked(status.LaserOn);
     ui->checkMotorOn->setChecked(status.MotorOn);
     ui->checkPhaseLocked->setChecked(status.PhaseLocked);
+    ui->checkExternalSync->blockSignals(false);
+    ui->checkFrequencyLocked->blockSignals(false);
+    ui->checkLaserOn->blockSignals(false);
+    ui->checkMotorOn->blockSignals(false);
+    ui->checkPhaseLocked->blockSignals(false);
 }
 
 void Window::OnSensorData(const ScanData& data)
@@ -285,12 +325,6 @@ void Window::OnSensorData(const ScanData& data)
             }
         }
     }
-}
-
-void Window::OnAbout()
-{
-    About about(this);
-    about.exec();
 }
 
 bool Window::eventFilter(QObject* object, QEvent* event)
