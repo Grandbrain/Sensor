@@ -726,7 +726,8 @@ void Sensor::Parse()
     {
         if(mArray.size() < sizeof DataHeader + sizeof ScanHeader) return;
         ScanHeader scanHeader = *reinterpret_cast<ScanHeader*>(mArray.data() + sizeof DataHeader);
-        if(mArray.size() != sizeof DataHeader + sizeof ScanHeader + scanHeader.ScanPoints * sizeof ScanPoint) return;
+        if(mArray.size() != sizeof DataHeader + sizeof ScanHeader +
+                scanHeader.ScanPoints * sizeof ScanPoint) return;
         ScanData scanData;
         scanData.AngleTicks = scanHeader.AngleTicks;
         scanData.EndAngle = scanHeader.EndAngle;
@@ -766,7 +767,8 @@ void Sensor::Parse()
     else if(header.DataType == 0x2030)
     {
         if(mArray.size() != sizeof DataHeader + sizeof ErrorRegisters) return;
-        ErrorRegisters regs = *reinterpret_cast<ErrorRegisters*>(mArray.data() + sizeof DataHeader);
+        ErrorRegisters regs = *reinterpret_cast<ErrorRegisters*>(mArray.data() +
+            sizeof DataHeader);
         ErrorsWarnings err;
         err.E1CS = (regs.ErrorRegister1 & 0x3C1F) != 0 || (regs.ErrorRegister1 & 0x300) == 0x300;
         err.E1SBTI = (regs.ErrorRegister1 & 0x04) != 0;
@@ -808,7 +810,8 @@ void Sensor::Parse()
         if(replyId == 0x0001)
         {
             if(mArray.size() != sizeof DataHeader + sizeof quint16 + sizeof ReplyStatus) return;
-            ReplyStatus param = *reinterpret_cast<ReplyStatus*>(mArray.data() + sizeof DataHeader + sizeof quint16);
+            ReplyStatus param = *reinterpret_cast<ReplyStatus*>(mArray.data() +
+                sizeof DataHeader + sizeof quint16);
             Status p;
             p.MotorOn = (param.ScannerStatus & 0x01) != 0;
             p.LaserOn = (param.ScannerStatus & 0x02) != 0;
@@ -820,13 +823,17 @@ void Sensor::Parse()
             p.FPGATime = Utils::ConvertTime(param.FPGATime);
             p.FirmwareVersion = Utils::ConvertVersion(param.FirmwareVersion);
             p.FPGAVersion = Utils::ConvertVersion(param.FPGAVersion);
-            p.SerialNumber = QString::number((param.SerialNumber0 >> 8) & 0xff, 16) + '/' + QString::number(param.SerialNumber0 & 0xff, 16) + ' ' + QString::number(param.SerialNumber1);
+            p.SerialNumber = QString::number((param.SerialNumber0 >> 8) & 0xff, 16) + '/' +
+                    QString::number(param.SerialNumber0 & 0xff, 16) + ' '
+                    + QString::number(param.SerialNumber1);
             emit OnStatus(p);
         }
         if(replyId == 0x0011)
         {
-            if(mArray.size() != sizeof DataHeader + sizeof quint16 + sizeof ReplyGetParameter) return;
-            ReplyGetParameter param = *reinterpret_cast<ReplyGetParameter*>(mArray.data() + sizeof DataHeader + sizeof quint16);
+            if(mArray.size() != sizeof DataHeader + sizeof quint16 + sizeof ReplyGetParameter)
+                return;
+            ReplyGetParameter param = *reinterpret_cast<ReplyGetParameter*>(mArray.data()
+                + sizeof DataHeader + sizeof quint16);
             Parameters p;
             if(param.ParameterIndex == 0x1000)
             {

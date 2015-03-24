@@ -1,8 +1,6 @@
 #include "window.h"
 #include "ui_window.h"
 #include "about.h"
-#include <QDebug>
-#include <QScreen>
 
 Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
 {
@@ -30,8 +28,10 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     ui->spinEndAngle->setMinimum(sensor.GetEndAngleBoundary().first);
     ui->spinSyncOffset->setMinimum(sensor.GetSyncAngleBoundary().first);
     ui->spinSyncOffset->setMaximum(sensor.GetSyncAngleBoundary().second);
-    foreach (quint16 value, sensor.GetScanFrequencyValues()) ui->comboScanFrequency->addItem(QString::number(value));
-    foreach (quint16 value, sensor.GetAngularResolutionValues()) ui->comboAngularResolution->addItem(QString::number(value));
+    foreach (quint16 value, sensor.GetScanFrequencyValues())
+        ui->comboScanFrequency->addItem(QString::number(value));
+    foreach (quint16 value, sensor.GetAngularResolutionValues())
+        ui->comboAngularResolution->addItem(QString::number(value));
     ui->lineParameters->hide();
     ui->progressParameters->hide();
     ui->lineStatus->hide();
@@ -56,6 +56,8 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     connect(&sensor, SIGNAL(OnPoints(ScanData)), SLOT(OnSensorData(ScanData)));
     connect(&sensor, SIGNAL(OnStatus(Status)), SLOT(OnSensorStatus(Status)));
     connect(&sensor, SIGNAL(OnWarnings(ErrorsWarnings)), SLOT(OnSensorWarnings(ErrorsWarnings)));
+    connect(&sensor, SIGNAL(OnFailed(Command)), SLOT(OnSensorFailed(Command)));
+    connect(&sensor, SIGNAL(OnParameters(Parameters)), SLOT(OnSensorParameters(Parameters)));
 }
 
 Window::~Window()
@@ -169,11 +171,6 @@ void Window::OnDisconnect()
 void Window::OnStatus()
 {
     sensor.GetStatus();
-}
-
-void Window::OnSensorWarnings(const ErrorsWarnings& warnings)
-{
-
 }
 
 void Window::OnSensorStatus(const Status& status)
@@ -325,6 +322,21 @@ void Window::OnSensorData(const ScanData& data)
             }
         }
     }
+}
+
+void Window::OnSensorWarnings(const ErrorsWarnings& warnings)
+{
+
+}
+
+void Window::OnSensorParameters(const Parameters& parameters)
+{
+
+}
+
+void Window::OnSensorFailed(Command command)
+{
+
 }
 
 bool Window::eventFilter(QObject* object, QEvent* event)
