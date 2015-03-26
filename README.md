@@ -16,7 +16,6 @@ There are several ways to contribute to Sensor project:
 
 ## Documentation
 
-*  [Getting started guide](https://github.com/Grandbrain/Sensor/blob/master/Docs/Protocol(en).pdf)
 *  [Protocol specification](https://github.com/Grandbrain/Sensor/blob/master/Docs/Protocol(en).pdf)
 
 
