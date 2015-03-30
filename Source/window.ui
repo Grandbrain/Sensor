@@ -365,6 +365,9 @@ padding: 4px;</string>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="toolTip">
+                  <string>Получить статус</string>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true">background-color: rgb(250, 250, 250);
 padding: 4px;</string>

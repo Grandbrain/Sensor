@@ -178,8 +178,12 @@ struct ReplyStatus
     quint16     SerialNumber0       ;
     quint16     SerialNumber1       ;
     quint16     Reserved2           ;
-    quint16     FPGATime[3]         ;
-    quint16     DSPTime[3]          ;
+    quint16     FPGATime1           ;
+    quint16     FPGATime2           ;
+    quint16     FPGATime3           ;
+    quint16     DSPTime1            ;
+    quint16     DSPTime2            ;
+    quint16     DSPTime3            ;
 };
 #pragma pack(pop)
 
@@ -202,11 +206,14 @@ public:
         return array;
     }
 
-    static QString ConvertTime(quint16 raw[3])
+    static QString ConvertTime(quint16 a, quint16 b, quint16 c)
     {
-        QDate date(raw[0], (raw[1] >> 8) & 0xff, raw[1] & 0xff);
-        QTime time((raw[2] >> 8) & 0xff, raw[2] & 0xff);
-        return QDateTime(date, time).toString("hh:mm dd.MM.yyyy");
+        QDate date(QString::number(a, 16).toInt(),
+                   QString::number(((b >> 8) & 0xff), 16).toInt(),
+                   QString::number((b & 0xff), 16).toInt());
+        QTime time(QString::number(((c >> 8) & 0xff), 16).toInt(),
+                   QString::number((c & 0xff), 16).toInt());
+        return QDateTime(date, time).toString("hh:mm/dd.MM.yyyy");
     }
 
     static QString ConvertVersion(quint16 v)
@@ -819,8 +826,8 @@ void Sensor::Parse()
             p.ExternalSyncSignal = (param.ScannerStatus & 0x10) != 0;
             p.PhaseLocked = (param.ScannerStatus & 0x20) != 0;
             p.Temperature = -(qreal(param.Temperature) - 579.2364) / 3.63;
-            p.DSPTime = Utils::ConvertTime(param.DSPTime);
-            p.FPGATime = Utils::ConvertTime(param.FPGATime);
+            p.DSPTime = Utils::ConvertTime(param.DSPTime1, param.DSPTime2, param.DSPTime3);
+            p.FPGATime = Utils::ConvertTime(param.FPGATime1, param.FPGATime2, param.FPGATime3);
             p.FirmwareVersion = Utils::ConvertVersion(param.FirmwareVersion);
             p.FPGAVersion = Utils::ConvertVersion(param.FPGAVersion);
             p.SerialNumber = QString::number((param.SerialNumber0 >> 8) & 0xff, 16) + '/' +

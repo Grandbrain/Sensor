@@ -13,8 +13,8 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     ui->setupUi(this);
     ui->progressConnection->hide();
     ui->widgetMessage->hide();
-    //ui->tabWidget->setTabEnabled(1, false);
-    //ui->tabWidget->setTabEnabled(2, false);
+    ui->tabWidget->setTabEnabled(1, false);
+    ui->tabWidget->setTabEnabled(2, false);
     ui->editConnectionAddress->setValidator(addressValidator);
     ui->editConnectionPort->setValidator(portValidator);
     ui->widgetMessage->installEventFilter(this);
@@ -50,6 +50,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     connect(ui->actionAbout, SIGNAL(triggered()), SLOT(OnAbout()));
     connect(ui->buttonConnect, SIGNAL(released()), SLOT(OnConnect()));
     connect(ui->buttonDisconnect, SIGNAL(released()), SLOT(OnDisconnect()));
+    connect(ui->buttonStartStop, SIGNAL(released()), SLOT(OnStart()));
     connect(&sensor, SIGNAL(OnError()), SLOT(OnSensorError()));
     connect(&sensor, SIGNAL(OnConnected()), SLOT(OnSensorConnected()));
     connect(&sensor, SIGNAL(OnDisconnected()), SLOT(OnSensorDisconnected()));
@@ -69,6 +70,21 @@ void Window::OnAbout()
 {
     About about(this);
     about.exec();
+}
+
+void Window::OnStart()
+{
+    static bool stopped = true;
+    if(stopped)
+    {
+        sensor.StartMeasure();
+        stopped = false;
+    }
+    else
+    {
+        sensor.StopMeasure();
+        stopped = true;
+    }
 }
 
 void Window::OnCheck(bool checked)
@@ -205,22 +221,22 @@ void Window::OnSensorData(const ScanData& data)
     scene->clear();
 
     QPen cyan(QColor(Qt::cyan), 2);
-    QPen redEcho0(QColor(139, 0, 0), 2);
-    QPen redEcho1(QColor(205, 0, 0), 2);
-    QPen redEcho2(QColor(238, 0, 0), 2);
-    QPen redEcho3(QColor(255, 0, 0), 2);
-    QPen blueEcho0(QColor(0, 0, 139), 2);
-    QPen blueEcho1(QColor(0, 0, 205), 2);
-    QPen blueEcho2(QColor(0, 0, 238), 2);
-    QPen blueEcho3(QColor(0, 0, 255), 2);
-    QPen greenEcho0(QColor(0, 139, 0), 2);
-    QPen greenEcho1(QColor(0, 205, 0), 2);
-    QPen greenEcho2(QColor(0, 238, 0), 2);
-    QPen greenEcho3(QColor(0, 255, 0), 2);
-    QPen yellowEcho0(QColor(139, 139, 0), 2);
-    QPen yellowEcho1(QColor(205, 205, 0), 2);
-    QPen yellowEcho2(QColor(238, 238, 0), 2);
-    QPen yellowEcho3(QColor(255, 255, 0), 2);
+    QPen redEcho0(QColor(Qt::red), 2);
+    QPen redEcho1(QColor(Qt::red), 2);
+    QPen redEcho2(QColor(Qt::red), 2);
+    QPen redEcho3(QColor(Qt::red), 2);
+    QPen blueEcho0(QColor(Qt::blue), 2);
+    QPen blueEcho1(QColor(Qt::blue), 2);
+    QPen blueEcho2(QColor(Qt::blue), 2);
+    QPen blueEcho3(QColor(Qt::blue), 2);
+    QPen greenEcho0(QColor(Qt::green), 2);
+    QPen greenEcho1(QColor(Qt::green), 2);
+    QPen greenEcho2(QColor(Qt::green), 2);
+    QPen greenEcho3(QColor(Qt::green), 2);
+    QPen yellowEcho0(QColor(Qt::yellow), 2);
+    QPen yellowEcho1(QColor(Qt::yellow), 2);
+    QPen yellowEcho2(QColor(Qt::yellow), 2);
+    QPen yellowEcho3(QColor(Qt::yellow), 2);
     QBrush white(QColor(255, 255, 255));
 
     foreach (Point point, data.Points)

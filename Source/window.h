@@ -19,6 +19,7 @@ public:
     virtual ~Window();
 
 private slots:
+    void OnStart();
     void OnCheck(bool);
     void OnStatus();
     void OnDisconnect();
