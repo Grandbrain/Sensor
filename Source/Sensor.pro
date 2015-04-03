@@ -5,8 +5,10 @@ TEMPLATE        = app
 CONFIG          += c++11;
 CONFIG          += embed_manifest_exe
 
-SOURCES         += main.cpp window.cpp sensor.cpp about.cpp splash.cpp
-HEADERS  	+= sensor.h window.h about.h splash.h
+SOURCES         += main.cpp window.cpp sensor.cpp about.cpp splash.cpp \
+    new.cpp
+HEADERS  	+= sensor.h window.h about.h splash.h \
+    new.h
 FORMS    	+= window.ui about.ui splash.ui
 RESOURCES       += resources.qrc
 RC_FILE         = resources.rc
