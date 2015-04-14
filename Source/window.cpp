@@ -22,7 +22,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     ui->editPort->setValidator(portValidator);
     ui->editSubnet->setValidator(addressValidator);
     ui->editGateway->setValidator(addressValidator);
-    ui->spinStartAngle->setMaximum(sensor.GetStartAngleBoundary().second);
+    /*ui->spinStartAngle->setMaximum(Sensor::Instance().GetStartAngleBoundary().second);
     ui->spinStartAngle->setMinimum(sensor.GetStartAngleBoundary().first);
     ui->spinEndAngle->setMaximum(sensor.GetEndAngleBoundary().second);
     ui->spinEndAngle->setMinimum(sensor.GetEndAngleBoundary().first);
@@ -31,7 +31,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     foreach (quint16 value, sensor.GetScanFrequencyValues())
         ui->comboScanFrequency->addItem(QString::number(value));
     foreach (quint16 value, sensor.GetAngularResolutionValues())
-        ui->comboAngularResolution->addItem(QString::number(value));
+        ui->comboAngularResolution->addItem(QString::number(value));*/
     ui->lineParameters->hide();
     ui->progressParameters->hide();
     ui->lineStatus->hide();
@@ -51,14 +51,14 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     connect(ui->buttonConnect, SIGNAL(released()), SLOT(OnConnect()));
     connect(ui->buttonDisconnect, SIGNAL(released()), SLOT(OnDisconnect()));
     connect(ui->buttonStartStop, SIGNAL(released()), SLOT(OnStart()));
-    connect(&sensor, SIGNAL(OnError()), SLOT(OnSensorError()));
-    connect(&sensor, SIGNAL(OnConnected()), SLOT(OnSensorConnected()));
-    connect(&sensor, SIGNAL(OnDisconnected()), SLOT(OnSensorDisconnected()));
-    connect(&sensor, SIGNAL(OnPoints(ScanData)), SLOT(OnSensorData(ScanData)));
-    connect(&sensor, SIGNAL(OnStatus(Status)), SLOT(OnSensorStatus(Status)));
-    connect(&sensor, SIGNAL(OnWarnings(ErrorsWarnings)), SLOT(OnSensorWarnings(ErrorsWarnings)));
-    connect(&sensor, SIGNAL(OnFailed(Command)), SLOT(OnSensorFailed(Command)));
-    connect(&sensor, SIGNAL(OnParameters(Parameters)), SLOT(OnSensorParameters(Parameters)));
+    connect(&Sensor::Instance(), SIGNAL(OnError()), SLOT(OnSensorError()));
+    connect(&Sensor::Instance(), SIGNAL(OnConnected()), SLOT(OnSensorConnected()));
+    connect(&Sensor::Instance(), SIGNAL(OnDisconnected()), SLOT(OnSensorDisconnected()));
+    connect(&Sensor::Instance(), SIGNAL(OnPoints(ScanData)), SLOT(OnSensorData(ScanData)));
+    connect(&Sensor::Instance(), SIGNAL(OnStatus(Status)), SLOT(OnSensorStatus(Status)));
+    connect(&Sensor::Instance(), SIGNAL(OnWarnings(ErrorsWarnings)), SLOT(OnSensorWarnings(ErrorsWarnings)));
+    connect(&Sensor::Instance(), SIGNAL(OnFailed(Command)), SLOT(OnSensorFailed(Command)));
+    connect(&Sensor::Instance(), SIGNAL(OnParameters(Parameters)), SLOT(OnSensorParameters(Parameters)));
 }
 
 Window::~Window()
@@ -74,17 +74,7 @@ void Window::OnAbout()
 
 void Window::OnStart()
 {
-    static bool stopped = true;
-    if(stopped)
-    {
-        sensor.StartMeasure();
-        stopped = false;
-    }
-    else
-    {
-        sensor.StopMeasure();
-        stopped = true;
-    }
+
 }
 
 void Window::OnCheck(bool checked)
@@ -173,7 +163,7 @@ void Window::OnConnect()
     if(address.isEmpty() || port.isEmpty()) return;
     ui->progressConnection->show();
     ui->buttonConnect->setEnabled(false);
-    sensor.Connect(address, port.toUShort());
+    Sensor::Instance().Connect(address, port.toUShort());
 }
 
 void Window::OnDisconnect()
@@ -181,12 +171,12 @@ void Window::OnDisconnect()
     ui->widgetMessage->hide();
     ui->progressConnection->show();
     ui->buttonDisconnect->setEnabled(false);
-    sensor.Disconnect();
+    Sensor::Instance().Disconnect();
 }
 
 void Window::OnStatus()
 {
-    sensor.GetStatus();
+    Sensor::Instance().GetStatus();
 }
 
 void Window::OnSensorStatus(const Status& status)
@@ -202,7 +192,7 @@ void Window::OnSensorStatus(const Status& status)
     ui->editSerialNumber->setText(status.SerialNumber);
     ui->editFPGA->setText(status.FPGATime);
     ui->editDSP->setText(status.DSPTime);
-    ui->editAngleTicks->setText(QString::number(sensor.GetAngleTicksPerRotation()));
+    //ui->editAngleTicks->setText(QString::number(sensor.GetAngleTicksPerRotation()));
     ui->checkExternalSync->setChecked(status.ExternalSyncSignal);
     ui->checkFrequencyLocked->setChecked(status.FrequencyLocked);
     ui->checkLaserOn->setChecked(status.LaserOn);

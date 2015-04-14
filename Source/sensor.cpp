@@ -1,219 +1,377 @@
+#include <condition_variable>
+#include <type_traits>
+#include <thread>
+#include <mutex>
+#include <queue>
+#include <atomic>
 #include "sensor.h"
+
+std::atomic_flag mExit;
+std::queue<QByteArray> mQueue;
+std::condition_variable mVariable;
+std::mutex mMutex;
+QByteArray mArray;
+QTcpSocket mSocket;
+
+namespace Const
+{
+    const quint32 MagicWord = 0xAFFEC0C2;
+    const quint16 DeviceID = 0x7;
+    const quint16 ScanDataType = 0x2202;
+    const qreal AngularResolution = 1.0 / 32.0;
+    const QString DateTimeFormat = "hh:mm/dd.MM.yyyy";
+}
 
 #pragma pack(push, 1)
 struct DataHeader
 {
-    quint32     MagicWord           ;
-    quint32     PreviousSize        ;
-    quint32     Size                ;
-    quint8      Reserved            ;
-    quint8      DeviceId            ;
-    quint16     DataType            ;
-    quint64     Time                ;
+    quint32 MagicWord;
+    quint32 PreviousSize;
+    quint32 Size;
+    quint8 Reserved;
+    quint8 DeviceId;
+    quint16 DataType;
+    quint64 Time;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct ScanHeader
 {
-    quint16     ScanNumber          ;
-    quint16     ScannerStatus       ;
-    quint16     SyncPhaseOffset     ;
-    quint64     ScanStartTime       ;
-    quint64     ScanEndTime         ;
-    quint16     AngleTicks          ;
-    qint16      StartAngle          ;
-    qint16      EndAngle            ;
-    quint16     ScanPoints          ;
-    qint16      MountingYawAngle    ;
-    qint16      MountingPitchAngle  ;
-    qint16      MountingRollAngle   ;
-    qint16      MountingX           ;
-    qint16      MountingY           ;
-    qint16      MountingZ           ;
-    quint16     Reserved            ;
+    quint16 ScanNumber;
+    quint16 ScannerStatus;
+    quint16 SyncPhaseOffset;
+    quint64 ScanStartTime;
+    quint64 ScanEndTime;
+    quint16 AngleTicks;
+    qint16 StartAngle;
+    qint16 EndAngle;
+    quint16 ScanPoints;
+    qint16 MountingYawAngle;
+    qint16 MountingPitchAngle;
+    qint16 MountingRollAngle;
+    qint16 MountingX;
+    qint16 MountingY;
+    qint16 MountingZ;
+    quint16 Reserved;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct ScanPoint
 {
-    quint8      LayerEcho           ;
-    quint8      Flags               ;
-    qint16      HorizontalAngle     ;
-    quint16     RadialDistance      ;
-    quint16     EchoPulseWidth      ;
-    quint16     Reserved            ;
+    quint8 LayerEcho;
+    quint8 Flags;
+    qint16 HorizontalAngle;
+    quint16 RadialDistance;
+    quint16 EchoPulseWidth;
+    quint16 Reserved;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct ObjectHeader
 {
-    quint64     ScanStartTime       ;
-    quint16     NumberOfObjects     ;
+    quint64 ScanStartTime;
+    quint16 NumberOfObjects;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct Point2D
 {
-    qint16      PositionX           ;
-    qint16      PositionY           ;
+    qint16 PositionX;
+    qint16 PositionY;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct Size2D
 {
-    quint16      SizeX              ;
-    quint16      SizeY              ;
+    quint16 SizeX;
+    quint16 SizeY;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct ObjectData
 {
-    quint16     ObjectID            ;
-    quint16     ObjectAge           ;
-    quint16     ObjectPredictionAge ;
-    quint16     RelativeTime        ;
-    Point2D     ReferencePoint      ;
-    Point2D     ReferencePointSigma ;
-    Point2D     ClosestPoint        ;
-    Point2D     BoundingBoxCenter   ;
-    Size2D      BoundingBoxSize     ;
-    Point2D     ObjectCenter        ;
-    Size2D      ObjectSize          ;
-    qint16      ObjectOrientation   ;
-    Point2D     AbsoluteSpeed       ;
-    Size2D      AbsoluteSpeedSigma  ;
-    Point2D     RelativeSpeed       ;
-    quint16     Reserved1           ;
-    quint16     Reserved2           ;
-    quint16     Reserved3           ;
-    quint16     NumberContourPoints ;
+    quint16 ObjectID;
+    quint16 ObjectAge;
+    quint16 ObjectPredictionAge;
+    quint16 RelativeTime;
+    Point2D ReferencePoint;
+    Point2D ReferencePointSigma;
+    Point2D ClosestPoint;
+    Point2D BoundingBoxCenter;
+    Size2D BoundingBoxSize;
+    Point2D ObjectCenter;
+    Size2D ObjectSize;
+    qint16 ObjectOrientation;
+    Point2D AbsoluteSpeed;
+    Size2D AbsoluteSpeedSigma;
+    Point2D RelativeSpeed;
+    quint16 Reserved1;
+    quint16 Reserved2;
+    quint16 Reserved3;
+    quint16 NumberContourPoints;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct ErrorRegisters
 {
-    quint16     ErrorRegister1      ;
-    quint16     ErrorRegister2      ;
-    quint16     WarningRegister1    ;
-    quint16     WarningRegister2    ;
-    quint16     Reserved1           ;
-    quint16     Reserved2           ;
-    quint16     Reserved3           ;
-    quint16     Reserved4           ;
+    quint16 ErrorRegister1;
+    quint16 ErrorRegister2;
+    quint16 WarningRegister1;
+    quint16 WarningRegister2;
+    quint16 Reserved1;
+    quint16 Reserved2;
+    quint16 Reserved3;
+    quint16 Reserved4;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct CommandCommon
 {
-    quint16     CommandId           ;
-    quint16     Reserved            ;
+    quint16 CommandId;
+    quint16 Reserved;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct CommandSetParameter
 {
-    quint16     CommandId           ;
-    quint16     Reserved            ;
-    quint16     ParameterIndex      ;
-    quint32     Parameter           ;
+    quint16 CommandId;
+    quint16 Reserved;
+    quint16 ParameterIndex;
+    quint32 Parameter;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct CommandGetParameter
 {
-    quint16     CommandId           ;
-    quint16     Reserved            ;
-    quint16     ParameterIndex      ;
+    quint16 CommandId;
+    quint16 Reserved;
+    quint16 ParameterIndex;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct CommandTime
 {
-    quint16     CommandId           ;
-    quint32     Reserved            ;
-    quint32     Time                ;
+    quint16 CommandId;
+    quint32 Reserved;
+    quint32 Time;
 };
-#pragma pack(pop)
 
+struct Reply
+{
+    quint16 Id;
+};
 
-#pragma pack(push, 1)
 struct ReplyGetParameter
 {
-    quint16     ParameterIndex      ;
-    quint32     Parameter           ;
+    quint16 ParameterIndex;
+    quint32 Parameter;
 };
-#pragma pack(pop)
 
-
-#pragma pack(push, 1)
 struct ReplyStatus
 {
-    quint16     FirmwareVersion     ;
-    quint16     FPGAVersion         ;
-    quint16     ScannerStatus       ;
-    quint32     Reserved1           ;
-    quint16     Temperature         ;
-    quint16     SerialNumber0       ;
-    quint16     SerialNumber1       ;
-    quint16     Reserved2           ;
-    quint16     FPGATime1           ;
-    quint16     FPGATime2           ;
-    quint16     FPGATime3           ;
-    quint16     DSPTime1            ;
-    quint16     DSPTime2            ;
-    quint16     DSPTime3            ;
+    quint16 FirmwareVersion;
+    quint16 FPGAVersion;
+    quint16 ScannerStatus;
+    quint32 Reserved1;
+    quint16 Temperature;
+    quint16 SerialNumber0;
+    quint16 SerialNumber1;
+    quint16 Reserved2;
+    quint16 FPGATime1;
+    quint16 FPGATime2;
+    quint16 FPGATime3;
+    quint16 DSPTime1;
+    quint16 DSPTime2;
+    quint16 DSPTime3;
 };
 #pragma pack(pop)
 
 
-class Utils
+class Converter
 {
-public:
+    explicit Converter() = delete;
+    virtual ~Converter() = delete;
 
-    explicit Utils() = delete;
-    virtual ~Utils() = delete;
-
-public:
-
-    template<typename A, typename B> static QByteArray Push(A& a, B& b)
+    static void convert(DataHeader& dataHeader)
     {
-        QByteArray array;
-        Swap(a);
+        dataHeader.MagicWord = qbswap(dataHeader.MagicWord);
+        dataHeader.PreviousSize = qbswap(dataHeader.PreviousSize);
+        dataHeader.Size = qbswap(dataHeader.Size);
+        dataHeader.Reserved = qbswap(dataHeader.Reserved);
+        dataHeader.DeviceId = qbswap(dataHeader.DeviceId);
+        dataHeader.DataType = qbswap(dataHeader.DataType);
+        dataHeader.Time = qbswap(dataHeader.Time);
+    }
+
+    static void convert(ScanHeader& scanHeader)
+    {
+        scanHeader.ScanNumber = qbswap(scanHeader.ScanNumber);
+        scanHeader.ScannerStatus = qbswap(scanHeader.ScannerStatus);
+        scanHeader.SyncPhaseOffset = qbswap(scanHeader.SyncPhaseOffset);
+        scanHeader.ScanStartTime = qbswap(scanHeader.ScanStartTime);
+        scanHeader.ScanEndTime = qbswap(scanHeader.ScanEndTime);
+        scanHeader.AngleTicks = qbswap(scanHeader.AngleTicks);
+        scanHeader.StartAngle = qbswap(scanHeader.StartAngle);
+        scanHeader.EndAngle = qbswap(scanHeader.EndAngle);
+        scanHeader.ScanPoints = qbswap(scanHeader.ScanPoints);
+        scanHeader.MountingYawAngle = qbswap(scanHeader.MountingYawAngle);
+        scanHeader.MountingPitchAngle = qbswap(scanHeader.MountingPitchAngle);
+        scanHeader.MountingRollAngle = qbswap(scanHeader.MountingRollAngle);
+        scanHeader.MountingX = qbswap(scanHeader.MountingX);
+        scanHeader.MountingY = qbswap(scanHeader.MountingY);
+        scanHeader.MountingZ = qbswap(scanHeader.MountingZ);
+        scanHeader.Reserved = qbswap(scanHeader.Reserved);
+    }
+
+    static void convert(ScanPoint& scanPoint)
+    {
+        scanPoint.LayerEcho = qbswap(scanPoint.LayerEcho);
+        scanPoint.Flags = qbswap(scanPoint.Flags);
+        scanPoint.HorizontalAngle = qbswap(scanPoint.HorizontalAngle);
+        scanPoint.RadialDistance = qbswap(scanPoint.RadialDistance);
+        scanPoint.EchoPulseWidth = qbswap(scanPoint.EchoPulseWidth);
+        scanPoint.Reserved = qbswap(scanPoint.Reserved);
+    }
+
+    static void convert(ObjectHeader& objectHeader)
+    {
+        objectHeader.ScanStartTime = qbswap(objectHeader.ScanStartTime);
+        objectHeader.NumberOfObjects = qbswap(objectHeader.NumberOfObjects);
+    }
+
+    static void convert(Point2D& point2d)
+    {
+        point2d.PositionX = qbswap(point2d.PositionX);
+        point2d.PositionY = qbswap(point2d.PositionY);
+    }
+
+    static void convert(Size2D& size2d)
+    {
+        size2d.SizeX = qbswap(size2d.SizeX);
+        size2d.SizeY = qbswap(size2d.SizeY);
+    }
+
+    static void convert(ObjectData& objectData)
+    {
+        objectData.ObjectID = qbswap(objectData.ObjectID);
+        objectData.ObjectAge = qbswap(objectData.ObjectAge);
+        objectData.ObjectPredictionAge = qbswap(objectData.ObjectPredictionAge);
+        objectData.RelativeTime = qbswap(objectData.RelativeTime);
+        objectData.ObjectOrientation = qbswap(objectData.ObjectOrientation);
+        objectData.Reserved1 = qbswap(objectData.Reserved1);
+        objectData.Reserved2 = qbswap(objectData.Reserved2);
+        objectData.Reserved3 = qbswap(objectData.Reserved3);
+        objectData.NumberContourPoints = qbswap(objectData.NumberContourPoints);
+        convert(objectData.ReferencePoint);
+        convert(objectData.ReferencePointSigma);
+        convert(objectData.ClosestPoint);
+        convert(objectData.BoundingBoxCenter);
+        convert(objectData.BoundingBoxSize);
+        convert(objectData.ObjectCenter);
+        convert(objectData.ObjectSize);
+        convert(objectData.AbsoluteSpeed);
+        convert(objectData.AbsoluteSpeedSigma);
+        convert(objectData.RelativeSpeed);
+    }
+
+    static void convert(ErrorRegisters& errorRegisters)
+    {
+        errorRegisters.ErrorRegister1 = qbswap(errorRegisters.ErrorRegister1);
+        errorRegisters.ErrorRegister2 = qbswap(errorRegisters.ErrorRegister2);
+        errorRegisters.WarningRegister1 = qbswap(errorRegisters.WarningRegister1);
+        errorRegisters.WarningRegister2 = qbswap(errorRegisters.WarningRegister2);
+        errorRegisters.Reserved1 = qbswap(errorRegisters.Reserved1);
+        errorRegisters.Reserved2 = qbswap(errorRegisters.Reserved2);
+        errorRegisters.Reserved3 = qbswap(errorRegisters.Reserved3);
+        errorRegisters.Reserved4 = qbswap(errorRegisters.Reserved4);
+    }
+
+    static void convert(CommandCommon& commandCommon)
+    {
+        commandCommon.CommandId = qbswap(commandCommon.CommandId);
+        commandCommon.Reserved = qbswap(commandCommon.Reserved);
+    }
+
+    static void convert(CommandSetParameter& commandSetParameter)
+    {
+        commandSetParameter.CommandId = qbswap(commandSetParameter.CommandId);
+        commandSetParameter.Reserved = qbswap(commandSetParameter.Reserved);
+        commandSetParameter.ParameterIndex = qbswap(commandSetParameter.ParameterIndex);
+        commandSetParameter.Parameter = qbswap(commandSetParameter.Parameter);
+    }
+
+    static void convert(CommandGetParameter& commandGetParameter)
+    {
+        commandGetParameter.CommandId = qbswap(commandGetParameter.CommandId);
+        commandGetParameter.Reserved = qbswap(commandGetParameter.Reserved);
+        commandGetParameter.ParameterIndex = qbswap(commandGetParameter.ParameterIndex);
+    }
+
+    static void convert(CommandTime& commandTime)
+    {
+        commandTime.CommandId = qbswap(commandTime.CommandId);
+        commandTime.Reserved = qbswap(commandTime.Reserved);
+        commandTime.Time = qbswap(commandTime.Time);
+    }
+
+    static void convert(Reply& reply)
+    {
+        reply.Id = qbswap(reply.Id);
+    }
+
+    static void convert(ReplyGetParameter& replyGetParameter)
+    {
+        replyGetParameter.ParameterIndex = qbswap(replyGetParameter.ParameterIndex);
+        replyGetParameter.Parameter = qbswap(replyGetParameter.Parameter);
+    }
+
+    static void convert(ReplyStatus& replyStatus)
+    {
+        replyStatus.FirmwareVersion = qbswap(replyStatus.FirmwareVersion);
+        replyStatus.FPGAVersion = qbswap(replyStatus.FPGAVersion);
+        replyStatus.ScannerStatus = qbswap(replyStatus.ScannerStatus);
+        replyStatus.Reserved1 = qbswap(replyStatus.Reserved1);
+        replyStatus.Temperature = qbswap(replyStatus.Temperature);
+        replyStatus.SerialNumber0 = qbswap(replyStatus.SerialNumber0);
+        replyStatus.SerialNumber1 = qbswap(replyStatus.SerialNumber1);
+        replyStatus.Reserved2 = qbswap(replyStatus.Reserved2);
+        replyStatus.FPGATime1 = qbswap(replyStatus.FPGATime1);
+        replyStatus.FPGATime2 = qbswap(replyStatus.FPGATime2);
+        replyStatus.FPGATime3 = qbswap(replyStatus.FPGATime3);
+        replyStatus.DSPTime1 = qbswap(replyStatus.DSPTime1);
+        replyStatus.DSPTime2 = qbswap(replyStatus.DSPTime2);
+        replyStatus.DSPTime3 = qbswap(replyStatus.DSPTime3);
+    }
+
+public:
+
+    template<typename T>
+    static void Convert(T& t)
+    {
+        qint32 a = 0x1;
+        qint8* b = (qint8*)&a;
+        bool little = b[0] == 1;
+        if(little && std::is_same<T, DataHeader>::value) convert(t);
+        if(little && !std::is_same<T, DataHeader>::value) return;
+        if(!little && !std::is_same<T, DataHeader>::value) convert(t);
+        else return;
+    }
+};
+
+
+class Utilites
+{
+    explicit Utilites() = delete;
+    virtual ~Utilites() = delete;
+
+public:
+
+    template<typename A, typename B>
+    static void ToArray(QByteArray& array, A& a, B& b)
+    {
+        Converter::Convert(a);
+        Converter::Convert(b);
         array.append((char*)&a, sizeof a);
         array.append((char*)&b, sizeof b);
-        return array;
     }
 
     static QString ConvertTime(quint16 a, quint16 b, quint16 c)
     {
         QDate date(QString::number(a, 16).toInt(),
-                   QString::number(((b >> 8) & 0xff), 16).toInt(),
-                   QString::number((b & 0xff), 16).toInt());
+            QString::number(((b >> 8) & 0xff), 16).toInt(),
+            QString::number((b & 0xff), 16).toInt());
         QTime time(QString::number(((c >> 8) & 0xff), 16).toInt(),
-                   QString::number((c & 0xff), 16).toInt());
-        return QDateTime(date, time).toString("hh:mm/dd.MM.yyyy");
+            QString::number((c & 0xff), 16).toInt());
+        return QDateTime(date, time).toString(Const::DateTimeFormat);
     }
 
     static QString ConvertVersion(quint16 v)
@@ -252,276 +410,334 @@ public:
         return angle;
     }
 
-    static void Swap(DataHeader& header)
+    static void CreateDataHeader(DataHeader& header, quint32 size, quint16 type)
     {
-        header.MagicWord        = qbswap(header.MagicWord);
-        header.PreviousSize     = qbswap(header.PreviousSize);
-        header.Size             = qbswap(header.Size);
-        header.Reserved         = qbswap(header.Reserved);
-        header.DeviceId         = qbswap(header.DeviceId);
-        header.DataType         = qbswap(header.DataType);
-        header.Time             = qbswap(header.Time);
+        header.MagicWord = 0xAFFEC0C2;
+        header.PreviousSize = 0;
+        header.Size = size;
+        header.Reserved = 0;
+        header.DeviceId = 0x07;
+        header.DataType = type;
+        header.Time = 0;
     }
 
-    static DataHeader CreateDataHeader(quint32 size, quint16 type)
+    static void CreateCommandCommon(CommandCommon& command, quint16 id)
     {
-        DataHeader header;
-        header.MagicWord        = 0xAFFEC0C2;
-        header.PreviousSize     = 0;
-        header.Size             = size;
-        header.Reserved         = 0;
-        header.DeviceId         = 0x07;
-        header.DataType         = type;
-        header.Time             = 0;
-        return header;
+        command.CommandId = id;
+        command.Reserved = 0;
     }
 
-    static CommandCommon CreateCommandCommon(quint16 id)
+    static void CreateSetParameter(CommandSetParameter& command, quint16 id, quint16 index, quint32 value)
+    {
+        command.CommandId = id;
+        command.Reserved = 0;
+        command.ParameterIndex = index;
+        command.Parameter = value;
+    }
+
+    static void CreateGetParameter(CommandGetParameter& command, quint16 id, quint16 index)
+    {
+        command.CommandId = id;
+        command.Reserved = 0;
+        command.ParameterIndex = index;
+    }
+
+    static void CreateTime(CommandTime& time, quint16 id, quint32 value)
+    {
+        time.CommandId = id;
+        time.Reserved = 0;
+        time.Time = value;
+    }
+
+    static void Reset(QByteArray& array)
     {
         CommandCommon command;
-        command.CommandId       = id;
-        command.Reserved        = 0;
-        return command;
+        DataHeader header;
+        CreateCommandCommon(command, 0x0000);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static CommandSetParameter CreateSetParameter(quint16 id, quint16 index, quint32 value)
+    static void GetStatus(QByteArray& array)
     {
-        CommandSetParameter command;
-        command.CommandId       = id;
-        command.Reserved        = 0;
-        command.ParameterIndex  = index;
-        command.Parameter       = value;
-        return command;
+        CommandCommon command;
+        DataHeader header;
+        CreateCommandCommon(command, 0x0001);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static CommandGetParameter CreateGetParameter(quint16 id, quint16 index)
+    static void SaveConfig(QByteArray& array)
     {
-        CommandGetParameter command;
-        command.CommandId       = id;
-        command.Reserved        = 0;
-        command.ParameterIndex  = index;
-        return command;
+        CommandCommon command;
+        DataHeader header;
+        CreateCommandCommon(command, 0x0004);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static CommandTime CreateTime(quint16 id, quint32 value)
+    static void ResetParameters(QByteArray& array)
     {
-        CommandTime time;
-        time.CommandId          = id;
-        time.Reserved           = 0;
-        time.Time               = value;
-        return time;
+        CommandCommon command;
+        DataHeader header;
+        CreateCommandCommon(command, 0x001A);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray Reset()
+    static void StartMeasure(QByteArray& array)
     {
-        CommandCommon command = CreateCommandCommon(0x0000);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandCommon command;
+        DataHeader header;
+        CreateCommandCommon(command, 0x0020);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray GetStatus()
+    static void StopMeasure(QByteArray& array)
     {
-        CommandCommon command = CreateCommandCommon(0x0001);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandCommon command;
+        DataHeader header;
+        CreateCommandCommon(command, 0x0021);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray SaveConfig()
+    static void TimeSeconds(QByteArray& array, quint32 time)
     {
-        CommandCommon command = CreateCommandCommon(0x0004);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandTime command;
+        DataHeader header;
+        CreateTime(command, 0x0030, time);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray ResetDefaults()
+    static void TimeFractionalSeconds(QByteArray& array, quint32 time)
     {
-        CommandCommon command = CreateCommandCommon(0x001A);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandTime command;
+        DataHeader header;
+        CreateTime(command, 0x0031, time);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray StartMeasure()
-    {
-        CommandCommon command = CreateCommandCommon(0x0020);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
-    }
-
-    static QByteArray StopMeasure()
-    {
-        CommandCommon command = CreateCommandCommon(0x0021);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
-    }
-
-    static QByteArray TimeSeconds(quint32 time)
-    {
-        CommandTime command = CreateTime(0x0030, time);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
-    }
-
-    static QByteArray TimeFractionalSeconds(quint32 time)
-    {
-        CommandTime command = CreateTime(0x0031, time);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
-    }
-
-    static QByteArray SetAddress(const QString& address)
+    static void SetAddress(QByteArray& array, const QString& address)
     {
         QHostAddress a(address);
-        CommandSetParameter command = CreateSetParameter(0x0010, 0x1000, a.toIPv4Address());
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandSetParameter command;
+        DataHeader header;
+        CreateSetParameter(command, 0x0010, 0x1000, a.toIPv4Address());
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray SetPort(quint16 port)
+    static void SetPort(QByteArray& array, quint16 port)
     {
-        CommandSetParameter command = CreateSetParameter(0x0010, 0x1001, port);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandSetParameter command;
+        DataHeader header;
+        CreateSetParameter(command, 0x0010, 0x1001, port);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray SetSubnetMask(const QString& mask)
+    static void SetSubnetMask(QByteArray& array, const QString& mask)
     {
-        QHostAddress m(mask);
-        CommandSetParameter command = CreateSetParameter(0x0010, 0x1002, m.toIPv4Address());
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        QHostAddress a(mask);
+        CommandSetParameter command;
+        DataHeader header;
+        CreateSetParameter(command, 0x0010, 0x1002, a.toIPv4Address());
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray SetStandardGateway(const QString& gateway)
+    static void SetStandardGateway(QByteArray& array, const QString& gateway)
     {
-        QHostAddress g(gateway);
-        CommandSetParameter command = CreateSetParameter(0x0010, 0x1003, g.toIPv4Address());
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        QHostAddress a(gateway);
+        CommandSetParameter command;
+        DataHeader header;
+        CreateSetParameter(command, 0x0010, 0x1003, a.toIPv4Address());
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray SetDataOutputFlags(bool enableScanData, bool enableErrors)
+    static void SetDataOutputFlags(QByteArray& array, bool enableScanData, bool enableErrors)
     {
         quint32 flags = 0;
         if(!enableScanData) flags |= 1 << 0;
         if(!enableErrors)   flags |= 1 << 4;
-        CommandSetParameter command = CreateSetParameter(0x0010, 0x1012, flags);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandSetParameter command;
+        DataHeader header;
+        CreateSetParameter(command, 0x0010, 0x1012, flags);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray SetStartAngle(qint16 angle)
+    static void SetStartAngle(QByteArray& array, qint16 angle)
     {
-        CommandSetParameter command = CreateSetParameter(0x0010, 0x1100, angle);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandSetParameter command;
+        DataHeader header;
+        CreateSetParameter(command, 0x0010, 0x1100, angle);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray SetEndAngle(qint16 angle)
+    static void SetEndAngle(QByteArray& array, qint16 angle)
     {
-        CommandSetParameter command = CreateSetParameter(0x0010, 0x1101, angle);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandSetParameter command;
+        DataHeader header;
+        CreateSetParameter(command, 0x0010, 0x1101, angle);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray SetScanFrequency(quint16 frequency)
+    static void SetScanFrequency(QByteArray& array, quint16 frequency)
     {
-        CommandSetParameter command = CreateSetParameter(0x0010, 0x1102, frequency);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandSetParameter command;
+        DataHeader header;
+        CreateSetParameter(command, 0x0010, 0x1102, frequency);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray SetSyncAngleOffset(qint16 offset)
+    static void SetSyncAngleOffset(QByteArray& array, qint16 offset)
     {
-        CommandSetParameter command = CreateSetParameter(0x0010, 0x1103, offset);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandSetParameter command;
+        DataHeader header;
+        CreateSetParameter(command, 0x0010, 0x1103, offset);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray SetAngularResolutionType(quint16 type)
+    static void SetAngularResolutionType(QByteArray& array, quint16 type)
     {
-        CommandSetParameter command = CreateSetParameter(0x0010, 0x1104, type);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandSetParameter command;
+        DataHeader header;
+        CreateSetParameter(command, 0x0010, 0x1104, type);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray GetAddress()
+    static void GetAddress(QByteArray& array)
     {
-        CommandGetParameter command = CreateGetParameter(0x0011, 0x1000);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandGetParameter command;
+        DataHeader header;
+        CreateGetParameter(command, 0x0011, 0x1000);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray GetPort()
+    static void GetPort(QByteArray& array)
     {
-        CommandGetParameter command = CreateGetParameter(0x0011, 0x1001);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandGetParameter command;
+        DataHeader header;
+        CreateGetParameter(command, 0x0011, 0x1001);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray GetSubnetMask()
+    static void GetSubnetMask(QByteArray& array)
     {
-        CommandGetParameter command = CreateGetParameter(0x0011, 0x1002);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandGetParameter command;
+        DataHeader header;
+        CreateGetParameter(command, 0x0011, 0x1002);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray GetStandardGateway()
+    static void GetStandardGateway(QByteArray& array)
     {
-        CommandGetParameter command = CreateGetParameter(0x0011, 0x1003);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandGetParameter command;
+        DataHeader header;
+        CreateGetParameter(command, 0x0011, 0x1003);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray GetDataOutputFlags()
+    static void GetDataOutputFlags(QByteArray& array)
     {
-        CommandGetParameter command = CreateGetParameter(0x0011, 0x1012);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandGetParameter command;
+        DataHeader header;
+        CreateGetParameter(command, 0x0011, 0x1012);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray GetStartAngle()
+    static void GetStartAngle(QByteArray& array)
     {
-        CommandGetParameter command = CreateGetParameter(0x0011, 0x1100);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandGetParameter command;
+        DataHeader header;
+        CreateGetParameter(command, 0x0011, 0x1100);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray GetEndAngle()
+    static void GetEndAngle(QByteArray& array)
     {
-        CommandGetParameter command = CreateGetParameter(0x0011, 0x1101);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandGetParameter command;
+        DataHeader header;
+        CreateGetParameter(command, 0x0011, 0x1101);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray GetScanFrequency()
+    static void GetScanFrequency(QByteArray& array)
     {
-        CommandGetParameter command = CreateGetParameter(0x0010, 0x1102);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandGetParameter command;
+        DataHeader header;
+        CreateGetParameter(command, 0x0010, 0x1102);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray GetSyncAngleOffset()
+    static void GetSyncAngleOffset(QByteArray& array)
     {
-        CommandGetParameter command = CreateGetParameter(0x0011, 0x1103);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandGetParameter command;
+        DataHeader header;
+        CreateGetParameter(command, 0x0011, 0x1103);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 
-    static QByteArray GetAngularResolutionType()
+    static void GetAngularResolutionType(QByteArray& array)
     {
-        CommandGetParameter command = CreateGetParameter(0x0011, 0x1104);
-        DataHeader header = CreateDataHeader(sizeof command, 0x2010);
-        return Push(header, command);
+        CommandGetParameter command;
+        DataHeader header;
+        CreateGetParameter(command, 0x0011, 0x1104);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
+    }
+
+    static void GetAngleTicksPerRotation(QByteArray& array)
+    {
+        CommandGetParameter command;
+        DataHeader header;
+        CreateGetParameter(command, 0x0011, 0x1105);
+        CreateDataHeader(header, sizeof(command), 0x2010);
+        ToArray(array, header, command);
     }
 };
 
 
-Sensor::Sensor(QObject* parent) : QObject(parent)
+Sensor::Sensor()
 {
     connect(&mSocket, SIGNAL(readyRead()), SLOT(OnReadyRead()));
     connect(&mSocket, SIGNAL(connected()), SIGNAL(OnConnected()));
     connect(&mSocket, SIGNAL(disconnected()), SIGNAL(OnDisconnected()));
     connect(&mSocket, SIGNAL(error(QAbstractSocket::SocketError)), SIGNAL(OnError()));
+    mExit.test_and_set();
+    std::thread thread(&Sensor::Worker, this);
+    thread.detach();
+}
+
+Sensor::~Sensor()
+{
+    mExit.clear();
+}
+
+Sensor& Sensor::Instance()
+{
+    static Sensor instance;
+    return instance;
 }
 
 void Sensor::Connect(const QString& address, quint16 port)
@@ -534,199 +750,343 @@ void Sensor::Disconnect()
     mSocket.disconnectFromHost();
 }
 
-bool Sensor::Connected() const
+void Sensor::Reset()
 {
-    return mSocket.state() == QAbstractSocket::ConnectedState;
+    QByteArray array;
+    Utilites::Reset(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::Reset()
+void Sensor::GetStatus()
 {
-    return Send(Utils::Reset());
+    QByteArray array;
+    Utilites::GetStatus(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::GetStatus()
+void Sensor::SaveConfig()
 {
-    return Send(Utils::GetStatus());
+    QByteArray array;
+    Utilites::SaveConfig(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SaveConfig()
+void Sensor::ResetParameters()
 {
-    return Send(Utils::SaveConfig());
+    QByteArray array;
+    Utilites::ResetParameters(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::ResetParameters()
+void Sensor::StartMeasure()
 {
-    return Send(Utils::ResetDefaults());
+    QByteArray array;
+    Utilites::StartMeasure(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::StartMeasure()
+void Sensor::StopMeasure()
 {
-    return Send(Utils::StartMeasure());
+    QByteArray array;
+    Utilites::StopMeasure(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::StopMeasure()
+void Sensor::SetTimeSeconds(quint32 time)
 {
-    return Send(Utils::StopMeasure());
+    QByteArray array;
+    Utilites::TimeSeconds(array, time);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetTimeSeconds(quint32 time)
+void Sensor::SetTimeFractionalSeconds(quint32 time)
 {
-    return Send(Utils::TimeSeconds(time));
+    QByteArray array;
+    Utilites::TimeFractionalSeconds(array, time);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetTimeFractionalSeconds(quint32 time)
+void Sensor::SetAddress(const QString& address)
 {
-    return Send(Utils::TimeFractionalSeconds(time));
+    QByteArray array;
+    Utilites::SetAddress(array, address);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetAddress(const QString& address)
+void Sensor::SetPort(quint16 port)
 {
-    return Send(Utils::SetAddress(address));
+    QByteArray array;
+    Utilites::SetPort(array, port);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetPort(quint16 port)
+void Sensor::SetSubnetMask(const QString& mask)
 {
-    return Send(Utils::SetPort(port));
+    QByteArray array;
+    Utilites::SetSubnetMask(array, mask);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetSubnetMask(const QString& mask)
+void Sensor::SetGateway(const QString& gateway)
 {
-    return Send(Utils::SetSubnetMask(mask));
+    QByteArray array;
+    Utilites::SetStandardGateway(array, gateway);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetGateway(const QString& gateway)
+void Sensor::SetDataOutputFlags(bool scan, bool errors)
 {
-    return Send(Utils::SetStandardGateway(gateway));
+    QByteArray array;
+    Utilites::SetDataOutputFlags(array, scan, errors);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetDataOutputFlags(bool scan, bool errors)
+void Sensor::SetStartAngle(qint16 angle)
 {
-    return Send(Utils::SetDataOutputFlags(scan, errors));
+    QByteArray array;
+    Utilites::SetStartAngle(array, angle);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetStartAngle(qint16 angle)
+void Sensor::SetEndAngle(qint16 angle)
 {
-    return Send(Utils::SetStartAngle(angle));
+    QByteArray array;
+    Utilites::SetEndAngle(array, angle);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetEndAngle(qint16 angle)
+void Sensor::SetScanFrequency(quint16 frequency)
 {
-    return Send(Utils::SetEndAngle(angle));
+    QByteArray array;
+    Utilites::SetScanFrequency(array, frequency);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetScanFrequency(quint16 frequency)
+void Sensor::SetSyncAngleOffset(qint16 offset)
 {
-    return Send(Utils::SetScanFrequency(frequency));
+    QByteArray array;
+    Utilites::SetSyncAngleOffset(array, offset);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetSyncAngleOffset(qint16 offset)
+void Sensor::SetAngularResolutionType(quint16 type)
 {
-    return Send(Utils::SetSyncAngleOffset(offset));
+    QByteArray array;
+    Utilites::SetAngularResolutionType(array, type);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::SetAngularResolutionType(quint16 type)
+void Sensor::GetAddress()
 {
-    return Send(Utils::SetAngularResolutionType(type));
+    QByteArray array;
+    Utilites::GetAddress(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::GetAddress()
+void Sensor::GetPort()
 {
-    return Send(Utils::GetAddress());
+    QByteArray array;
+    Utilites::GetPort(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::GetPort()
+void Sensor::GetSubnetMask()
 {
-    return Send(Utils::GetPort());
+    QByteArray array;
+    Utilites::GetSubnetMask(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::GetSubnetMask()
+void Sensor::GetGateway()
 {
-    return Send(Utils::GetSubnetMask());
+    QByteArray array;
+    Utilites::GetStandardGateway(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::GetGateway()
+void Sensor::GetDataOutputFlags()
 {
-    return Send(Utils::GetStandardGateway());
+    QByteArray array;
+    Utilites::GetDataOutputFlags(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::GetDataOutputFlags()
+void Sensor::GetStartAngle()
 {
-    return Send(Utils::GetDataOutputFlags());
+    QByteArray array;
+    Utilites::GetStartAngle(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::GetStartAngle()
+void Sensor::GetEndAngle()
 {
-    return Send(Utils::GetStartAngle());
+    QByteArray array;
+    Utilites::GetEndAngle(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::GetEndAngle()
+void Sensor::GetScanFrequency()
 {
-    return Send(Utils::GetEndAngle());
+    QByteArray array;
+    Utilites::GetScanFrequency(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::GetScanFrequency()
+void Sensor::GetSyncAngleOffset()
 {
-    return Send(Utils::GetScanFrequency());
+    QByteArray array;
+    Utilites::GetSyncAngleOffset(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::GetSyncAngleOffset()
+void Sensor::GetAngularResolutionType()
 {
-    return Send(Utils::GetSyncAngleOffset());
+    QByteArray array;
+    Utilites::GetAngularResolutionType(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-bool Sensor::GetAngularResolutionType()
+void Sensor::GetAngleTicksPerRotation()
 {
-    return Send(Utils::GetAngularResolutionType());
+    QByteArray array;
+    Utilites::GetAngleTicksPerRotation(array);
+    std::lock_guard<std::mutex> guard(mMutex);
+    Q_UNUSED(guard)
+    mQueue.push(array);
+    mVariable.notify_all();
 }
 
-QPair<qint16, qint16> Sensor::GetStartAngleBoundary()
+void Sensor::GetStartAngleBoundary(QPair<qint16, qint16>& pair)
 {
-    return qMakePair(-1919, 1600);
+    pair = qMakePair(-1919, 1600);
 }
 
-QPair<qint16, qint16> Sensor::GetEndAngleBoundary()
+void Sensor::GetEndAngleBoundary(QPair<qint16, qint16>& pair)
 {
-    return qMakePair(-1920, 1599);
+    pair = qMakePair(-1920, 1599);
 }
 
-QPair<qint16, qint16> Sensor::GetSyncAngleBoundary()
+void Sensor::GetSyncAngleBoundary(QPair<qint16, qint16>& pair)
 {
-    return qMakePair(-5760, 5759);
+    pair = qMakePair(-5760, 5759);
 }
 
-QVector<quint16> Sensor::GetScanFrequencyValues()
+void Sensor::GetScanFrequencyValues(QVector<quint16>& vector)
 {
-    QVector<quint16> vector;
     vector.append(3200);
     vector.append(6400);
     vector.append(12800);
-    return vector;
 }
 
-QVector<quint16> Sensor::GetAngularResolutionValues()
+void Sensor::GetAngularResolutionValues(QVector<quint16>& vector)
 {
-    QVector<quint16> vector;
     vector.append(0);
     vector.append(1);
     vector.append(2);
-    return vector;
 }
 
-quint16 Sensor::GetAngleTicksPerRotation()
+void Sensor::Worker()
 {
-    return 11520;
-}
-
-bool Sensor::Send(const QByteArray& array)
-{
-    return mSocket.write(array) == array.size();
+    while(mExit.test_and_set())
+    {
+        std::unique_lock<std::mutex> guard(mMutex);
+        mVariable.wait(guard, []{return !mQueue.empty();});
+        QByteArray array = mQueue.front();
+        mQueue.pop();
+        guard.unlock();
+        mSocket.write(array);
+    }
 }
 
 void Sensor::Parse()
 {
-    if(mArray.size() < sizeof DataHeader) return;
+    if(mArray.size() < sizeof(DataHeader)) return;
     DataHeader header = *reinterpret_cast<DataHeader*>(mArray.data());
-    Utils::Swap(header);
+    Converter::Convert(header);
     if(header.MagicWord != 0xAFFEC0C2) return;
 
     if(header.DataType == 0x2202)
@@ -735,6 +1095,7 @@ void Sensor::Parse()
         ScanHeader scanHeader = *reinterpret_cast<ScanHeader*>(mArray.data() + sizeof DataHeader);
         if(mArray.size() != sizeof DataHeader + sizeof ScanHeader +
                 scanHeader.ScanPoints * sizeof ScanPoint) return;
+        Converter::Convert(scanHeader);
         ScanData scanData;
         scanData.AngleTicks = scanHeader.AngleTicks;
         scanData.EndAngle = scanHeader.EndAngle;
@@ -758,13 +1119,14 @@ void Sensor::Parse()
         {
             ScanPoint scanPoint = *reinterpret_cast<ScanPoint*>(mArray.data() +
                 sizeof DataHeader + sizeof ScanHeader + sizeof ScanPoint * i);
+            Converter::Convert(scanPoint);
             Point point;
             point.Transparent = (scanPoint.Flags & 0x01) != 0;
             point.Clutter = (scanPoint.Flags & 0x02) != 0;
             point.Dirt = (scanPoint.Flags & 0x08) != 0;
             point.Layer = scanPoint.LayerEcho & 0x0F;
             point.Echo = (scanPoint.LayerEcho >> 4) & 0x0F;
-            point.HorizontalAngle = Utils::ConvertTicks(scanPoint.HorizontalAngle);
+            point.HorizontalAngle = Utilites::ConvertTicks(scanPoint.HorizontalAngle);
             point.RadialDistance = static_cast<qreal>(scanPoint.RadialDistance);
             point.EchoPulseWidth = scanPoint.EchoPulseWidth;
             scanData.Points.append(point);
@@ -776,6 +1138,7 @@ void Sensor::Parse()
         if(mArray.size() != sizeof DataHeader + sizeof ErrorRegisters) return;
         ErrorRegisters regs = *reinterpret_cast<ErrorRegisters*>(mArray.data() +
             sizeof DataHeader);
+        Converter::Convert(regs);
         ErrorsWarnings err;
         err.E1CS = (regs.ErrorRegister1 & 0x3C1F) != 0 || (regs.ErrorRegister1 & 0x300) == 0x300;
         err.E1SBTI = (regs.ErrorRegister1 & 0x04) != 0;
@@ -799,26 +1162,28 @@ void Sensor::Parse()
     else if(header.DataType == 0x2020)
     {
         if(mArray.size() < sizeof DataHeader + sizeof quint16) return;
-        quint16 replyId = *reinterpret_cast<quint16*>(mArray.data() + sizeof DataHeader);
-        if(replyId & 0x8000)
+        Reply replyId = *reinterpret_cast<Reply*>(mArray.data() + sizeof DataHeader);
+        Converter::Convert(replyId);
+        if(replyId.Id & 0x8000)
         {
-            replyId &= ~(1 << 15);
-            if(replyId == 0x0000) emit OnFailed(Command::Reset);
-            if(replyId == 0x0001) emit OnFailed(Command::GetStatus);
-            if(replyId == 0x0004) emit OnFailed(Command::SaveConfig);
-            if(replyId == 0x0010) emit OnFailed(Command::SetParameter);
-            if(replyId == 0x0011) emit OnFailed(Command::GetParameter);
-            if(replyId == 0x001A) emit OnFailed(Command::ResetParameters);
-            if(replyId == 0x0020) emit OnFailed(Command::StartMeasure);
-            if(replyId == 0x0021) emit OnFailed(Command::StopMeasure);
-            if(replyId == 0x0030) emit OnFailed(Command::SetTimeSeconds);
-            if(replyId == 0x0031) emit OnFailed(Command::SetTimeFractionalSeconds);
+            replyId.Id &= ~(1 << 15);
+            if(replyId.Id == 0x0000) emit OnFailed(Command::Reset);
+            if(replyId.Id == 0x0001) emit OnFailed(Command::GetStatus);
+            if(replyId.Id == 0x0004) emit OnFailed(Command::SaveConfig);
+            if(replyId.Id == 0x0010) emit OnFailed(Command::SetParameter);
+            if(replyId.Id == 0x0011) emit OnFailed(Command::GetParameter);
+            if(replyId.Id == 0x001A) emit OnFailed(Command::ResetParameters);
+            if(replyId.Id == 0x0020) emit OnFailed(Command::StartMeasure);
+            if(replyId.Id == 0x0021) emit OnFailed(Command::StopMeasure);
+            if(replyId.Id == 0x0030) emit OnFailed(Command::SetTimeSeconds);
+            if(replyId.Id == 0x0031) emit OnFailed(Command::SetTimeFractionalSeconds);
         }
-        if(replyId == 0x0001)
+        if(replyId.Id == 0x0001)
         {
             if(mArray.size() != sizeof DataHeader + sizeof quint16 + sizeof ReplyStatus) return;
             ReplyStatus param = *reinterpret_cast<ReplyStatus*>(mArray.data() +
                 sizeof DataHeader + sizeof quint16);
+            Converter::Convert(param);
             Status p;
             p.MotorOn = (param.ScannerStatus & 0x01) != 0;
             p.LaserOn = (param.ScannerStatus & 0x02) != 0;
@@ -826,21 +1191,22 @@ void Sensor::Parse()
             p.ExternalSyncSignal = (param.ScannerStatus & 0x10) != 0;
             p.PhaseLocked = (param.ScannerStatus & 0x20) != 0;
             p.Temperature = -(qreal(param.Temperature) - 579.2364) / 3.63;
-            p.DSPTime = Utils::ConvertTime(param.DSPTime1, param.DSPTime2, param.DSPTime3);
-            p.FPGATime = Utils::ConvertTime(param.FPGATime1, param.FPGATime2, param.FPGATime3);
-            p.FirmwareVersion = Utils::ConvertVersion(param.FirmwareVersion);
-            p.FPGAVersion = Utils::ConvertVersion(param.FPGAVersion);
+            p.DSPTime = Utilites::ConvertTime(param.DSPTime1, param.DSPTime2, param.DSPTime3);
+            p.FPGATime = Utilites::ConvertTime(param.FPGATime1, param.FPGATime2, param.FPGATime3);
+            p.FirmwareVersion = Utilites::ConvertVersion(param.FirmwareVersion);
+            p.FPGAVersion = Utilites::ConvertVersion(param.FPGAVersion);
             p.SerialNumber = QString::number((param.SerialNumber0 >> 8) & 0xff, 16) + '/' +
                     QString::number(param.SerialNumber0 & 0xff, 16) + ' '
                     + QString::number(param.SerialNumber1);
             emit OnStatus(p);
         }
-        if(replyId == 0x0011)
+        if(replyId.Id == 0x0011)
         {
             if(mArray.size() != sizeof DataHeader + sizeof quint16 + sizeof ReplyGetParameter)
                 return;
             ReplyGetParameter param = *reinterpret_cast<ReplyGetParameter*>(mArray.data()
                 + sizeof DataHeader + sizeof quint16);
+            Converter::Convert(param);
             Parameters p;
             if(param.ParameterIndex == 0x1000)
             {
@@ -904,15 +1270,11 @@ void Sensor::Parse()
 void Sensor::OnReadyRead()
 {
     QByteArray array = mSocket.readAll();
-    if(array.size() < sizeof quint32) return;
-
-    quint32 MagicWord = *reinterpret_cast<quint32*>(array.data());
-    MagicWord = qbswap(MagicWord);
-    if(MagicWord == 0xAFFEC0C2)
-    {
-        Parse();
-        mArray.clear();
-        mArray.append(array);
-    }
-    else mArray.append(array);
+    if(array.size() < sizeof(quint32)) return;
+    DataHeader header;
+    header.MagicWord = *reinterpret_cast<quint32*>(array.data());
+    Converter::Convert(header);
+    Parse();
+    if(header.MagicWord == Const::MagicWord) mArray.clear();
+    mArray.append(array);
 }
