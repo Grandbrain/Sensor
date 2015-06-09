@@ -22,7 +22,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     ui->editPort->setValidator(portValidator);
     ui->editSubnet->setValidator(addressValidator);
     ui->editGateway->setValidator(addressValidator);
-    /*ui->spinStartAngle->setMaximum(Sensor::Instance().GetStartAngleBoundary().second);
+    ui->spinStartAngle->setMaximum(sensor.GetStartAngleBoundary().second);
     ui->spinStartAngle->setMinimum(sensor.GetStartAngleBoundary().first);
     ui->spinEndAngle->setMaximum(sensor.GetEndAngleBoundary().second);
     ui->spinEndAngle->setMinimum(sensor.GetEndAngleBoundary().first);
@@ -31,11 +31,12 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     foreach (quint16 value, sensor.GetScanFrequencyValues())
         ui->comboScanFrequency->addItem(QString::number(value));
     foreach (quint16 value, sensor.GetAngularResolutionValues())
-        ui->comboAngularResolution->addItem(QString::number(value));*/
+        ui->comboAngularResolution->addItem(QString::number(value));
     ui->lineParameters->hide();
     ui->progressParameters->hide();
     ui->lineStatus->hide();
     ui->progressStatus->hide();
+    stopped = false;
 
     QGraphicsScene* scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
@@ -51,14 +52,14 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     connect(ui->buttonConnect, SIGNAL(released()), SLOT(OnConnect()));
     connect(ui->buttonDisconnect, SIGNAL(released()), SLOT(OnDisconnect()));
     connect(ui->buttonStartStop, SIGNAL(released()), SLOT(OnStart()));
-    connect(&Sensor::Instance(), SIGNAL(OnError()), SLOT(OnSensorError()));
-    connect(&Sensor::Instance(), SIGNAL(OnConnected()), SLOT(OnSensorConnected()));
-    connect(&Sensor::Instance(), SIGNAL(OnDisconnected()), SLOT(OnSensorDisconnected()));
-    connect(&Sensor::Instance(), SIGNAL(OnPoints(ScanData)), SLOT(OnSensorData(ScanData)));
-    connect(&Sensor::Instance(), SIGNAL(OnStatus(Status)), SLOT(OnSensorStatus(Status)));
-    connect(&Sensor::Instance(), SIGNAL(OnWarnings(ErrorsWarnings)), SLOT(OnSensorWarnings(ErrorsWarnings)));
-    connect(&Sensor::Instance(), SIGNAL(OnFailed(Command)), SLOT(OnSensorFailed(Command)));
-    connect(&Sensor::Instance(), SIGNAL(OnParameters(Parameters)), SLOT(OnSensorParameters(Parameters)));
+    connect(&sensor, SIGNAL(OnError()), SLOT(OnSensorError()));
+    connect(&sensor, SIGNAL(OnConnected()), SLOT(OnSensorConnected()));
+    connect(&sensor, SIGNAL(OnDisconnected()), SLOT(OnSensorDisconnected()));
+    connect(&sensor, SIGNAL(OnPoints(ScanData)), SLOT(OnSensorData(ScanData)));
+    connect(&sensor, SIGNAL(OnStatus(Status)), SLOT(OnSensorStatus(Status)));
+    connect(&sensor, SIGNAL(OnWarnings(ErrorsWarnings)), SLOT(OnSensorWarnings(ErrorsWarnings)));
+    connect(&sensor, SIGNAL(OnFailed(Command)), SLOT(OnSensorFailed(Command)));
+    connect(&sensor, SIGNAL(OnParameters(Parameters)), SLOT(OnSensorParameters(Parameters)));
 }
 
 Window::~Window()
@@ -74,7 +75,18 @@ void Window::OnAbout()
 
 void Window::OnStart()
 {
-
+    if(stopped)
+    {
+        ui->buttonStartStop->setIcon(QIcon(":/root/Resources/stop.ico"));
+        sensor.StartMeasure();
+        stopped = false;
+    }
+    else
+    {
+        ui->buttonStartStop->setIcon(QIcon(":/root/Resources/start.ico"));
+        sensor.StopMeasure();
+        stopped = true;
+    }
 }
 
 void Window::OnCheck(bool checked)
@@ -103,6 +115,7 @@ void Window::OnCheck(bool checked)
 
 void Window::OnSensorConnected()
 {
+    ui->buttonDisconnect->setText(tr("Отключить"));
     ui->progressConnection->hide();
     ui->buttonConnect->setEnabled(false);
     ui->buttonDisconnect->setEnabled(true);
@@ -126,6 +139,7 @@ void Window::OnSensorDisconnected()
     ui->editConnectionPort->setEnabled(true);
     ui->tabWidget->setTabEnabled(1, false);
     ui->tabWidget->setTabEnabled(2, false);
+    ui->buttonDisconnect->setText(tr("Отключить"));
 }
 
 void Window::OnSensorError()
@@ -162,21 +176,23 @@ void Window::OnConnect()
     QString port = ui->editConnectionPort->text();
     if(address.isEmpty() || port.isEmpty()) return;
     ui->progressConnection->show();
+    ui->buttonDisconnect->setEnabled(true);
+    ui->buttonDisconnect->setText(tr("Отмена"));
     ui->buttonConnect->setEnabled(false);
-    Sensor::Instance().Connect(address, port.toUShort());
+    sensor.Connect(address, port.toUShort());
 }
 
 void Window::OnDisconnect()
 {
     ui->widgetMessage->hide();
-    ui->progressConnection->show();
     ui->buttonDisconnect->setEnabled(false);
-    Sensor::Instance().Disconnect();
+    sensor.Disconnect();
+    OnSensorDisconnected();
 }
 
 void Window::OnStatus()
 {
-    Sensor::Instance().GetStatus();
+    sensor.GetStatus();
 }
 
 void Window::OnSensorStatus(const Status& status)
@@ -332,7 +348,25 @@ void Window::OnSensorData(const ScanData& data)
 
 void Window::OnSensorWarnings(const ErrorsWarnings& warnings)
 {
-
+    ui->listErrors->clear();
+    unsigned count = 1;
+    if(warnings.E1APDOT) ui->listErrors->addItem(QString::number(count) + ". Устройство необходимо обогреть"), ++count;
+    if(warnings.E1APDUT) ui->listErrors->addItem(QString::number(count) + ". Устройство необходимо охладить"), ++count;
+    if(warnings.E1CS) ui->listErrors->addItem(QString::number(count) + ". Неизвестная ошибка, обратитесь в службу поддержки"), ++count;
+    if(warnings.E1SBO) ui->listErrors->addItem(QString::number(count) + ". Буфер устройства переполнен, снизьте частоту сканирования или обратитесь в службу поддержки"), ++count;
+    if(warnings.E1SBTI) ui->listErrors->addItem(QString::number(count) + ". Данные переданы не полностью, снизьте частоту сканирования или обратитесь в службу поддержки"), ++count;
+    if(warnings.E2CCIP) ui->listErrors->addItem(QString::number(count) + ". Неверные конфигурационные данные, загрузьте корректные значения"), ++count;
+    if(warnings.E2CS) ui->listErrors->addItem(QString::number(count) + ". Неизвестная ошибка, обратитесь в службу поддержки"), ++count;
+    if(warnings.E2DPT) ui->listErrors->addItem(QString::number(count) + ". Тайм-аут обработки данных, снизьте разрешение или частоту сканирования"), ++count;
+    if(warnings.E2ICD) ui->listErrors->addItem(QString::number(count) + ". Неправильные данные конфигурации, загрузьте корректные значения"), ++count;
+    if(warnings.W1CSSF) ui->listErrors->addItem(QString::number(count) + ". Ошибка синхронизации"), ++count;
+    if(warnings.W1ET) ui->listErrors->addItem(QString::number(count) + ". Температура устройства слишком высокая"), ++count;
+    if(warnings.W1IT) ui->listErrors->addItem(QString::number(count) + ". Температура устройства слишком низкая"), ++count;
+    if(warnings.W2CED) ui->listErrors->addItem(QString::number(count) + ". Ошибка получения данных, проверьте подключение"), ++count;
+    if(warnings.W2CS) ui->listErrors->addItem(QString::number(count) + ". Неизвестная ошибка, обратитесь в службу поддержки"), ++count;
+    if(warnings.W2EIB) ui->listErrors->addItem(QString::number(count) + ". Ethernet блокирован, проверьте подключение"), ++count;
+    if(warnings.W2FC) ui->listErrors->addItem(QString::number(count) + ". Неправильная команда"), ++count;
+    if(warnings.W2MAF) ui->listErrors->addItem(QString::number(count) + ". Ошибка доступа к памяти, перезагрузите устройство или обратитесь в службу поддержки"), ++count;
 }
 
 void Window::OnSensorParameters(const Parameters& parameters)

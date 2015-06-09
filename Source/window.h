@@ -39,6 +39,8 @@ private:
 
 private:
     Ui::Window* ui;
+    Sensor sensor;
+    bool stopped;
 };
 
 #endif

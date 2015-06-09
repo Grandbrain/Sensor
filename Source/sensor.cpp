@@ -1,26 +1,5 @@
-#include <condition_variable>
 #include <type_traits>
-#include <thread>
-#include <mutex>
-#include <queue>
-#include <atomic>
 #include "sensor.h"
-
-std::atomic_flag mExit;
-std::queue<QByteArray> mQueue;
-std::condition_variable mVariable;
-std::mutex mMutex;
-QByteArray mArray;
-QTcpSocket mSocket;
-
-namespace Const
-{
-    const quint32 MagicWord = 0xAFFEC0C2;
-    const quint16 DeviceID = 0x7;
-    const quint16 ScanDataType = 0x2202;
-    const qreal AngularResolution = 1.0 / 32.0;
-    const QString DateTimeFormat = "hh:mm/dd.MM.yyyy";
-}
 
 #pragma pack(push, 1)
 struct DataHeader
@@ -371,7 +350,7 @@ public:
             QString::number((b & 0xff), 16).toInt());
         QTime time(QString::number(((c >> 8) & 0xff), 16).toInt(),
             QString::number((c & 0xff), 16).toInt());
-        return QDateTime(date, time).toString(Const::DateTimeFormat);
+        return QDateTime(date, time).toString("d.M.yyyy / H.m");
     }
 
     static QString ConvertVersion(quint16 v)
@@ -717,27 +696,18 @@ public:
     }
 };
 
-
 Sensor::Sensor()
 {
+    connect(this, SIGNAL(OnWrite(QByteArray)), SLOT(OnWriting(QByteArray)));
     connect(&mSocket, SIGNAL(readyRead()), SLOT(OnReadyRead()));
     connect(&mSocket, SIGNAL(connected()), SIGNAL(OnConnected()));
     connect(&mSocket, SIGNAL(disconnected()), SIGNAL(OnDisconnected()));
     connect(&mSocket, SIGNAL(error(QAbstractSocket::SocketError)), SIGNAL(OnError()));
-    mExit.test_and_set();
-    std::thread thread(&Sensor::Worker, this);
-    thread.detach();
 }
 
 Sensor::~Sensor()
 {
-    mExit.clear();
-}
 
-Sensor& Sensor::Instance()
-{
-    static Sensor instance;
-    return instance;
 }
 
 void Sensor::Connect(const QString& address, quint16 port)
@@ -747,338 +717,263 @@ void Sensor::Connect(const QString& address, quint16 port)
 
 void Sensor::Disconnect()
 {
-    mSocket.disconnectFromHost();
+    mSocket.abort();
 }
 
 void Sensor::Reset()
 {
     QByteArray array;
     Utilites::Reset(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetStatus()
 {
     QByteArray array;
     Utilites::GetStatus(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SaveConfig()
 {
     QByteArray array;
     Utilites::SaveConfig(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::ResetParameters()
 {
     QByteArray array;
     Utilites::ResetParameters(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::StartMeasure()
 {
     QByteArray array;
     Utilites::StartMeasure(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::StopMeasure()
 {
     QByteArray array;
     Utilites::StopMeasure(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetTimeSeconds(quint32 time)
 {
     QByteArray array;
     Utilites::TimeSeconds(array, time);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetTimeFractionalSeconds(quint32 time)
 {
     QByteArray array;
     Utilites::TimeFractionalSeconds(array, time);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetAddress(const QString& address)
 {
     QByteArray array;
     Utilites::SetAddress(array, address);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetPort(quint16 port)
 {
     QByteArray array;
     Utilites::SetPort(array, port);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetSubnetMask(const QString& mask)
 {
     QByteArray array;
     Utilites::SetSubnetMask(array, mask);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetGateway(const QString& gateway)
 {
     QByteArray array;
     Utilites::SetStandardGateway(array, gateway);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetDataOutputFlags(bool scan, bool errors)
 {
     QByteArray array;
     Utilites::SetDataOutputFlags(array, scan, errors);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetStartAngle(qint16 angle)
 {
     QByteArray array;
     Utilites::SetStartAngle(array, angle);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetEndAngle(qint16 angle)
 {
     QByteArray array;
     Utilites::SetEndAngle(array, angle);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetScanFrequency(quint16 frequency)
 {
     QByteArray array;
     Utilites::SetScanFrequency(array, frequency);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetSyncAngleOffset(qint16 offset)
 {
     QByteArray array;
     Utilites::SetSyncAngleOffset(array, offset);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::SetAngularResolutionType(quint16 type)
 {
     QByteArray array;
     Utilites::SetAngularResolutionType(array, type);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetAddress()
 {
     QByteArray array;
     Utilites::GetAddress(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetPort()
 {
     QByteArray array;
     Utilites::GetPort(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetSubnetMask()
 {
     QByteArray array;
     Utilites::GetSubnetMask(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetGateway()
 {
     QByteArray array;
     Utilites::GetStandardGateway(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetDataOutputFlags()
 {
     QByteArray array;
     Utilites::GetDataOutputFlags(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetStartAngle()
 {
     QByteArray array;
     Utilites::GetStartAngle(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetEndAngle()
 {
     QByteArray array;
     Utilites::GetEndAngle(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetScanFrequency()
 {
     QByteArray array;
     Utilites::GetScanFrequency(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetSyncAngleOffset()
 {
     QByteArray array;
     Utilites::GetSyncAngleOffset(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetAngularResolutionType()
 {
     QByteArray array;
     Utilites::GetAngularResolutionType(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
 void Sensor::GetAngleTicksPerRotation()
 {
     QByteArray array;
     Utilites::GetAngleTicksPerRotation(array);
-    std::lock_guard<std::mutex> guard(mMutex);
-    Q_UNUSED(guard)
-    mQueue.push(array);
-    mVariable.notify_all();
+    Push(array);
 }
 
-void Sensor::GetStartAngleBoundary(QPair<qint16, qint16>& pair)
+QPair<qint16, qint16> Sensor::GetStartAngleBoundary()
 {
-    pair = qMakePair(-1919, 1600);
+    return qMakePair(-1919, 1600);
 }
 
-void Sensor::GetEndAngleBoundary(QPair<qint16, qint16>& pair)
+QPair<qint16, qint16> Sensor::GetEndAngleBoundary()
 {
-    pair = qMakePair(-1920, 1599);
+    return qMakePair(-1920, 1599);
 }
 
-void Sensor::GetSyncAngleBoundary(QPair<qint16, qint16>& pair)
+QPair<qint16, qint16> Sensor::GetSyncAngleBoundary()
 {
-    pair = qMakePair(-5760, 5759);
+    return qMakePair(-5760, 5759);
 }
 
-void Sensor::GetScanFrequencyValues(QVector<quint16>& vector)
+QVector<quint16> Sensor::GetScanFrequencyValues()
 {
+    QVector<quint16> vector;
     vector.append(3200);
     vector.append(6400);
     vector.append(12800);
+    return vector;
 }
 
-void Sensor::GetAngularResolutionValues(QVector<quint16>& vector)
+QVector<quint16> Sensor::GetAngularResolutionValues()
 {
+    QVector<quint16> vector;
     vector.append(0);
     vector.append(1);
     vector.append(2);
+    return vector;
 }
 
-void Sensor::Worker()
+void Sensor::Push(const QByteArray& array)
 {
-    while(mExit.test_and_set())
+    mMutex.lock();
+    mQueue.push_back(array);
+    mMutex.unlock();
+    QtConcurrent::run(this, &Sensor::Work);
+}
+
+void Sensor::Work()
+{
+    forever
     {
-        std::unique_lock<std::mutex> guard(mMutex);
-        mVariable.wait(guard, []{return !mQueue.empty();});
+        QMutexLocker locker(&mMutex);
+        if(mQueue.isEmpty()) break;
         QByteArray array = mQueue.front();
-        mQueue.pop();
-        guard.unlock();
-        mSocket.write(array);
+        mQueue.pop_front();
+        locker.unlock();
+        emit OnWrite(array);
     }
 }
 
@@ -1267,6 +1162,11 @@ void Sensor::Parse()
     }
 }
 
+void Sensor::OnWriting(const QByteArray& array)
+{
+    mSocket.write(array);
+}
+
 void Sensor::OnReadyRead()
 {
     QByteArray array = mSocket.readAll();
@@ -1275,6 +1175,6 @@ void Sensor::OnReadyRead()
     header.MagicWord = *reinterpret_cast<quint32*>(array.data());
     Converter::Convert(header);
     Parse();
-    if(header.MagicWord == Const::MagicWord) mArray.clear();
+    if(header.MagicWord == 0xAFFEC0C2) mArray.clear();
     mArray.append(array);
 }

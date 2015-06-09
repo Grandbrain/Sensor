@@ -1,8 +1,10 @@
-#ifndef NEW
-#define NEW
+#ifndef SENSOR_H
+#define SENSOR_H
 
+#include <QtConcurrent/QtConcurrent>
 #include <QtNetwork>
 #include <QString>
+#include <QMutex>
 
 enum class Parameter
 {
@@ -123,14 +125,12 @@ struct Parameters
 class Sensor : public QObject
 {
     Q_OBJECT
-private:
-   ~Sensor();
-    Sensor();
-    Sensor(const Sensor&) = delete;
-    void operator=(const Sensor&) = delete;
 
 public:
-    static Sensor& Instance();
+    Sensor();
+   ~Sensor();
+
+public:
     void Connect(const QString&, quint16);
     void Disconnect();
     void Reset();
@@ -162,15 +162,16 @@ public:
     void GetSyncAngleOffset();
     void GetAngularResolutionType();
     void GetAngleTicksPerRotation();
-    void GetStartAngleBoundary(QPair<qint16, qint16>&);
-    void GetEndAngleBoundary(QPair<qint16, qint16>&);
-    void GetSyncAngleBoundary(QPair<qint16, qint16>&);
-    void GetScanFrequencyValues(QVector<quint16>&);
-    void GetAngularResolutionValues(QVector<quint16>&);
+    QPair<qint16, qint16> GetStartAngleBoundary();
+    QPair<qint16, qint16> GetEndAngleBoundary();
+    QPair<qint16, qint16> GetSyncAngleBoundary();
+    QVector<quint16> GetScanFrequencyValues();
+    QVector<quint16> GetAngularResolutionValues();
 
 private:
-    void Worker();
+    void Push(const QByteArray&);
     void Parse();
+    void Work();
 
 signals:
     void OnPoints(const ScanData&);
@@ -181,9 +182,17 @@ signals:
     void OnDisconnected();
     void OnConnected();
     void OnError();
+    void OnWrite(const QByteArray&);
 
 private slots:
     void OnReadyRead();
+    void OnWriting(const QByteArray&);
+
+private:
+    QQueue<QByteArray> mQueue;
+    QByteArray mArray;
+    QTcpSocket mSocket;
+    QMutex mMutex;
 };
 
 #endif
