@@ -698,7 +698,6 @@ public:
 
 Sensor::Sensor()
 {
-    connect(this, SIGNAL(OnWrite(QByteArray)), SLOT(OnWriting(QByteArray)));
     connect(&mSocket, SIGNAL(readyRead()), SLOT(OnReadyRead()));
     connect(&mSocket, SIGNAL(connected()), SIGNAL(OnConnected()));
     connect(&mSocket, SIGNAL(disconnected()), SIGNAL(OnDisconnected()));
@@ -973,7 +972,7 @@ void Sensor::Work()
         QByteArray array = mQueue.front();
         mQueue.pop_front();
         locker.unlock();
-        emit OnWrite(array);
+        QMetaObject::invokeMethod(this, "OnWriting", Q_ARG(QByteArray, array));
     }
 }
 
@@ -986,10 +985,10 @@ void Sensor::Parse()
 
     if(header.DataType == 0x2202)
     {
-        if(mArray.size() < sizeof DataHeader + sizeof ScanHeader) return;
-        ScanHeader scanHeader = *reinterpret_cast<ScanHeader*>(mArray.data() + sizeof DataHeader);
-        if(mArray.size() != sizeof DataHeader + sizeof ScanHeader +
-                scanHeader.ScanPoints * sizeof ScanPoint) return;
+        if(mArray.size() < sizeof(DataHeader) + sizeof(ScanHeader)) return;
+        ScanHeader scanHeader = *reinterpret_cast<ScanHeader*>(mArray.data() + sizeof(DataHeader));
+        if(mArray.size() != sizeof(DataHeader) + sizeof(ScanHeader) +
+                scanHeader.ScanPoints * sizeof(ScanPoint)) return;
         Converter::Convert(scanHeader);
         ScanData scanData;
         scanData.AngleTicks = scanHeader.AngleTicks;
@@ -1013,7 +1012,7 @@ void Sensor::Parse()
         for(quint16 i = 0; i < scanHeader.ScanPoints; i++)
         {
             ScanPoint scanPoint = *reinterpret_cast<ScanPoint*>(mArray.data() +
-                sizeof DataHeader + sizeof ScanHeader + sizeof ScanPoint * i);
+                sizeof(DataHeader) + sizeof(ScanHeader) + sizeof(ScanPoint) * i);
             Converter::Convert(scanPoint);
             Point point;
             point.Transparent = (scanPoint.Flags & 0x01) != 0;
@@ -1030,9 +1029,9 @@ void Sensor::Parse()
     }
     else if(header.DataType == 0x2030)
     {
-        if(mArray.size() != sizeof DataHeader + sizeof ErrorRegisters) return;
+        if(mArray.size() != sizeof(DataHeader) + sizeof(ErrorRegisters)) return;
         ErrorRegisters regs = *reinterpret_cast<ErrorRegisters*>(mArray.data() +
-            sizeof DataHeader);
+            sizeof(DataHeader));
         Converter::Convert(regs);
         ErrorsWarnings err;
         err.E1CS = (regs.ErrorRegister1 & 0x3C1F) != 0 || (regs.ErrorRegister1 & 0x300) == 0x300;
@@ -1056,8 +1055,8 @@ void Sensor::Parse()
     }
     else if(header.DataType == 0x2020)
     {
-        if(mArray.size() < sizeof DataHeader + sizeof quint16) return;
-        Reply replyId = *reinterpret_cast<Reply*>(mArray.data() + sizeof DataHeader);
+        if(mArray.size() < sizeof(DataHeader) + sizeof(quint16)) return;
+        Reply replyId = *reinterpret_cast<Reply*>(mArray.data() + sizeof(DataHeader));
         Converter::Convert(replyId);
         if(replyId.Id & 0x8000)
         {
@@ -1075,9 +1074,9 @@ void Sensor::Parse()
         }
         if(replyId.Id == 0x0001)
         {
-            if(mArray.size() != sizeof DataHeader + sizeof quint16 + sizeof ReplyStatus) return;
+            if(mArray.size() != sizeof(DataHeader) + sizeof(quint16) + sizeof(ReplyStatus)) return;
             ReplyStatus param = *reinterpret_cast<ReplyStatus*>(mArray.data() +
-                sizeof DataHeader + sizeof quint16);
+                sizeof(DataHeader) + sizeof(quint16));
             Converter::Convert(param);
             Status p;
             p.MotorOn = (param.ScannerStatus & 0x01) != 0;
@@ -1097,10 +1096,10 @@ void Sensor::Parse()
         }
         if(replyId.Id == 0x0011)
         {
-            if(mArray.size() != sizeof DataHeader + sizeof quint16 + sizeof ReplyGetParameter)
+            if(mArray.size() != sizeof(DataHeader) + sizeof(quint16) + sizeof(ReplyGetParameter))
                 return;
             ReplyGetParameter param = *reinterpret_cast<ReplyGetParameter*>(mArray.data()
-                + sizeof DataHeader + sizeof quint16);
+                + sizeof(DataHeader) + sizeof(quint16));
             Converter::Convert(param);
             Parameters p;
             if(param.ParameterIndex == 0x1000)
@@ -1151,7 +1150,7 @@ void Sensor::Parse()
                 p.AngularResolution = param.Parameter;
                 p.ParameterChanged = Parameter::AngularResolution;
             }
-            if(param.ParameterIndex = 0x1012)
+            if(param.ParameterIndex == 0x1012)
             {
                 p.DataOutputFlags.first = (param.Parameter & 0x01) != 0;
                 p.DataOutputFlags.second = (param.Parameter & 0x10) != 0;

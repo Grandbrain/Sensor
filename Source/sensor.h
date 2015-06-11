@@ -182,7 +182,6 @@ signals:
     void OnDisconnected();
     void OnConnected();
     void OnError();
-    void OnWrite(const QByteArray&);
 
 private slots:
     void OnReadyRead();
