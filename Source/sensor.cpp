@@ -978,17 +978,17 @@ void Sensor::Work()
 
 void Sensor::Parse()
 {
-    if(mArray.size() < sizeof(DataHeader)) return;
+    if(mArray.size() < (int)sizeof(DataHeader)) return;
     DataHeader header = *reinterpret_cast<DataHeader*>(mArray.data());
     Converter::Convert(header);
     if(header.MagicWord != 0xAFFEC0C2) return;
 
     if(header.DataType == 0x2202)
     {
-        if(mArray.size() < sizeof(DataHeader) + sizeof(ScanHeader)) return;
+        if(mArray.size() < (int)(sizeof(DataHeader) + sizeof(ScanHeader))) return;
         ScanHeader scanHeader = *reinterpret_cast<ScanHeader*>(mArray.data() + sizeof(DataHeader));
-        if(mArray.size() != sizeof(DataHeader) + sizeof(ScanHeader) +
-                scanHeader.ScanPoints * sizeof(ScanPoint)) return;
+        if(mArray.size() != (int)(sizeof(DataHeader) + sizeof(ScanHeader) +
+                scanHeader.ScanPoints * sizeof(ScanPoint))) return;
         Converter::Convert(scanHeader);
         ScanData scanData;
         scanData.AngleTicks = scanHeader.AngleTicks;
@@ -1055,7 +1055,7 @@ void Sensor::Parse()
     }
     else if(header.DataType == 0x2020)
     {
-        if(mArray.size() < sizeof(DataHeader) + sizeof(quint16)) return;
+        if(mArray.size() < (int)(sizeof(DataHeader) + sizeof(quint16))) return;
         Reply replyId = *reinterpret_cast<Reply*>(mArray.data() + sizeof(DataHeader));
         Converter::Convert(replyId);
         if(replyId.Id & 0x8000)
@@ -1169,7 +1169,7 @@ void Sensor::OnWriting(const QByteArray& array)
 void Sensor::OnReadyRead()
 {
     QByteArray array = mSocket.readAll();
-    if(array.size() < sizeof(quint32)) return;
+    if(array.size() < (int)(sizeof(quint32))) return;
     DataHeader header;
     header.MagicWord = *reinterpret_cast<quint32*>(array.data());
     Converter::Convert(header);
