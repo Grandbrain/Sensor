@@ -60,6 +60,13 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     connect(&sensor, SIGNAL(OnWarnings(ErrorsWarnings)), SLOT(OnSensorWarnings(ErrorsWarnings)));
     connect(&sensor, SIGNAL(OnFailed(Command)), SLOT(OnSensorFailed(Command)));
     connect(&sensor, SIGNAL(OnParameters(Parameters)), SLOT(OnSensorParameters(Parameters)));
+
+    QRect rect = qApp->desktop()->availableGeometry();
+    int sWidth = rect.width();
+    int sHeight = rect.height();
+    int width = QMainWindow::width();
+    int height = QMainWindow::height();
+    setGeometry((sWidth/2)-(width/2),(sHeight/2)-(height/2),width,height);
 }
 
 Window::~Window()

@@ -1,6 +1,8 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <QDesktopWidget>
+#include <QApplication>
 #include <QMainWindow>
 #include <QWheelEvent>
 #include "sensor.h"
