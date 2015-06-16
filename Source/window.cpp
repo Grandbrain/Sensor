@@ -1,9 +1,16 @@
+#include "about.h"
 #include "window.h"
 #include "ui_window.h"
-#include "about.h"
 
 Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
 {
+    QRect rect = qApp->desktop()->availableGeometry();
+    int w = rect.width();
+    int h = rect.height();
+    int dw = width();
+    int dh = height();
+    setGeometry((w / 2) - (dw / 2), (h / 2) - (dh / 2), dw, dh);
+
     QString range = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
     QRegExp regex ("^" + range + "\\." + range + "\\." + range + "\\." + range + "$");
     QValidator* addressValidator = new QRegExpValidator(regex, this);
@@ -13,30 +20,15 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     ui->setupUi(this);
     ui->progressConnection->hide();
     ui->widgetMessage->hide();
-    ui->tabWidget->setTabEnabled(1, false);
-    ui->tabWidget->setTabEnabled(2, false);
-    ui->editConnectionAddress->setValidator(addressValidator);
-    ui->editConnectionPort->setValidator(portValidator);
-    ui->widgetMessage->installEventFilter(this);
     ui->editAddress->setValidator(addressValidator);
     ui->editPort->setValidator(portValidator);
-    ui->editSubnet->setValidator(addressValidator);
-    ui->editGateway->setValidator(addressValidator);
-    ui->spinStartAngle->setMaximum(sensor.GetStartAngleBoundary().second);
-    ui->spinStartAngle->setMinimum(sensor.GetStartAngleBoundary().first);
-    ui->spinEndAngle->setMaximum(sensor.GetEndAngleBoundary().second);
-    ui->spinEndAngle->setMinimum(sensor.GetEndAngleBoundary().first);
-    ui->spinSyncOffset->setMinimum(sensor.GetSyncAngleBoundary().first);
-    ui->spinSyncOffset->setMaximum(sensor.GetSyncAngleBoundary().second);
-    foreach (quint16 value, sensor.GetScanFrequencyValues())
-        ui->comboScanFrequency->addItem(QString::number(value));
-    foreach (quint16 value, sensor.GetAngularResolutionValues())
-        ui->comboAngularResolution->addItem(QString::number(value));
-    ui->lineParameters->hide();
-    ui->progressParameters->hide();
-    ui->lineStatus->hide();
-    ui->progressStatus->hide();
-    stopped = false;
+    ui->widgetMessage->installEventFilter(this);
+    ui->graphicsView->setEnabled(false);
+    ui->toolBar->setEnabled(false);
+    ui->tabWidget->setTabEnabled(1, false);
+    ui->tabWidget->setTabEnabled(2, false);
+    ui->tabWidget->setTabEnabled(3, false);
+
 
     QGraphicsScene* scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
@@ -47,11 +39,10 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     connect(ui->checkLaserOn, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
     connect(ui->checkMotorOn, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
     connect(ui->checkPhaseLocked, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
-    connect(ui->buttonStatus, SIGNAL(released()), SLOT(OnStatus()));
     connect(ui->actionAbout, SIGNAL(triggered()), SLOT(OnAbout()));
     connect(ui->buttonConnect, SIGNAL(released()), SLOT(OnConnect()));
     connect(ui->buttonDisconnect, SIGNAL(released()), SLOT(OnDisconnect()));
-    connect(ui->buttonStartStop, SIGNAL(released()), SLOT(OnStart()));
+    connect(ui->buttonStatus, SIGNAL(released()), SLOT(OnStatus()));
     connect(&sensor, SIGNAL(OnError()), SLOT(OnSensorError()));
     connect(&sensor, SIGNAL(OnConnected()), SLOT(OnSensorConnected()));
     connect(&sensor, SIGNAL(OnDisconnected()), SLOT(OnSensorDisconnected()));
@@ -60,13 +51,6 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     connect(&sensor, SIGNAL(OnWarnings(ErrorsWarnings)), SLOT(OnSensorWarnings(ErrorsWarnings)));
     connect(&sensor, SIGNAL(OnFailed(Command)), SLOT(OnSensorFailed(Command)));
     connect(&sensor, SIGNAL(OnParameters(Parameters)), SLOT(OnSensorParameters(Parameters)));
-
-    QRect rect = qApp->desktop()->availableGeometry();
-    int sWidth = rect.width();
-    int sHeight = rect.height();
-    int width = QMainWindow::width();
-    int height = QMainWindow::height();
-    setGeometry((sWidth/2)-(width/2),(sHeight/2)-(height/2),width,height);
 }
 
 Window::~Window()
@@ -82,42 +66,21 @@ void Window::OnAbout()
 
 void Window::OnStart()
 {
-    if(stopped)
-    {
-        ui->buttonStartStop->setIcon(QIcon(":/root/Resources/stop.ico"));
-        sensor.StartMeasure();
-        stopped = false;
-    }
-    else
-    {
-        ui->buttonStartStop->setIcon(QIcon(":/root/Resources/start.ico"));
-        sensor.StopMeasure();
-        stopped = true;
-    }
+
 }
 
 void Window::OnCheck(bool checked)
 {
-    if(checked && sender() == ui->checkExternalSync)
-        ui->checkExternalSync->setChecked(false);
-    if(checked && sender() == ui->checkFrequencyLocked)
-        ui->checkFrequencyLocked->setChecked(false);
-    if(checked && sender() == ui->checkLaserOn)
-        ui->checkLaserOn->setChecked(false);
-    if(checked && sender() == ui->checkMotorOn)
-        ui->checkMotorOn->setChecked(false);
-    if(checked && sender() == ui->checkPhaseLocked)
-        ui->checkPhaseLocked->setChecked(false);
-    if(!checked && sender() == ui->checkExternalSync)
-        ui->checkExternalSync->setChecked(true);
-    if(!checked && sender() == ui->checkFrequencyLocked)
-        ui->checkFrequencyLocked->setChecked(true);
-    if(!checked && sender() == ui->checkLaserOn)
-        ui->checkLaserOn->setChecked(true);
-    if(!checked && sender() == ui->checkMotorOn)
-        ui->checkMotorOn->setChecked(true);
-    if(!checked && sender() == ui->checkPhaseLocked)
-        ui->checkPhaseLocked->setChecked(true);
+    if(checked && sender() == ui->checkExternalSync) ui->checkExternalSync->setChecked(false);
+    if(checked && sender() == ui->checkFrequencyLocked) ui->checkFrequencyLocked->setChecked(false);
+    if(checked && sender() == ui->checkLaserOn) ui->checkLaserOn->setChecked(false);
+    if(checked && sender() == ui->checkMotorOn) ui->checkMotorOn->setChecked(false);
+    if(checked && sender() == ui->checkPhaseLocked) ui->checkPhaseLocked->setChecked(false);
+    if(!checked && sender() == ui->checkExternalSync) ui->checkExternalSync->setChecked(true);
+    if(!checked && sender() == ui->checkFrequencyLocked) ui->checkFrequencyLocked->setChecked(true);
+    if(!checked && sender() == ui->checkLaserOn) ui->checkLaserOn->setChecked(true);
+    if(!checked && sender() == ui->checkMotorOn) ui->checkMotorOn->setChecked(true);
+    if(!checked && sender() == ui->checkPhaseLocked) ui->checkPhaseLocked->setChecked(true);
 }
 
 void Window::OnSensorConnected()
@@ -126,13 +89,16 @@ void Window::OnSensorConnected()
     ui->progressConnection->hide();
     ui->buttonConnect->setEnabled(false);
     ui->buttonDisconnect->setEnabled(true);
-    ui->buttonDisconnect->setDefault(true);
-    ui->editConnectionAddress->setEnabled(false);
-    ui->editConnectionPort->setEnabled(false);
+    ui->editAddress->setEnabled(false);
+    ui->editPort->setEnabled(false);
     ui->tabWidget->setTabEnabled(1, true);
     ui->tabWidget->setTabEnabled(2, true);
+    ui->tabWidget->setTabEnabled(3, true);
+    ui->graphicsView->setEnabled(true);
     ui->widgetMessage->show();
-    QTimer::singleShot(30000, ui->widgetMessage, SLOT(hide()));
+    ui->toolBar->setEnabled(true);
+    OnStatus();
+    QTimer::singleShot(20000, ui->widgetMessage, SLOT(hide()));
 }
 
 void Window::OnSensorDisconnected()
@@ -141,23 +107,26 @@ void Window::OnSensorDisconnected()
     ui->progressConnection->hide();
     ui->buttonConnect->setEnabled(true);
     ui->buttonDisconnect->setEnabled(false);
-    ui->buttonConnect->setDefault(true);
-    ui->editConnectionAddress->setEnabled(true);
-    ui->editConnectionPort->setEnabled(true);
+    ui->editAddress->setEnabled(true);
+    ui->editPort->setEnabled(true);
     ui->tabWidget->setTabEnabled(1, false);
     ui->tabWidget->setTabEnabled(2, false);
+    ui->tabWidget->setTabEnabled(3, false);
+    ui->graphicsView->setEnabled(false);
     ui->buttonDisconnect->setText(tr("Отключить"));
+    ui->graphicsView->scene()->clear();
+    ui->toolBar->setEnabled(false);
 }
 
 void Window::OnSensorError()
 {
     if(ui->progressConnection->isVisible())
     {
-        if(ui->editConnectionAddress->isEnabled())
+        if(ui->editAddress->isEnabled())
         {
             ui->progressConnection->hide();
-            ui->labelConnectionMessage->setText(tr("Не удалось выполнить подключение."));
-            ui->labelConnectionResult->setPixmap(QPixmap(":/root/Resources/error.ico"));
+            ui->labelMessage->setText(tr("Не удалось выполнить подключение."));
+            ui->labelResult->setPixmap(QPixmap(":/root/Resources/error.ico"));
             ui->widgetMessage->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
             ui->buttonConnect->setEnabled(true);
             ui->widgetMessage->show();
@@ -166,8 +135,8 @@ void Window::OnSensorError()
         else
         {
             ui->progressConnection->hide();
-            ui->labelConnectionMessage->setText(tr("Не удалось отключиться."));
-            ui->labelConnectionResult->setPixmap(QPixmap(":/root/Resources/error.ico"));
+            ui->labelMessage->setText(tr("Не удалось отключиться."));
+            ui->labelResult->setPixmap(QPixmap(":/root/Resources/error.ico"));
             ui->widgetMessage->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
             ui->buttonDisconnect->setEnabled(true);
             ui->widgetMessage->show();
@@ -179,8 +148,8 @@ void Window::OnSensorError()
 void Window::OnConnect()
 {
     ui->widgetMessage->hide();
-    QString address = ui->editConnectionAddress->text();
-    QString port = ui->editConnectionPort->text();
+    QString address = ui->editAddress->text();
+    QString port = ui->editPort->text();
     if(address.isEmpty() || port.isEmpty()) return;
     ui->progressConnection->show();
     ui->buttonDisconnect->setEnabled(true);
@@ -233,23 +202,24 @@ void Window::OnSensorData(const ScanData& data)
     QGraphicsScene* scene = ui->graphicsView->scene();
     scene->clear();
 
-    QPen cyan(QColor(Qt::cyan), 2);
-    QPen redEcho0(QColor(Qt::red), 2);
-    QPen redEcho1(QColor(Qt::red), 2);
-    QPen redEcho2(QColor(Qt::red), 2);
-    QPen redEcho3(QColor(Qt::red), 2);
-    QPen blueEcho0(QColor(Qt::blue), 2);
-    QPen blueEcho1(QColor(Qt::blue), 2);
-    QPen blueEcho2(QColor(Qt::blue), 2);
-    QPen blueEcho3(QColor(Qt::blue), 2);
-    QPen greenEcho0(QColor(Qt::green), 2);
-    QPen greenEcho1(QColor(Qt::green), 2);
-    QPen greenEcho2(QColor(Qt::green), 2);
-    QPen greenEcho3(QColor(Qt::green), 2);
-    QPen yellowEcho0(QColor(Qt::yellow), 2);
-    QPen yellowEcho1(QColor(Qt::yellow), 2);
-    QPen yellowEcho2(QColor(Qt::yellow), 2);
-    QPen yellowEcho3(QColor(Qt::yellow), 2);
+    qreal w = 1.5;
+    QPen cyan(QColor(Qt::cyan), w);
+    QPen redEcho0(QColor(Qt::red), w);
+    QPen redEcho1(QColor(Qt::red), w);
+    QPen redEcho2(QColor(Qt::red), w);
+    QPen redEcho3(QColor(Qt::red), w);
+    QPen blueEcho0(QColor(Qt::blue), w);
+    QPen blueEcho1(QColor(Qt::blue), w);
+    QPen blueEcho2(QColor(Qt::blue), w);
+    QPen blueEcho3(QColor(Qt::blue), w);
+    QPen greenEcho0(QColor(Qt::green), w);
+    QPen greenEcho1(QColor(Qt::green), w);
+    QPen greenEcho2(QColor(Qt::green), w);
+    QPen greenEcho3(QColor(Qt::green), w);
+    QPen yellowEcho0(QColor(Qt::yellow), w);
+    QPen yellowEcho1(QColor(Qt::yellow), w);
+    QPen yellowEcho2(QColor(Qt::yellow), w);
+    QPen yellowEcho3(QColor(Qt::yellow), w);
     QBrush white(QColor(255, 255, 255));
 
     foreach (Point point, data.Points)
@@ -378,19 +348,19 @@ void Window::OnSensorWarnings(const ErrorsWarnings& warnings)
 
 void Window::OnSensorParameters(const Parameters& parameters)
 {
-
+    Q_UNUSED(parameters)
 }
 
 void Window::OnSensorFailed(Command command)
 {
-
+    Q_UNUSED(command)
 }
 
 bool Window::eventFilter(QObject* object, QEvent* event)
 {
     if(event->type() == QEvent::KeyPress)
     {
-        QKeyEvent *key = static_cast<QKeyEvent *>(event);
+        QKeyEvent* key = static_cast<QKeyEvent*>(event);
         if((key->key() == Qt::Key_Enter) || (key->key() == Qt::Key_Return))
         {
             if(ui->buttonConnect->isEnabled()) ui->buttonConnect->click();
@@ -398,8 +368,8 @@ bool Window::eventFilter(QObject* object, QEvent* event)
         }
     }
     if(object == ui->widgetMessage ||
-       object == ui->labelConnectionMessage ||
-       object == ui->labelConnectionResult)
+       object == ui->labelMessage ||
+       object == ui->labelResult)
     {
         if(event->type() == QEvent::MouseButtonRelease)
             ui->widgetMessage->hide();

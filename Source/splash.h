@@ -16,8 +16,8 @@ class Splash : public QDialog
     Q_OBJECT
 
 public:
-    explicit Splash(QWidget* = 0);
-    virtual ~Splash();
+    Splash(QWidget* = 0);
+    ~Splash();
 
 private:
     Ui::Splash *ui;

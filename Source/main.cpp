@@ -1,9 +1,8 @@
-#include <QApplication>
 #include <QTranslator>
 #include "window.h"
 #include "splash.h"
 
-/*void Translate()
+void Translate()
 {
     QLocale::Language lang = QLocale::system().language();
     QStringList files;
@@ -14,13 +13,13 @@
         QTranslator* trans = new QTranslator(qApp);
         if(trans->load(file)) qApp->installTranslator(trans);
     }
-}*/
+}
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setStyle("fusion");
-    //Translate();
+    Translate();
 
     Splash s;
     s.exec();

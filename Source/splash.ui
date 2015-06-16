@@ -26,9 +26,9 @@
    <string>Dialog</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QDialog 
+   <string notr="true">QDialog
 {
-	background-image: url(:/root/Resources/splash.png); 
+  background-image: url(:/root/Resources/splash.png);
 }</string>
   </property>
   <layout class="QGridLayout" name="layoutSplash">
@@ -40,7 +40,7 @@
      <property name="styleSheet">
       <string notr="true">QLabel
 {
-	color: rgb(255, 255, 255);
+  color: rgb(255, 255, 255);
 }</string>
      </property>
      <property name="text">

@@ -12,4 +12,3 @@
 #define VER_PRODUCTNAME_STR         "Sensor"
 
 #endif
-

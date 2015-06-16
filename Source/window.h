@@ -1,8 +1,8 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <QDesktopWidget>
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QMainWindow>
 #include <QWheelEvent>
 #include "sensor.h"
@@ -17,16 +17,16 @@ class Window : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Window(QWidget* = 0);
-    virtual ~Window();
+    Window(QWidget* = 0);
+    ~Window();
 
 private slots:
+    void OnAbout();
     void OnStart();
     void OnCheck(bool);
     void OnStatus();
     void OnDisconnect();
     void OnConnect();
-    void OnAbout();
     void OnSensorData(const ScanData&);
     void OnSensorError();
     void OnSensorConnected();
@@ -42,7 +42,6 @@ private:
 private:
     Ui::Window* ui;
     Sensor sensor;
-    bool stopped;
 };
 
 #endif
