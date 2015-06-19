@@ -1,8 +1,6 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <QApplication>
-#include <QDesktopWidget>
 #include <QMainWindow>
 #include <QWheelEvent>
 #include <QMovie>
@@ -48,16 +46,16 @@ private:
 private:
     Ui::Window* ui;
     Sensor sensor;
-    bool addressChanged;
-    bool portChanged;
-    bool subnetChanged;
-    bool gatewayChanged;
-    bool startAngleChanged;
-    bool endAngleChanged;
-    bool syncOffsetChanged;
-    bool scanFrequencyChanged;
-    bool angularResolutionChanged;
-    bool dataFlagsChanged;
+    QPair<QString, bool> address;
+    QPair<QString, bool> port;
+    QPair<QString, bool> subnet;
+    QPair<QString, bool> gateway;
+    QPair<qint16,  bool> startAngle;
+    QPair<qint16,  bool> endAngle;
+    QPair<qint16,  bool> syncOffset;
+    QPair<quint16, bool> scanFrequency;
+    QPair<quint16, bool> angularResolution;
+    QPair<quint16, bool> dataFlags;
 };
 
 #endif

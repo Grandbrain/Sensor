@@ -54,7 +54,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>3</number>
        </property>
        <property name="usesScrollButtons">
         <bool>false</bool>
@@ -66,13 +66,6 @@
         <layout class="QGridLayout" name="layoutConnection">
          <item row="4" column="0" colspan="2">
           <widget class="QWidget" name="widgetMessage" native="true">
-           <property name="styleSheet">
-            <string notr="true">.QWidget
-{
-	background-color: rgb(198, 255, 202);
-	border: 1px solid green;
-}</string>
-           </property>
            <layout class="QGridLayout" name="gridLayout_9">
             <property name="leftMargin">
              <number>8</number>
@@ -100,18 +93,10 @@
              </spacer>
             </item>
             <item row="0" column="1">
-             <widget class="QLabel" name="labelMessage">
-              <property name="text">
-               <string>Подключение успешно выполнено</string>
-              </property>
-             </widget>
+             <widget class="QLabel" name="labelMessage"/>
             </item>
             <item row="0" column="0">
-             <widget class="QLabel" name="labelResult">
-              <property name="pixmap">
-               <pixmap resource="resources.qrc">:/root/Resources/success.ico</pixmap>
-              </property>
-             </widget>
+             <widget class="QLabel" name="labelResult"/>
             </item>
            </layout>
           </widget>
@@ -2143,7 +2128,14 @@
         </attribute>
         <layout class="QGridLayout" name="gridLayout_6">
          <item row="0" column="0">
-          <widget class="QListWidget" name="listErrors"/>
+          <widget class="QListWidget" name="listErrors">
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::NoSelection</enum>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>

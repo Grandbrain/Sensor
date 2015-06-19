@@ -1,3 +1,4 @@
+#include <QApplication>
 #include <QTranslator>
 #include "window.h"
 #include "splash.h"

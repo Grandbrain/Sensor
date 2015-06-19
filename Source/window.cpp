@@ -4,29 +4,11 @@
 
 Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
 {
-    QRect rect = qApp->desktop()->availableGeometry();
-    int w = rect.width();
-    int h = rect.height();
-    int dw = width();
-    int dh = height();
-    setGeometry((w / 2) - (dw / 2), (h / 2) - (dh / 2), dw, dh);
-
     QString range = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
     QRegExp regex ("^" + range + "\\." + range + "\\." + range + "\\." + range + "$");
     QValidator* addressValidator = new QRegExpValidator(regex, this);
     QValidator* portValidator = new QIntValidator(0, 65535, this);
     installEventFilter(this);
-
-    addressChanged = false;
-    portChanged = false;
-    subnetChanged = false;
-    gatewayChanged = false;
-    startAngleChanged = false;
-    endAngleChanged = false;
-    syncOffsetChanged = false;
-    scanFrequencyChanged = false;
-    angularResolutionChanged = false;
-    dataFlagsChanged = false;
 
     ui->setupUi(this);
     ui->widgetConnection->hide();
@@ -52,6 +34,11 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     ui->labelProgressStatus->setMovie(movie);
     ui->labelProgressSettings->setMovie(movie);
     movie->start();
+
+    QListWidgetItem* item = new QListWidgetItem("Устройство необходимо обогреть", ui->listErrors);
+    item->setBackground(QBrush(QColor(227, 179, 20)));
+    item->setForeground(QBrush(QColor(Qt::white)));
+    ui->listErrors->addItem(item);
 
     connect(ui->editSettingsAddress, SIGNAL(textEdited(QString)), SLOT(OnEditChanged()));
     connect(ui->editSettingsPort, SIGNAL(textEdited(QString)), SLOT(OnEditChanged()));
@@ -102,21 +89,111 @@ void Window::OnStart()
 
 void Window::OnEditChanged()
 {
-    QPalette palette;
-    palette.setColor(QPalette::Button, QColor(190, 255, 214));
-    palette.setColor(QPalette::Base, QColor(190, 255, 214));
-    palette.setColor(QPalette::Window, QColor(190, 255, 214));
+    QPalette p1, p2;
+    p1.setColor(QPalette::Button, QColor(190, 255, 214));
+    p1.setColor(QPalette::Base, QColor(190, 255, 214));
+    p1.setColor(QPalette::Window, QColor(190, 255, 214));
 
     if(sender() == ui->editSettingsAddress)
     {
-        addressChanged = true;
-        ui->editSettingsAddress->setPalette(palette);
+        if(address.first != ui->editSettingsAddress->text())
+        {
+            address.second = true;
+            ui->editSettingsAddress->setPalette(p1);
+        }
+        else
+        {
+            address.second = false;
+            ui->editSettingsAddress->setPalette(p2);
+        }
+    }
+    if(sender() == ui->editSettingsPort)
+    {
+        if(port.first != ui->editSettingsPort->text())
+        {
+            port.second = true;
+            ui->editSettingsPort->setPalette(p1);
+        }
+        else
+        {
+            port.second = false;
+            ui->editSettingsPort->setPalette(p2);
+        }
+    }
+    if(sender() == ui->editSettingsSubnet)
+    {
+        if(subnet.first != ui->editSettingsSubnet->text())
+        {
+            subnet.second = true;
+            ui->editSettingsSubnet->setPalette(p1);
+        }
+        else
+        {
+            subnet.second = false;
+            ui->editSettingsSubnet->setPalette(p2);
+        }
+    }
+    if(sender() == ui->editSettingsGateway)
+    {
+        if(gateway.first != ui->editSettingsGateway->text())
+        {
+            gateway.second = true;
+            ui->editSettingsGateway->setPalette(p1);
+        }
+        else
+        {
+            gateway.second = false;
+            ui->editSettingsGateway->setPalette(p2);
+        }
     }
 }
 
 void Window::OnSpinChanged()
 {
+    QPalette p1, p2;
+    p1.setColor(QPalette::Button, QColor(190, 255, 214));
+    p1.setColor(QPalette::Base, QColor(190, 255, 214));
+    p1.setColor(QPalette::Window, QColor(190, 255, 214));
 
+    if(sender() == ui->spinSettingsStartAngle)
+    {
+        if(startAngle.first != ui->spinSettingsStartAngle->value())
+        {
+            startAngle.second = true;
+            ui->spinSettingsStartAngle->setPalette(p1);
+        }
+        else
+        {
+            startAngle.second = false;
+            ui->spinSettingsStartAngle->setPalette(p2);
+        }
+    }
+    if(sender() == ui->spinSettingsEndAngle)
+    {
+        if(endAngle.first != ui->spinSettingsEndAngle->value())
+        {
+            endAngle.second = true;
+            ui->spinSettingsEndAngle->setPalette(p1);
+        }
+        else
+        {
+            endAngle.second = false;
+            ui->spinSettingsEndAngle->setPalette(p2);
+        }
+    }
+    if(sender() == ui->spinSettingsSyncOffset)
+    {
+        if(syncOffset.first != ui->spinSettingsSyncOffset->value())
+        {
+            syncOffset.second = true;
+            ui->spinSettingsSyncOffset->setPalette(p1);
+        }
+        else
+        {
+            syncOffset.second = false;
+            ui->spinSettingsSyncOffset->setPalette(p2);
+        }
+    }
 }
 
 void Window::OnComboChanged()
@@ -156,6 +233,9 @@ void Window::OnSensorConnected()
     ui->tabWidget->setTabEnabled(3, true);
     ui->graphicsView->setEnabled(true);
     ui->toolBar->setEnabled(true);
+    ui->labelMessage->setText(tr("Подключение успешно выполнено"));
+    ui->labelResult->setPixmap(QPixmap(":/root/Resources/success.ico"));
+    ui->widgetMessage->setStyleSheet(".QWidget { background-color: rgb(198, 255, 202); border: 1px solid green; }");
     ui->widgetMessage->show();
     OnStatus();
     QTimer::singleShot(20000, ui->widgetMessage, SLOT(hide()));
@@ -180,28 +260,15 @@ void Window::OnSensorDisconnected()
 
 void Window::OnSensorError()
 {
-    if(ui->widgetConnection->isVisible())
+    if(ui->editAddress->isEnabled() && ui->widgetConnection->isVisible())
     {
-        if(ui->editAddress->isEnabled())
-        {
-            ui->widgetConnection->hide();
-            ui->labelMessage->setText(tr("Не удалось выполнить подключение."));
-            ui->labelResult->setPixmap(QPixmap(":/root/Resources/error.ico"));
-            ui->widgetMessage->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
-            ui->buttonConnect->setEnabled(true);
-            ui->widgetMessage->show();
-            QTimer::singleShot(30000, ui->widgetMessage, SLOT(hide()));
-        }
-        else
-        {
-            ui->widgetConnection->hide();
-            ui->labelMessage->setText(tr("Не удалось отключиться."));
-            ui->labelResult->setPixmap(QPixmap(":/root/Resources/error.ico"));
-            ui->widgetMessage->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
-            ui->buttonDisconnect->setEnabled(true);
-            ui->widgetMessage->show();
-            QTimer::singleShot(30000, ui->widgetMessage, SLOT(hide()));
-        }
+        ui->widgetConnection->hide();
+        ui->labelMessage->setText(tr("Не удалось выполнить подключение"));
+        ui->labelResult->setPixmap(QPixmap(":/root/Resources/error.ico"));
+        ui->widgetMessage->setStyleSheet(".QWidget { background-color: rgb(255, 198, 202); border: 1px solid red; }");
+        ui->buttonConnect->setEnabled(true);
+        ui->widgetMessage->show();
+        QTimer::singleShot(30000, ui->widgetMessage, SLOT(hide()));
     }
 }
 
@@ -400,91 +467,135 @@ void Window::OnSensorData(const ScanData& data)
 void Window::OnSensorWarnings(const ErrorsWarnings& warnings)
 {
     ui->listErrors->clear();
-    unsigned count = 1;
-    if(warnings.E1APDOT) ui->listErrors->addItem(QString::number(count) + ". Устройство необходимо обогреть"), ++count;
-    if(warnings.E1APDUT) ui->listErrors->addItem(QString::number(count) + ". Устройство необходимо охладить"), ++count;
-    if(warnings.E1CS) ui->listErrors->addItem(QString::number(count) + ". Неизвестная ошибка, обратитесь в службу поддержки"), ++count;
-    if(warnings.E1SBO) ui->listErrors->addItem(QString::number(count) + ". Буфер устройства переполнен, снизьте частоту сканирования или обратитесь в службу поддержки"), ++count;
-    if(warnings.E1SBTI) ui->listErrors->addItem(QString::number(count) + ". Данные переданы не полностью, снизьте частоту сканирования или обратитесь в службу поддержки"), ++count;
-    if(warnings.E2CCIP) ui->listErrors->addItem(QString::number(count) + ". Неверные конфигурационные данные, загрузьте корректные значения"), ++count;
-    if(warnings.E2CS) ui->listErrors->addItem(QString::number(count) + ". Неизвестная ошибка, обратитесь в службу поддержки"), ++count;
-    if(warnings.E2DPT) ui->listErrors->addItem(QString::number(count) + ". Тайм-аут обработки данных, снизьте разрешение или частоту сканирования"), ++count;
-    if(warnings.E2ICD) ui->listErrors->addItem(QString::number(count) + ". Неправильные данные конфигурации, загрузьте корректные значения"), ++count;
-    if(warnings.W1CSSF) ui->listErrors->addItem(QString::number(count) + ". Ошибка синхронизации"), ++count;
-    if(warnings.W1ET) ui->listErrors->addItem(QString::number(count) + ". Температура устройства слишком высокая"), ++count;
-    if(warnings.W1IT) ui->listErrors->addItem(QString::number(count) + ". Температура устройства слишком низкая"), ++count;
-    if(warnings.W2CED) ui->listErrors->addItem(QString::number(count) + ". Ошибка получения данных, проверьте подключение"), ++count;
-    if(warnings.W2CS) ui->listErrors->addItem(QString::number(count) + ". Неизвестная ошибка, обратитесь в службу поддержки"), ++count;
-    if(warnings.W2EIB) ui->listErrors->addItem(QString::number(count) + ". Ethernet блокирован, проверьте подключение"), ++count;
-    if(warnings.W2FC) ui->listErrors->addItem(QString::number(count) + ". Неправильная команда"), ++count;
-    if(warnings.W2MAF) ui->listErrors->addItem(QString::number(count) + ". Ошибка доступа к памяти, перезагрузите устройство или обратитесь в службу поддержки"), ++count;
+    if(warnings.E1APDOT)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Устройство необходимо обогреть", ui->listErrors);
+        item->setBackground(QBrush(QColor(Qt::red)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.E1APDUT)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Устройство необходимо охладить", ui->listErrors);
+        item->setBackground(QBrush(QColor(Qt::red)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.E1CS)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Неизвестная ошибка, обратитесь в службу поддержки", ui->listErrors);
+        item->setBackground(QBrush(QColor(Qt::red)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.E1SBO)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Буфер устройства переполнен, снизьте частоту сканирования или обратитесь в службу поддержки", ui->listErrors);
+        item->setBackground(QBrush(QColor(Qt::red)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.E1SBTI)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Данные переданы не полностью, снизьте частоту сканирования или обратитесь в службу поддержки", ui->listErrors);
+        item->setBackground(QBrush(QColor(Qt::red)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.E2CCIP)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Неверные конфигурационные данные, загрузьте корректные значения", ui->listErrors);
+        item->setBackground(QBrush(QColor(Qt::red)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.E2CS)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Неизвестная ошибка, обратитесь в службу поддержки", ui->listErrors);
+        item->setBackground(QBrush(QColor(Qt::red)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.E2DPT)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Тайм-аут обработки данных, снизьте разрешение или частоту сканирования", ui->listErrors);
+        item->setBackground(QBrush(QColor(Qt::red)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.E2ICD)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Неправильные данные конфигурации, загрузьте корректные значения", ui->listErrors);
+        item->setBackground(QBrush(QColor(Qt::red)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.W1CSSF)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Ошибка синхронизации", ui->listErrors);
+        item->setBackground(QBrush(QColor(227, 179, 20)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.W1ET)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Температура устройства слишком высокая", ui->listErrors);
+        item->setBackground(QBrush(QColor(227, 179, 20)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.W1IT)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Температура устройства слишком низкая", ui->listErrors);
+        item->setBackground(QBrush(QColor(227, 179, 20)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.W2CED)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Ошибка получения данных, проверьте подключение", ui->listErrors);
+        item->setBackground(QBrush(QColor(227, 179, 20)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.W2CS)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Неизвестная ошибка, обратитесь в службу поддержки", ui->listErrors);
+        item->setBackground(QBrush(QColor(227, 179, 20)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.W2EIB)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Ethernet блокирован, проверьте подключение", ui->listErrors);
+        item->setBackground(QBrush(QColor(227, 179, 20)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.W2FC)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Неправильная команда", ui->listErrors);
+        item->setBackground(QBrush(QColor(227, 179, 20)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
+    if(warnings.W2MAF)
+    {
+        QListWidgetItem* item = new QListWidgetItem("Ошибка доступа к памяти, перезагрузите устройство или обратитесь в службу поддержки", ui->listErrors);
+        item->setBackground(QBrush(QColor(227, 179, 20)));
+        item->setForeground(QBrush(QColor(Qt::white)));
+        ui->listErrors->addItem(item);
+    }
 }
 
 void Window::OnSensorParameters(const Parameters& parameters)
 {
-    if(parameters.ParameterChanged == Parameter::AngleTicksPerRotation)
-    {
-        ui->editAngleTicks->setText(QString::number(parameters.AngleTicksPerRotation));
-        ui->widgetProgressStatus->hide();
-    }
-    if(parameters.ParameterChanged == Parameter::Address)
-    {
-        ui->editSettingsAddress->setText(parameters.Address);
-        sensor.GetPort();
-    }
-    if(parameters.ParameterChanged == Parameter::Port)
-    {
-        ui->editSettingsPort->setText(QString::number(parameters.Port));
-        sensor.GetSubnetMask();
-    }
-    if(parameters.ParameterChanged == Parameter::SubnetMask)
-    {
-        ui->editSettingsSubnet->setText(parameters.SubnetMask);
-        sensor.GetGateway();
-    }
-    if(parameters.ParameterChanged == Parameter::Gateway)
-    {
-        ui->editSettingsGateway->setText(parameters.Gateway);
-        sensor.GetStartAngle();
-    }
-    if(parameters.ParameterChanged == Parameter::StartAngle)
-    {
-        ui->spinSettingsStartAngle->setValue(parameters.StartAngle);
-        sensor.GetEndAngle();
-    }
-    if(parameters.ParameterChanged == Parameter::EndAngle)
-    {
-        ui->spinSettingsEndAngle->setValue(parameters.EndAngle);
-        sensor.GetDataOutputFlags();
-    }
-    /*if(parameters.ParameterChanged == Parameter::SyncAngleOffset)
-    {
-        ui->spinSettingsSyncOffset->setValue(parameters.SyncAngleOffset);
-        sensor.GetScanFrequency();
-    }*/
-    /*if(parameters.ParameterChanged == Parameter::ScanFrequency)
-    {
-        ui->comboScanFrequency->addItem(QString::number(parameters.ScanFrequency));
-        //ui->comboScanFrequency->setCurrentIndex(0);
-        sensor.GetAngularResolutionType();
-    }
-    if(parameters.ParameterChanged == Parameter::AngularResolution)
-    {
-        ui->comboAngleResolution->addItem(QString::number(parameters.AngularResolution));
-        //ui->comboScanFrequency->setCurrentIndex(0);
-        sensor.GetDataOutputFlags();
-    }*/
-    if(parameters.ParameterChanged == Parameter::DataOutputFlags)
-    {
-        ui->checkScanData->setChecked(parameters.DataOutputFlags.first);
-        ui->checkScanErrors->setChecked(parameters.DataOutputFlags.second);
-        ui->widgetProgressSettings->hide();
-    }
+
 }
 
 void Window::OnSensorFailed(Command command)
 {
-    Q_UNUSED(command)
+
 }
 
 bool Window::eventFilter(QObject* object, QEvent* event)

@@ -1,8 +1,6 @@
 #ifndef SPLASH_H
 #define SPLASH_H
 
-#include <QApplication>
-#include <QDesktopWidget>
 #include <QDialog>
 #include <QTimer>
 
