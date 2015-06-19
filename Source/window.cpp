@@ -17,8 +17,21 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     QValidator* portValidator = new QIntValidator(0, 65535, this);
     installEventFilter(this);
 
+    addressChanged = false;
+    portChanged = false;
+    subnetChanged = false;
+    gatewayChanged = false;
+    startAngleChanged = false;
+    endAngleChanged = false;
+    syncOffsetChanged = false;
+    scanFrequencyChanged = false;
+    angularResolutionChanged = false;
+    dataFlagsChanged = false;
+
     ui->setupUi(this);
-    ui->progressConnection->hide();
+    ui->widgetConnection->hide();
+    ui->widgetProgressStatus->hide();
+    ui->widgetProgressSettings->hide();
     ui->widgetMessage->hide();
     ui->editAddress->setValidator(addressValidator);
     ui->editPort->setValidator(portValidator);
@@ -34,6 +47,24 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     ui->graphicsView->setScene(scene);
     ui->graphicsView->installEventFilter(this);
 
+    QMovie* movie = new QMovie(":/root/Resources/loader.GIF", QByteArray(), this);
+    ui->labelProgress->setMovie(movie);
+    ui->labelProgressStatus->setMovie(movie);
+    ui->labelProgressSettings->setMovie(movie);
+    movie->start();
+
+    connect(ui->editSettingsAddress, SIGNAL(textEdited(QString)), SLOT(OnEditChanged()));
+    connect(ui->editSettingsPort, SIGNAL(textEdited(QString)), SLOT(OnEditChanged()));
+    connect(ui->editSettingsSubnet, SIGNAL(textEdited(QString)), SLOT(OnEditChanged()));
+    connect(ui->editSettingsGateway, SIGNAL(textEdited(QString)), SLOT(OnEditChanged()));
+    connect(ui->spinSettingsStartAngle, SIGNAL(valueChanged(int)), SLOT(OnSpinChanged()));
+    connect(ui->spinSettingsEndAngle, SIGNAL(valueChanged(int)), SLOT(OnSpinChanged()));
+    connect(ui->spinSettingsSyncOffset, SIGNAL(valueChanged(int)), SLOT(OnSpinChanged()));
+    connect(ui->comboAngleResolution, SIGNAL(currentIndexChanged(int)), SLOT(OnComboChanged()));
+    connect(ui->comboScanFrequency, SIGNAL(currentIndexChanged(int)), SLOT(OnComboChanged()));
+    connect(ui->checkScanData, SIGNAL(toggled(bool)), SLOT(OnCheckChanged()));
+    connect(ui->checkScanErrors, SIGNAL(toggled(bool)), SLOT(OnCheckChanged()));
+    connect(ui->buttonSettingsUpdate, SIGNAL(released()), SLOT(OnParameters()));
     connect(ui->checkExternalSync, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
     connect(ui->checkFrequencyLocked, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
     connect(ui->checkLaserOn, SIGNAL(clicked(bool)), SLOT(OnCheck(bool)));
@@ -69,6 +100,35 @@ void Window::OnStart()
 
 }
 
+void Window::OnEditChanged()
+{
+    QPalette palette;
+    palette.setColor(QPalette::Button, QColor(190, 255, 214));
+    palette.setColor(QPalette::Base, QColor(190, 255, 214));
+    palette.setColor(QPalette::Window, QColor(190, 255, 214));
+
+    if(sender() == ui->editSettingsAddress)
+    {
+        addressChanged = true;
+        ui->editSettingsAddress->setPalette(palette);
+    }
+}
+
+void Window::OnSpinChanged()
+{
+
+}
+
+void Window::OnComboChanged()
+{
+
+}
+
+void Window::OnCheckChanged()
+{
+
+}
+
 void Window::OnCheck(bool checked)
 {
     if(checked && sender() == ui->checkExternalSync) ui->checkExternalSync->setChecked(false);
@@ -86,7 +146,7 @@ void Window::OnCheck(bool checked)
 void Window::OnSensorConnected()
 {
     ui->buttonDisconnect->setText(tr("Отключить"));
-    ui->progressConnection->hide();
+    ui->widgetConnection->hide();
     ui->buttonConnect->setEnabled(false);
     ui->buttonDisconnect->setEnabled(true);
     ui->editAddress->setEnabled(false);
@@ -95,8 +155,8 @@ void Window::OnSensorConnected()
     ui->tabWidget->setTabEnabled(2, true);
     ui->tabWidget->setTabEnabled(3, true);
     ui->graphicsView->setEnabled(true);
-    ui->widgetMessage->show();
     ui->toolBar->setEnabled(true);
+    ui->widgetMessage->show();
     OnStatus();
     QTimer::singleShot(20000, ui->widgetMessage, SLOT(hide()));
 }
@@ -104,7 +164,7 @@ void Window::OnSensorConnected()
 void Window::OnSensorDisconnected()
 {
     ui->widgetMessage->hide();
-    ui->progressConnection->hide();
+    ui->widgetConnection->hide();
     ui->buttonConnect->setEnabled(true);
     ui->buttonDisconnect->setEnabled(false);
     ui->editAddress->setEnabled(true);
@@ -113,18 +173,18 @@ void Window::OnSensorDisconnected()
     ui->tabWidget->setTabEnabled(2, false);
     ui->tabWidget->setTabEnabled(3, false);
     ui->graphicsView->setEnabled(false);
+    ui->toolBar->setEnabled(false);
     ui->buttonDisconnect->setText(tr("Отключить"));
     ui->graphicsView->scene()->clear();
-    ui->toolBar->setEnabled(false);
 }
 
 void Window::OnSensorError()
 {
-    if(ui->progressConnection->isVisible())
+    if(ui->widgetConnection->isVisible())
     {
         if(ui->editAddress->isEnabled())
         {
-            ui->progressConnection->hide();
+            ui->widgetConnection->hide();
             ui->labelMessage->setText(tr("Не удалось выполнить подключение."));
             ui->labelResult->setPixmap(QPixmap(":/root/Resources/error.ico"));
             ui->widgetMessage->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
@@ -134,7 +194,7 @@ void Window::OnSensorError()
         }
         else
         {
-            ui->progressConnection->hide();
+            ui->widgetConnection->hide();
             ui->labelMessage->setText(tr("Не удалось отключиться."));
             ui->labelResult->setPixmap(QPixmap(":/root/Resources/error.ico"));
             ui->widgetMessage->setStyleSheet(".QWidget { border: 2px solid #C22B31; background-color: rgb(242, 213, 213); }");
@@ -150,8 +210,7 @@ void Window::OnConnect()
     ui->widgetMessage->hide();
     QString address = ui->editAddress->text();
     QString port = ui->editPort->text();
-    if(address.isEmpty() || port.isEmpty()) return;
-    ui->progressConnection->show();
+    ui->widgetConnection->show();
     ui->buttonDisconnect->setEnabled(true);
     ui->buttonDisconnect->setText(tr("Отмена"));
     ui->buttonConnect->setEnabled(false);
@@ -171,8 +230,23 @@ void Window::OnStatus()
     sensor.GetStatus();
 }
 
+void Window::OnParameters()
+{
+    sensor.SetAddress(ui->editSettingsAddress->text());
+    sensor.SetPort(ui->editSettingsPort->text().toUShort());
+    sensor.SetSubnetMask(ui->editSettingsSubnet->text());
+    sensor.SetGateway(ui->editSettingsGateway->text());
+    sensor.SetStartAngle(ui->spinSettingsStartAngle->value());
+    sensor.SetEndAngle(ui->spinSettingsEndAngle->value());
+    sensor.SetSyncAngleOffset(ui->spinSettingsSyncOffset->value());
+    sensor.SetScanFrequency(ui->comboScanFrequency->currentText().toUShort());
+    sensor.SetAngularResolutionType(ui->comboAngleResolution->currentText().toUShort());
+    sensor.SetDataOutputFlags(ui->checkScanData->isChecked(), ui->checkScanErrors->isChecked());
+}
+
 void Window::OnSensorStatus(const Status& status)
 {
+    ui->widgetProgressStatus->show();
     ui->checkExternalSync->blockSignals(true);
     ui->checkFrequencyLocked->blockSignals(true);
     ui->checkLaserOn->blockSignals(true);
@@ -184,7 +258,6 @@ void Window::OnSensorStatus(const Status& status)
     ui->editSerialNumber->setText(status.SerialNumber);
     ui->editFPGA->setText(status.FPGATime);
     ui->editDSP->setText(status.DSPTime);
-    //ui->editAngleTicks->setText(QString::number(sensor.GetAngleTicksPerRotation()));
     ui->checkExternalSync->setChecked(status.ExternalSyncSignal);
     ui->checkFrequencyLocked->setChecked(status.FrequencyLocked);
     ui->checkLaserOn->setChecked(status.LaserOn);
@@ -195,6 +268,7 @@ void Window::OnSensorStatus(const Status& status)
     ui->checkLaserOn->blockSignals(false);
     ui->checkMotorOn->blockSignals(false);
     ui->checkPhaseLocked->blockSignals(false);
+    sensor.GetAngleTicksPerRotation();
 }
 
 void Window::OnSensorData(const ScanData& data)
@@ -203,7 +277,7 @@ void Window::OnSensorData(const ScanData& data)
     scene->clear();
 
     qreal w = 1.5;
-    QPen cyan(QColor(Qt::cyan), w);
+    QPen cyan(QColor(Qt::darkGray), w);
     QPen redEcho0(QColor(Qt::red), w);
     QPen redEcho1(QColor(Qt::red), w);
     QPen redEcho2(QColor(Qt::red), w);
@@ -348,7 +422,64 @@ void Window::OnSensorWarnings(const ErrorsWarnings& warnings)
 
 void Window::OnSensorParameters(const Parameters& parameters)
 {
-    Q_UNUSED(parameters)
+    if(parameters.ParameterChanged == Parameter::AngleTicksPerRotation)
+    {
+        ui->editAngleTicks->setText(QString::number(parameters.AngleTicksPerRotation));
+        ui->widgetProgressStatus->hide();
+    }
+    if(parameters.ParameterChanged == Parameter::Address)
+    {
+        ui->editSettingsAddress->setText(parameters.Address);
+        sensor.GetPort();
+    }
+    if(parameters.ParameterChanged == Parameter::Port)
+    {
+        ui->editSettingsPort->setText(QString::number(parameters.Port));
+        sensor.GetSubnetMask();
+    }
+    if(parameters.ParameterChanged == Parameter::SubnetMask)
+    {
+        ui->editSettingsSubnet->setText(parameters.SubnetMask);
+        sensor.GetGateway();
+    }
+    if(parameters.ParameterChanged == Parameter::Gateway)
+    {
+        ui->editSettingsGateway->setText(parameters.Gateway);
+        sensor.GetStartAngle();
+    }
+    if(parameters.ParameterChanged == Parameter::StartAngle)
+    {
+        ui->spinSettingsStartAngle->setValue(parameters.StartAngle);
+        sensor.GetEndAngle();
+    }
+    if(parameters.ParameterChanged == Parameter::EndAngle)
+    {
+        ui->spinSettingsEndAngle->setValue(parameters.EndAngle);
+        sensor.GetDataOutputFlags();
+    }
+    /*if(parameters.ParameterChanged == Parameter::SyncAngleOffset)
+    {
+        ui->spinSettingsSyncOffset->setValue(parameters.SyncAngleOffset);
+        sensor.GetScanFrequency();
+    }*/
+    /*if(parameters.ParameterChanged == Parameter::ScanFrequency)
+    {
+        ui->comboScanFrequency->addItem(QString::number(parameters.ScanFrequency));
+        //ui->comboScanFrequency->setCurrentIndex(0);
+        sensor.GetAngularResolutionType();
+    }
+    if(parameters.ParameterChanged == Parameter::AngularResolution)
+    {
+        ui->comboAngleResolution->addItem(QString::number(parameters.AngularResolution));
+        //ui->comboScanFrequency->setCurrentIndex(0);
+        sensor.GetDataOutputFlags();
+    }*/
+    if(parameters.ParameterChanged == Parameter::DataOutputFlags)
+    {
+        ui->checkScanData->setChecked(parameters.DataOutputFlags.first);
+        ui->checkScanErrors->setChecked(parameters.DataOutputFlags.second);
+        ui->widgetProgressSettings->hide();
+    }
 }
 
 void Window::OnSensorFailed(Command command)

@@ -9,5 +9,6 @@
         <file>Resources/run.ico</file>
         <file>Resources/error.ico</file>
         <file>Resources/success.ico</file>
+        <file>Resources/loader.GIF</file>
     </qresource>
 </RCC>

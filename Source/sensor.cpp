@@ -723,203 +723,203 @@ void Sensor::Reset()
 {
     QByteArray array;
     Utilites::Reset(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetStatus()
 {
     QByteArray array;
     Utilites::GetStatus(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SaveConfig()
 {
     QByteArray array;
     Utilites::SaveConfig(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::ResetParameters()
 {
     QByteArray array;
     Utilites::ResetParameters(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::StartMeasure()
 {
     QByteArray array;
     Utilites::StartMeasure(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::StopMeasure()
 {
     QByteArray array;
     Utilites::StopMeasure(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetTimeSeconds(quint32 time)
 {
     QByteArray array;
     Utilites::TimeSeconds(array, time);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetTimeFractionalSeconds(quint32 time)
 {
     QByteArray array;
     Utilites::TimeFractionalSeconds(array, time);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetAddress(const QString& address)
 {
     QByteArray array;
     Utilites::SetAddress(array, address);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetPort(quint16 port)
 {
     QByteArray array;
     Utilites::SetPort(array, port);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetSubnetMask(const QString& mask)
 {
     QByteArray array;
     Utilites::SetSubnetMask(array, mask);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetGateway(const QString& gateway)
 {
     QByteArray array;
     Utilites::SetStandardGateway(array, gateway);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetDataOutputFlags(bool scan, bool errors)
 {
     QByteArray array;
     Utilites::SetDataOutputFlags(array, scan, errors);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetStartAngle(qint16 angle)
 {
     QByteArray array;
     Utilites::SetStartAngle(array, angle);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetEndAngle(qint16 angle)
 {
     QByteArray array;
     Utilites::SetEndAngle(array, angle);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetScanFrequency(quint16 frequency)
 {
     QByteArray array;
     Utilites::SetScanFrequency(array, frequency);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetSyncAngleOffset(qint16 offset)
 {
     QByteArray array;
     Utilites::SetSyncAngleOffset(array, offset);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::SetAngularResolutionType(quint16 type)
 {
     QByteArray array;
     Utilites::SetAngularResolutionType(array, type);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetAddress()
 {
     QByteArray array;
     Utilites::GetAddress(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetPort()
 {
     QByteArray array;
     Utilites::GetPort(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetSubnetMask()
 {
     QByteArray array;
     Utilites::GetSubnetMask(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetGateway()
 {
     QByteArray array;
     Utilites::GetStandardGateway(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetDataOutputFlags()
 {
     QByteArray array;
     Utilites::GetDataOutputFlags(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetStartAngle()
 {
     QByteArray array;
     Utilites::GetStartAngle(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetEndAngle()
 {
     QByteArray array;
     Utilites::GetEndAngle(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetScanFrequency()
 {
     QByteArray array;
     Utilites::GetScanFrequency(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetSyncAngleOffset()
 {
     QByteArray array;
     Utilites::GetSyncAngleOffset(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetAngularResolutionType()
 {
     QByteArray array;
     Utilites::GetAngularResolutionType(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 void Sensor::GetAngleTicksPerRotation()
 {
     QByteArray array;
     Utilites::GetAngleTicksPerRotation(array);
-    mSocket.write(array);
+    Write(array);
 }
 
 QPair<qint16, qint16> Sensor::GetStartAngleBoundary()
@@ -953,6 +953,12 @@ QVector<quint16> Sensor::GetAngularResolutionValues()
     vector.append(1);
     vector.append(2);
     return vector;
+}
+
+void Sensor::Write(const QByteArray& array)
+{
+    QThread::msleep(50);
+    mSocket.write(array);
 }
 
 void Sensor::Parse()
@@ -1128,6 +1134,11 @@ void Sensor::Parse()
             {
                 p.AngularResolution = param.Parameter;
                 p.ParameterChanged = Parameter::AngularResolution;
+            }
+            if(param.ParameterIndex == 0x1105)
+            {
+                p.AngleTicksPerRotation = param.Parameter;
+                p.ParameterChanged = Parameter::AngleTicksPerRotation;
             }
             if(param.ParameterIndex == 0x1012)
             {

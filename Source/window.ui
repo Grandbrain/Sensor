@@ -54,7 +54,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <property name="usesScrollButtons">
         <bool>false</bool>
@@ -63,8 +63,8 @@
         <attribute name="title">
          <string>Подключение</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="5" column="0" colspan="2">
+        <layout class="QGridLayout" name="layoutConnection">
+         <item row="4" column="0" colspan="2">
           <widget class="QWidget" name="widgetMessage" native="true">
            <property name="styleSheet">
             <string notr="true">.QWidget
@@ -87,7 +87,7 @@
              <number>5</number>
             </property>
             <item row="0" column="2">
-             <spacer name="horizontalSpacer_11">
+             <spacer name="spacer3">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -117,7 +117,7 @@
           </widget>
          </item>
          <item row="0" column="0" colspan="2">
-          <layout class="QFormLayout" name="layoutConnection">
+          <layout class="QFormLayout" name="layoutConnectionEdits">
            <item row="0" column="0">
             <widget class="QLabel" name="labelAddress">
              <property name="text">
@@ -235,41 +235,9 @@
           </widget>
          </item>
          <item row="2" column="0" colspan="2">
-          <widget class="Line" name="line">
+          <widget class="Line" name="line1">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" colspan="2">
-          <widget class="QProgressBar" name="progressConnection">
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>10</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QProgressBar 
-{
-	border-radius:2px;
-	border: 1px solid #A0A0A0;
- }
-
- QProgressBar::chunk 
-{
-	background-color: rgb(46, 136, 185);
-	width: 20px;
- }</string>
-           </property>
-           <property name="maximum">
-            <number>0</number>
-           </property>
-           <property name="value">
-            <number>-1</number>
-           </property>
-           <property name="textVisible">
-            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -283,8 +251,8 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0" colspan="2">
-          <spacer name="verticalSpacer">
+         <item row="5" column="0" colspan="2">
+          <spacer name="spacer2">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -296,17 +264,56 @@
            </property>
           </spacer>
          </item>
+         <item row="7" column="0" colspan="2">
+          <spacer name="spacer1">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="6" column="0" colspan="2">
+          <widget class="QWidget" name="widgetConnection" native="true">
+           <layout class="QGridLayout" name="gridLayout_8">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelProgress">
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="tabStatus">
         <attribute name="title">
          <string>Статус</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout_4">
+        <layout class="QGridLayout" name="layoutStatus">
+         <item row="5" column="0">
+          <spacer name="spacer15">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
          <item row="0" column="0">
-          <layout class="QFormLayout" name="layoutStatus">
+          <layout class="QFormLayout" name="layoutStatusShow">
            <item row="0" column="0">
-            <widget class="QLabel" name="label_3">
+            <widget class="QLabel" name="labelFirmwareVersion">
              <property name="text">
               <string>Версия прошивки:</string>
              </property>
@@ -414,7 +421,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_4">
+            <widget class="QLabel" name="labelFPGAVersion">
              <property name="text">
               <string>Версия ППВМ:</string>
              </property>
@@ -522,7 +529,7 @@
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="label_5">
+            <widget class="QLabel" name="labelTemperature">
              <property name="text">
               <string>Температура (С):</string>
              </property>
@@ -630,7 +637,7 @@
             </widget>
            </item>
            <item row="3" column="0">
-            <widget class="QLabel" name="label_6">
+            <widget class="QLabel" name="labelSerialNumber">
              <property name="text">
               <string>Серийный номер:</string>
              </property>
@@ -738,7 +745,7 @@
             </widget>
            </item>
            <item row="4" column="0">
-            <widget class="QLabel" name="label_7">
+            <widget class="QLabel" name="labelFPGA">
              <property name="text">
               <string>Метка времени ППВМ:</string>
              </property>
@@ -846,7 +853,7 @@
             </widget>
            </item>
            <item row="5" column="0">
-            <widget class="QLabel" name="label_8">
+            <widget class="QLabel" name="labelDSP">
              <property name="text">
               <string>Метка времени СМП:</string>
              </property>
@@ -954,9 +961,9 @@
             </widget>
            </item>
            <item row="7" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout">
+            <layout class="QHBoxLayout" name="layoutExternalSync">
              <item>
-              <spacer name="horizontalSpacer">
+              <spacer name="spacer5">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1064,7 +1071,7 @@
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_2">
+              <spacer name="spacer6">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1079,9 +1086,9 @@
             </layout>
            </item>
            <item row="8" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <layout class="QHBoxLayout" name="layoutMotorOn">
              <item>
-              <spacer name="horizontalSpacer_3">
+              <spacer name="spacer7">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1189,7 +1196,7 @@
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_4">
+              <spacer name="spacer8">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1204,9 +1211,9 @@
             </layout>
            </item>
            <item row="9" column="1">
-            <layout class="QHBoxLayout" name="_2">
+            <layout class="QHBoxLayout" name="layoutLaserOn">
              <item>
-              <spacer name="horizontalSpacer_5">
+              <spacer name="spacer9">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1314,7 +1321,7 @@
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_6">
+              <spacer name="spacer10">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1329,9 +1336,9 @@
             </layout>
            </item>
            <item row="10" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <layout class="QHBoxLayout" name="layoutPhaseLocked">
              <item>
-              <spacer name="horizontalSpacer_7">
+              <spacer name="spacer11">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1439,7 +1446,7 @@
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_8">
+              <spacer name="spacer12">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1454,9 +1461,9 @@
             </layout>
            </item>
            <item row="11" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <layout class="QHBoxLayout" name="FrequencyLocked">
              <item>
-              <spacer name="horizontalSpacer_9">
+              <spacer name="spacer14">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1564,7 +1571,7 @@
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_10">
+              <spacer name="spacer13">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1579,35 +1586,35 @@
             </layout>
            </item>
            <item row="7" column="0">
-            <widget class="QLabel" name="label_9">
+            <widget class="QLabel" name="labelExternalSync">
              <property name="text">
               <string>Внешний сигнал синхронизации:</string>
              </property>
             </widget>
            </item>
            <item row="8" column="0">
-            <widget class="QLabel" name="label_10">
+            <widget class="QLabel" name="labelMotorOn">
              <property name="text">
               <string>Мотор включён:</string>
              </property>
             </widget>
            </item>
            <item row="9" column="0">
-            <widget class="QLabel" name="label_11">
+            <widget class="QLabel" name="labelLaserOn">
              <property name="text">
               <string>Лазер включён:</string>
              </property>
             </widget>
            </item>
            <item row="10" column="0">
-            <widget class="QLabel" name="label_12">
+            <widget class="QLabel" name="labelPhaseLocked">
              <property name="text">
               <string>Фаза заблокирована</string>
              </property>
             </widget>
            </item>
            <item row="11" column="0">
-            <widget class="QLabel" name="label_13">
+            <widget class="QLabel" name="labelFrequencyLocked">
              <property name="text">
               <string>Частота заблокирована:</string>
              </property>
@@ -1715,7 +1722,7 @@
             </widget>
            </item>
            <item row="6" column="0">
-            <widget class="QLabel" name="label_22">
+            <widget class="QLabel" name="labelAngleTicks">
              <property name="text">
               <string>Дискретные значения угла:</string>
              </property>
@@ -1724,24 +1731,11 @@
           </layout>
          </item>
          <item row="1" column="0">
-          <widget class="Line" name="line_2">
+          <widget class="Line" name="line2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
           </widget>
-         </item>
-         <item row="3" column="0">
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
          </item>
          <item row="2" column="0">
           <widget class="QPushButton" name="buttonStatus">
@@ -1814,174 +1808,21 @@
            </property>
           </widget>
          </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="tabSettings">
-        <attribute name="title">
-         <string>Параметры</string>
-        </attribute>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0">
-          <layout class="QFormLayout" name="formLayout_3">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_14">
-             <property name="text">
-              <string>Адрес:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEdit_9">
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="clearButtonEnabled">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_15">
-             <property name="text">
-              <string>Порт:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEdit_10">
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="clearButtonEnabled">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_16">
-             <property name="text">
-              <string>Маска подсети:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEdit_11">
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="clearButtonEnabled">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_17">
-             <property name="text">
-              <string>Шлюз:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="lineEdit_12">
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="clearButtonEnabled">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QSpinBox" name="spinBox">
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QSpinBox" name="spinBox_2">
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <widget class="QSpinBox" name="spinBox_3">
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_18">
-             <property name="text">
-              <string>Начальный угол:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="label_19">
-             <property name="text">
-              <string>Конечный угол:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="label_20">
-             <property name="text">
-              <string>Смещение синхронизации:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
-            <widget class="QComboBox" name="comboBox"/>
-           </item>
-           <item row="8" column="1">
-            <widget class="QComboBox" name="comboBox_2"/>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="label_23">
-             <property name="text">
-              <string>Частота сканирования:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="0">
-            <widget class="QLabel" name="label_24">
-             <property name="text">
-              <string>Угловое разрешение:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="9" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <widget class="QCheckBox" name="checkBox_7">
-               <property name="text">
-                <string>Данные сканирования</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_6">
-               <property name="text">
-                <string>Ошибки</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="9" column="0">
-            <widget class="QLabel" name="label_25">
-             <property name="text">
-              <string>Выходные данные:</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+         <item row="4" column="0">
+          <widget class="QWidget" name="widgetProgressStatus" native="true">
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelProgressStatus">
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item row="3" column="0">
-          <spacer name="verticalSpacer_3">
+          <spacer name="spacer16">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -1993,15 +1834,225 @@
            </property>
           </spacer>
          </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabSettings">
+        <attribute name="title">
+         <string>Параметры</string>
+        </attribute>
+        <layout class="QGridLayout" name="layoutSettings">
+         <item row="4" column="0">
+          <widget class="QWidget" name="widgetProgressSettings" native="true">
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelProgressSettings">
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <spacer name="spacer17">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="0">
+          <layout class="QFormLayout" name="layoutSettingsEdit">
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelSettingsAddress">
+             <property name="text">
+              <string>Адрес:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="editSettingsAddress">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelSettingsPort">
+             <property name="text">
+              <string>Порт:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="editSettingsPort">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelSettingsSubnet">
+             <property name="text">
+              <string>Маска подсети:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="editSettingsSubnet">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelSettingsGateway">
+             <property name="text">
+              <string>Шлюз:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="editSettingsGateway">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QSpinBox" name="spinSettingsStartAngle">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="minimum">
+              <number>-100000</number>
+             </property>
+             <property name="maximum">
+              <number>100000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QSpinBox" name="spinSettingsEndAngle">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="minimum">
+              <number>-100000</number>
+             </property>
+             <property name="maximum">
+              <number>100000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QSpinBox" name="spinSettingsSyncOffset">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="minimum">
+              <number>-100000</number>
+             </property>
+             <property name="maximum">
+              <number>100000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="labelSettingsStartAngle">
+             <property name="text">
+              <string>Начальный угол:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="labelSettingsEndAngle">
+             <property name="text">
+              <string>Конечный угол:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="labelSettingsSyncOffset">
+             <property name="text">
+              <string>Смещение синхронизации:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QComboBox" name="comboScanFrequency"/>
+           </item>
+           <item row="8" column="1">
+            <widget class="QComboBox" name="comboAngleResolution"/>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="labelSettingsScanFrequency">
+             <property name="text">
+              <string>Частота сканирования:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="labelSettingsAngleResolution">
+             <property name="text">
+              <string>Угловое разрешение:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <layout class="QHBoxLayout" name="layoutSettingsCheck">
+             <item>
+              <widget class="QCheckBox" name="checkScanData">
+               <property name="text">
+                <string>Данные сканирования</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkScanErrors">
+               <property name="text">
+                <string>Ошибки</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="9" column="0">
+            <widget class="QLabel" name="labelSettingsOutputData">
+             <property name="text">
+              <string>Выходные данные:</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
          <item row="1" column="0">
-          <widget class="Line" name="line_3">
+          <widget class="Line" name="line3">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QPushButton" name="pushButton_4">
+          <widget class="QPushButton" name="buttonSettingsUpdate">
            <property name="palette">
             <palette>
              <active>
@@ -2070,6 +2121,19 @@
             <string>Обновить</string>
            </property>
           </widget>
+         </item>
+         <item row="3" column="0">
+          <spacer name="spacer18">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </widget>

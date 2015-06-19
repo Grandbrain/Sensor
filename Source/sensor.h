@@ -170,6 +170,7 @@ public:
 
 private:
     void Parse();
+    void Write(const QByteArray&);
 
 signals:
     void OnPoints(const ScanData&);

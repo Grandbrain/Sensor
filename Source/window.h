@@ -5,6 +5,7 @@
 #include <QDesktopWidget>
 #include <QMainWindow>
 #include <QWheelEvent>
+#include <QMovie>
 #include "sensor.h"
 
 namespace Ui
@@ -25,8 +26,13 @@ private slots:
     void OnStart();
     void OnCheck(bool);
     void OnStatus();
+    void OnParameters();
     void OnDisconnect();
     void OnConnect();
+    void OnEditChanged();
+    void OnSpinChanged();
+    void OnComboChanged();
+    void OnCheckChanged();
     void OnSensorData(const ScanData&);
     void OnSensorError();
     void OnSensorConnected();
@@ -42,6 +48,16 @@ private:
 private:
     Ui::Window* ui;
     Sensor sensor;
+    bool addressChanged;
+    bool portChanged;
+    bool subnetChanged;
+    bool gatewayChanged;
+    bool startAngleChanged;
+    bool endAngleChanged;
+    bool syncOffsetChanged;
+    bool scanFrequencyChanged;
+    bool angularResolutionChanged;
+    bool dataFlagsChanged;
 };
 
 #endif
