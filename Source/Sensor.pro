@@ -12,6 +12,6 @@ RC_FILE         = resources.rc
 
 win32
 {
-    #CONFIG += embed_manifest_exe
-    #QMAKE_LFLAGS_WINDOWS += /MANIFESTUAC:"level='requireAdministrator'"
+    CONFIG += embed_manifest_exe
+    QMAKE_LFLAGS_WINDOWS += /MANIFESTUAC:"level='requireAdministrator'"
 }

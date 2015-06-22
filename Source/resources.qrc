@@ -13,5 +13,6 @@
         <file>Resources/pause.ico</file>
         <file>Resources/defaults.ico</file>
         <file>Resources/reset.ico</file>
+        <file>Resources/en.qm</file>
     </qresource>
 </RCC>
