@@ -956,9 +956,9 @@ QVector<quint16> Sensor::GetScanFrequencyValues()
 QVector<quint16> Sensor::GetAngularResolutionValues()
 {
     QVector<quint16> vector;
-    vector.append(0);
-    vector.append(1);
-    vector.append(2);
+    vector.append(3);
+    vector.append(4);
+    vector.append(5);
     return vector;
 }
 

@@ -1,4 +1,4 @@
-QT              += core gui widgets network
+QT              += core gui widgets network concurrent
 
 TARGET          = Sensor
 TEMPLATE        = app
@@ -9,7 +9,6 @@ HEADERS  	+= window.h about.h splash.h sensor.h
 FORMS    	+= window.ui about.ui splash.ui
 RESOURCES       += resources.qrc
 RC_FILE         = resources.rc
-QMAKE_CXXFLAGS  += -std=c++11
 
 win32
 {

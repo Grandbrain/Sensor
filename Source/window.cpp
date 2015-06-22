@@ -1,6 +1,7 @@
 #include "about.h"
 #include "window.h"
 #include "ui_window.h"
+#include <QDebug>
 
 Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
 {
@@ -35,10 +36,23 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     ui->labelProgressSettings->setMovie(movie);
     movie->start();
 
-    QListWidgetItem* item = new QListWidgetItem("Устройство необходимо обогреть", ui->listErrors);
-    item->setBackground(QBrush(QColor(227, 179, 20)));
-    item->setForeground(QBrush(QColor(Qt::white)));
-    ui->listErrors->addItem(item);
+    QVector<quint16> v1 = sensor.GetAngularResolutionValues();
+    foreach(quint16 a, v1) { ui->comboAngleResolution->addItem(QString::number(a)); }
+
+    QVector<quint16> v2 = sensor.GetScanFrequencyValues();
+    foreach(quint16 a, v2) { ui->comboScanFrequency->addItem(QString::number(a)); }
+
+    QPair<qint16, qint16> p1 = sensor.GetSyncAngleBoundary();
+    ui->spinSettingsSyncOffset->setMinimum(p1.first);
+    ui->spinSettingsSyncOffset->setMaximum(p1.second);
+
+    QPair<qint16, qint16> p2 = sensor.GetStartAngleBoundary();
+    ui->spinSettingsStartAngle->setMinimum(p2.first);
+    ui->spinSettingsStartAngle->setMaximum(p2.second);
+
+    QPair<qint16, qint16> p3 = sensor.GetEndAngleBoundary();
+    ui->spinSettingsEndAngle->setMinimum(p3.first);
+    ui->spinSettingsEndAngle->setMaximum(p3.second);
 
     connect(ui->editSettingsAddress, SIGNAL(textEdited(QString)), SLOT(OnEditChanged()));
     connect(ui->editSettingsPort, SIGNAL(textEdited(QString)), SLOT(OnEditChanged()));
@@ -198,12 +212,72 @@ void Window::OnSpinChanged()
 
 void Window::OnComboChanged()
 {
+    QPalette p1, p2;
+    p1.setColor(QPalette::Button, QColor(190, 255, 214));
+    p1.setColor(QPalette::Base, QColor(190, 255, 214));
+    p1.setColor(QPalette::Window, QColor(190, 255, 214));
 
+    if(sender() == ui->comboAngleResolution)
+    {
+        if(angularResolution.first != ui->comboAngleResolution->currentIndex())
+        {
+            angularResolution.second = true;
+            ui->comboAngleResolution->setPalette(p1);
+        }
+        else
+        {
+            angularResolution.second = false;
+            ui->comboAngleResolution->setPalette(p2);
+        }
+    }
+    if(sender() == ui->comboScanFrequency)
+    {
+        if(scanFrequency.first != ui->comboScanFrequency->currentIndex())
+        {
+            scanFrequency.second = true;
+            ui->comboScanFrequency->setPalette(p1);
+        }
+        else
+        {
+            scanFrequency.second = false;
+            ui->comboScanFrequency->setPalette(p2);
+        }
+    }
 }
 
 void Window::OnCheckChanged()
 {
+    QPalette p1, p2;
+    p1.setColor(QPalette::Button, QColor(190, 255, 214));
+    p1.setColor(QPalette::Base, QColor(190, 255, 214));
+    p1.setColor(QPalette::Window, QColor(190, 255, 214));
 
+    if(sender() == ui->checkScanData)
+    {
+        if(dataFlags.first.first != ui->checkScanData->isChecked())
+        {
+            dataFlags.second = true;
+            ui->checkScanData->setPalette(p1);
+        }
+        else
+        {
+            dataFlags.second = false;
+            ui->checkScanData->setPalette(p2);
+        }
+    }
+    if(sender() == ui->checkScanErrors)
+    {
+        if(dataFlags.first.second != ui->checkScanErrors->isChecked())
+        {
+            dataFlags.second = true;
+            ui->checkScanErrors->setPalette(p1);
+        }
+        else
+        {
+            dataFlags.second = false;
+            ui->checkScanErrors->setPalette(p2);
+        }
+    }
 }
 
 void Window::OnCheck(bool checked)
@@ -238,6 +312,7 @@ void Window::OnSensorConnected()
     ui->widgetMessage->setStyleSheet(".QWidget { background-color: rgb(198, 255, 202); border: 1px solid green; }");
     ui->widgetMessage->show();
     OnStatus();
+    getParameters();
     QTimer::singleShot(20000, ui->widgetMessage, SLOT(hide()));
 }
 
@@ -255,7 +330,7 @@ void Window::OnSensorDisconnected()
     ui->graphicsView->setEnabled(false);
     ui->toolBar->setEnabled(false);
     ui->buttonDisconnect->setText(tr("Отключить"));
-    ui->graphicsView->scene()->clear();
+    clearFields();
 }
 
 void Window::OnSensorError()
@@ -294,26 +369,87 @@ void Window::OnDisconnect()
 
 void Window::OnStatus()
 {
+    ui->widgetProgressStatus->show();
     sensor.GetStatus();
 }
 
 void Window::OnParameters()
 {
-    sensor.SetAddress(ui->editSettingsAddress->text());
-    sensor.SetPort(ui->editSettingsPort->text().toUShort());
-    sensor.SetSubnetMask(ui->editSettingsSubnet->text());
-    sensor.SetGateway(ui->editSettingsGateway->text());
-    sensor.SetStartAngle(ui->spinSettingsStartAngle->value());
-    sensor.SetEndAngle(ui->spinSettingsEndAngle->value());
-    sensor.SetSyncAngleOffset(ui->spinSettingsSyncOffset->value());
-    sensor.SetScanFrequency(ui->comboScanFrequency->currentText().toUShort());
-    sensor.SetAngularResolutionType(ui->comboAngleResolution->currentText().toUShort());
-    sensor.SetDataOutputFlags(ui->checkScanData->isChecked(), ui->checkScanErrors->isChecked());
+    QPalette p;
+    if(address.second)
+    {
+        address.second = false;
+        address.first = ui->editSettingsAddress->text();
+        ui->editSettingsAddress->setPalette(p);
+        sensor.SetAddress(address.first);
+    }
+    if(port.second)
+    {
+        port.second = false;
+        port.first = ui->editSettingsPort->text();
+        ui->editSettingsPort->setPalette(p);
+        sensor.SetPort(port.first.toUShort());
+    }
+    if(subnet.second)
+    {
+        subnet.second = false;
+        subnet.first = ui->editSettingsSubnet->text();
+        ui->editSettingsSubnet->setPalette(p);
+        sensor.SetSubnetMask(subnet.first);
+    }
+    if(gateway.second)
+    {
+        gateway.second = false;
+        gateway.first = ui->editSettingsGateway->text();
+        ui->editSettingsGateway->setPalette(p);
+        sensor.SetGateway(gateway.first);
+    }
+    if(startAngle.second)
+    {
+        startAngle.second = false;
+        startAngle.first = ui->spinSettingsStartAngle->value();
+        ui->spinSettingsStartAngle->setPalette(p);
+        sensor.SetStartAngle(startAngle.first);
+    }
+    if(endAngle.second)
+    {
+        endAngle.second = false;
+        endAngle.first = ui->spinSettingsEndAngle->value();
+        ui->spinSettingsEndAngle->setPalette(p);
+        sensor.SetEndAngle(endAngle.first);
+    }
+    if(syncOffset.second)
+    {
+        sensor.SetSyncAngleOffset(ui->spinSettingsSyncOffset->value());
+    }
+    if(scanFrequency.second)
+    {
+        scanFrequency.second = false;
+        scanFrequency.first = ui->comboScanFrequency->currentIndex();
+        ui->comboScanFrequency->setPalette(p);
+        QString type = ui->comboScanFrequency->currentText();
+        sensor.SetScanFrequency(type.toUShort());
+    }
+    if(angularResolution.second)
+    {
+        angularResolution.second = false;
+        angularResolution.first = ui->comboAngleResolution->currentIndex();
+        ui->comboAngleResolution->setPalette(p);
+        QString type = ui->comboAngleResolution->currentText();
+        sensor.SetAngularResolutionType(type.toUShort());
+    }
+    if(dataFlags.second)
+    {
+        dataFlags.second = false;
+        dataFlags.first = qMakePair(ui->checkScanData->isChecked(), ui->checkScanErrors->isChecked());
+        if(ui->checkScanData->palette().button().color() != p.button().color()) ui->checkScanData->setPalette(p);
+        if(ui->checkScanErrors->palette().button().color() != p.button().color()) ui->checkScanErrors->setPalette(p);
+        sensor.SetDataOutputFlags(ui->checkScanData->isChecked(), ui->checkScanErrors->isChecked());
+    }
 }
 
 void Window::OnSensorStatus(const Status& status)
 {
-    ui->widgetProgressStatus->show();
     ui->checkExternalSync->blockSignals(true);
     ui->checkFrequencyLocked->blockSignals(true);
     ui->checkLaserOn->blockSignals(true);
@@ -469,119 +605,119 @@ void Window::OnSensorWarnings(const ErrorsWarnings& warnings)
     ui->listErrors->clear();
     if(warnings.E1APDOT)
     {
-        QListWidgetItem* item = new QListWidgetItem("Устройство необходимо обогреть", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Устройство необходимо обогреть"), ui->listErrors);
         item->setBackground(QBrush(QColor(Qt::red)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.E1APDUT)
     {
-        QListWidgetItem* item = new QListWidgetItem("Устройство необходимо охладить", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Устройство необходимо охладить"), ui->listErrors);
         item->setBackground(QBrush(QColor(Qt::red)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.E1CS)
     {
-        QListWidgetItem* item = new QListWidgetItem("Неизвестная ошибка, обратитесь в службу поддержки", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Неизвестная ошибка, обратитесь в службу поддержки"), ui->listErrors);
         item->setBackground(QBrush(QColor(Qt::red)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.E1SBO)
     {
-        QListWidgetItem* item = new QListWidgetItem("Буфер устройства переполнен, снизьте частоту сканирования или обратитесь в службу поддержки", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Буфер устройства переполнен, снизьте частоту сканирования или обратитесь в службу поддержки"), ui->listErrors);
         item->setBackground(QBrush(QColor(Qt::red)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.E1SBTI)
     {
-        QListWidgetItem* item = new QListWidgetItem("Данные переданы не полностью, снизьте частоту сканирования или обратитесь в службу поддержки", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Данные переданы не полностью, снизьте частоту сканирования или обратитесь в службу поддержки"), ui->listErrors);
         item->setBackground(QBrush(QColor(Qt::red)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.E2CCIP)
     {
-        QListWidgetItem* item = new QListWidgetItem("Неверные конфигурационные данные, загрузьте корректные значения", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Неверные конфигурационные данные, загрузьте корректные значения"), ui->listErrors);
         item->setBackground(QBrush(QColor(Qt::red)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.E2CS)
     {
-        QListWidgetItem* item = new QListWidgetItem("Неизвестная ошибка, обратитесь в службу поддержки", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Неизвестная ошибка, обратитесь в службу поддержки"), ui->listErrors);
         item->setBackground(QBrush(QColor(Qt::red)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.E2DPT)
     {
-        QListWidgetItem* item = new QListWidgetItem("Тайм-аут обработки данных, снизьте разрешение или частоту сканирования", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Тайм-аут обработки данных, снизьте разрешение или частоту сканирования"), ui->listErrors);
         item->setBackground(QBrush(QColor(Qt::red)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.E2ICD)
     {
-        QListWidgetItem* item = new QListWidgetItem("Неправильные данные конфигурации, загрузьте корректные значения", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Неправильные данные конфигурации, загрузьте корректные значения"), ui->listErrors);
         item->setBackground(QBrush(QColor(Qt::red)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.W1CSSF)
     {
-        QListWidgetItem* item = new QListWidgetItem("Ошибка синхронизации", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Ошибка синхронизации"), ui->listErrors);
         item->setBackground(QBrush(QColor(227, 179, 20)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.W1ET)
     {
-        QListWidgetItem* item = new QListWidgetItem("Температура устройства слишком высокая", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Температура устройства слишком высокая"), ui->listErrors);
         item->setBackground(QBrush(QColor(227, 179, 20)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.W1IT)
     {
-        QListWidgetItem* item = new QListWidgetItem("Температура устройства слишком низкая", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Температура устройства слишком низкая"), ui->listErrors);
         item->setBackground(QBrush(QColor(227, 179, 20)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.W2CED)
     {
-        QListWidgetItem* item = new QListWidgetItem("Ошибка получения данных, проверьте подключение", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Ошибка получения данных, проверьте подключение"), ui->listErrors);
         item->setBackground(QBrush(QColor(227, 179, 20)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.W2CS)
     {
-        QListWidgetItem* item = new QListWidgetItem("Неизвестная ошибка, обратитесь в службу поддержки", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Неизвестная ошибка, обратитесь в службу поддержки"), ui->listErrors);
         item->setBackground(QBrush(QColor(227, 179, 20)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.W2EIB)
     {
-        QListWidgetItem* item = new QListWidgetItem("Ethernet блокирован, проверьте подключение", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Ethernet блокирован, проверьте подключение"), ui->listErrors);
         item->setBackground(QBrush(QColor(227, 179, 20)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.W2FC)
     {
-        QListWidgetItem* item = new QListWidgetItem("Неправильная команда", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Неправильная команда"), ui->listErrors);
         item->setBackground(QBrush(QColor(227, 179, 20)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
     }
     if(warnings.W2MAF)
     {
-        QListWidgetItem* item = new QListWidgetItem("Ошибка доступа к памяти, перезагрузите устройство или обратитесь в службу поддержки", ui->listErrors);
+        QListWidgetItem* item = new QListWidgetItem(tr("Ошибка доступа к памяти, перезагрузите устройство или обратитесь в службу поддержки"), ui->listErrors);
         item->setBackground(QBrush(QColor(227, 179, 20)));
         item->setForeground(QBrush(QColor(Qt::white)));
         ui->listErrors->addItem(item);
@@ -590,6 +726,87 @@ void Window::OnSensorWarnings(const ErrorsWarnings& warnings)
 
 void Window::OnSensorParameters(const Parameters& parameters)
 {
+    if(parameters.ParameterChanged == Parameter::AngleTicksPerRotation)
+    {
+        ui->editAngleTicks->blockSignals(true);
+        ui->editAngleTicks->setText(QString::number(parameters.AngleTicksPerRotation));
+        ui->widgetProgressStatus->hide();
+        ui->editAngleTicks->blockSignals(false);
+    }
+    if(parameters.ParameterChanged == Parameter::Address)
+    {
+        ui->editSettingsAddress->blockSignals(true);
+        ui->editSettingsAddress->setText(parameters.Address);
+        address = qMakePair(parameters.Address, false);
+        ui->editSettingsAddress->blockSignals(false);
+    }
+    if(parameters.ParameterChanged == Parameter::AngularResolution)
+    {
+        ui->comboAngleResolution->blockSignals(true);
+        ui->comboAngleResolution->setCurrentText(QString::number(parameters.AngularResolution));
+        angularResolution = qMakePair(ui->comboAngleResolution->currentIndex(), false);
+        ui->comboAngleResolution->blockSignals(false);
+    }
+    if(parameters.ParameterChanged == Parameter::DataOutputFlags)
+    {
+        ui->checkScanData->blockSignals(true);
+        ui->checkScanErrors->blockSignals(true);
+        ui->checkScanData->setChecked(parameters.DataOutputFlags.first);
+        ui->checkScanErrors->setChecked(parameters.DataOutputFlags.second);
+        dataFlags = qMakePair(parameters.DataOutputFlags, false);
+        ui->checkScanData->blockSignals(false);
+        ui->checkScanErrors->blockSignals(false);
+    }
+    if(parameters.ParameterChanged == Parameter::Gateway)
+    {
+        ui->editSettingsGateway->blockSignals(true);
+        ui->editSettingsGateway->setText(parameters.Gateway);
+        gateway = qMakePair(parameters.Gateway, false);
+        ui->editSettingsGateway->blockSignals(false);
+    }
+    if(parameters.ParameterChanged == Parameter::Port)
+    {
+        ui->editSettingsPort->blockSignals(true);
+        ui->editSettingsPort->setText(QString::number(parameters.Port));
+        port = qMakePair(QString::number(parameters.Port), false);
+        ui->editSettingsPort->blockSignals(false);
+    }
+    if(parameters.ParameterChanged == Parameter::EndAngle)
+    {
+        ui->spinSettingsEndAngle->blockSignals(true);
+        ui->spinSettingsEndAngle->setValue(parameters.EndAngle);
+        endAngle = qMakePair(parameters.EndAngle, false);
+        ui->spinSettingsEndAngle->blockSignals(false);
+    }
+    if(parameters.ParameterChanged == Parameter::StartAngle)
+    {
+        ui->spinSettingsStartAngle->blockSignals(true);
+        ui->spinSettingsStartAngle->setValue(parameters.StartAngle);
+        startAngle = qMakePair(parameters.StartAngle, false);
+        ui->spinSettingsStartAngle->blockSignals(false);
+    }
+    if(parameters.ParameterChanged == Parameter::ScanFrequency)
+    {
+        ui->comboScanFrequency->blockSignals(true);
+        ui->comboScanFrequency->setCurrentText(QString::number(parameters.ScanFrequency));
+        scanFrequency = qMakePair(ui->comboScanFrequency->currentIndex(), false);
+        ui->comboScanFrequency->blockSignals(false);
+    }
+    if(parameters.ParameterChanged == Parameter::SyncAngleOffset)
+    {
+        ui->spinSettingsSyncOffset->blockSignals(true);
+        ui->spinSettingsSyncOffset->setValue(parameters.SyncAngleOffset);
+        syncOffset = qMakePair(parameters.SyncAngleOffset, false);
+        ui->spinSettingsSyncOffset->blockSignals(false);
+    }
+    if(parameters.ParameterChanged == Parameter::SubnetMask)
+    {
+        ui->editSettingsSubnet->blockSignals(true);
+        ui->editSettingsSubnet->setText(parameters.SubnetMask);
+        subnet = qMakePair(parameters.SubnetMask, false);
+        ui->editSettingsSubnet->blockSignals(false);
+        ui->widgetProgressSettings->hide();
+    }
 
 }
 
@@ -598,20 +815,57 @@ void Window::OnSensorFailed(Command command)
 
 }
 
+void Window::getParameters()
+{
+    ui->widgetProgressSettings->show();
+    sensor.GetAddress();
+    sensor.GetAngularResolutionType();
+    sensor.GetDataOutputFlags();
+    sensor.GetEndAngle();
+    sensor.GetGateway();
+    sensor.GetPort();
+    sensor.GetScanFrequency();
+    sensor.GetStartAngle();
+    sensor.GetSyncAngleOffset();
+    sensor.GetSubnetMask();
+}
+
+void Window::clearFields()
+{
+    ui->checkScanData->blockSignals(true);
+    ui->checkScanErrors->blockSignals(true);
+    ui->checkExternalSync->setChecked(false);
+    ui->checkFrequencyLocked->setChecked(false);
+    ui->checkLaserOn->setChecked(false);
+    ui->checkMotorOn->setChecked(false);
+    ui->checkPhaseLocked->setChecked(false);
+    ui->checkScanData->setChecked(false);
+    ui->checkScanErrors->setChecked(false);
+    ui->comboAngleResolution->setCurrentText("");
+    ui->comboScanFrequency->setCurrentText("");
+    ui->editAngleTicks->clear();
+    ui->editDSP->clear();
+    ui->editFirmwareVersion->clear();
+    ui->editFPGA->clear();
+    ui->editFPGAVersion->clear();
+    ui->editSerialNumber->clear();
+    ui->editSettingsAddress->clear();
+    ui->editSettingsGateway->clear();
+    ui->editSettingsPort->clear();
+    ui->editSettingsSubnet->clear();
+    ui->editTemperature->clear();
+    ui->graphicsView->scene()->clear();
+    ui->spinSettingsEndAngle->clear();
+    ui->spinSettingsStartAngle->clear();
+    ui->spinSettingsSyncOffset->clear();
+    ui->listErrors->clear();
+    ui->checkScanData->blockSignals(false);
+    ui->checkScanErrors->blockSignals(false);
+}
+
 bool Window::eventFilter(QObject* object, QEvent* event)
 {
-    if(event->type() == QEvent::KeyPress)
-    {
-        QKeyEvent* key = static_cast<QKeyEvent*>(event);
-        if((key->key() == Qt::Key_Enter) || (key->key() == Qt::Key_Return))
-        {
-            if(ui->buttonConnect->isEnabled()) ui->buttonConnect->click();
-            else ui->buttonDisconnect->click();
-        }
-    }
-    if(object == ui->widgetMessage ||
-       object == ui->labelMessage ||
-       object == ui->labelResult)
+    if(object == ui->widgetMessage || object == ui->labelMessage || object == ui->labelResult)
     {
         if(event->type() == QEvent::MouseButtonRelease)
             ui->widgetMessage->hide();

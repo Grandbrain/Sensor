@@ -54,7 +54,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>2</number>
        </property>
        <property name="usesScrollButtons">
         <bool>false</bool>
@@ -133,7 +133,7 @@
            <item row="0" column="1">
             <widget class="QLineEdit" name="editAddress">
              <property name="text">
-              <string>192.168.137.16</string>
+              <string>192.168.137.196</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -516,7 +516,7 @@
            <item row="2" column="0">
             <widget class="QLabel" name="labelTemperature">
              <property name="text">
-              <string>Температура (С):</string>
+              <string>Температура (°С):</string>
              </property>
             </widget>
            </item>
@@ -1964,21 +1964,21 @@
            <item row="4" column="0">
             <widget class="QLabel" name="labelSettingsStartAngle">
              <property name="text">
-              <string>Начальный угол:</string>
+              <string>Начальный угол (°):</string>
              </property>
             </widget>
            </item>
            <item row="5" column="0">
             <widget class="QLabel" name="labelSettingsEndAngle">
              <property name="text">
-              <string>Конечный угол:</string>
+              <string>Конечный угол (°):</string>
              </property>
             </widget>
            </item>
            <item row="6" column="0">
             <widget class="QLabel" name="labelSettingsSyncOffset">
              <property name="text">
-              <string>Смещение синхронизации:</string>
+              <string>Смещение синхронизации (°):</string>
              </property>
             </widget>
            </item>
@@ -1991,14 +1991,14 @@
            <item row="7" column="0">
             <widget class="QLabel" name="labelSettingsScanFrequency">
              <property name="text">
-              <string>Частота сканирования:</string>
+              <string>Частота сканирования (Гц):</string>
              </property>
             </widget>
            </item>
            <item row="8" column="0">
             <widget class="QLabel" name="labelSettingsAngleResolution">
              <property name="text">
-              <string>Угловое разрешение:</string>
+              <string>Угловое разрешение (°):</string>
              </property>
             </widget>
            </item>

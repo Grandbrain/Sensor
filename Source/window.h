@@ -42,6 +42,8 @@ private slots:
 
 private:
     bool eventFilter(QObject*, QEvent*);
+    void getParameters();
+    void clearFields();
 
 private:
     Ui::Window* ui;
@@ -55,7 +57,7 @@ private:
     QPair<qint16,  bool> syncOffset;
     QPair<quint16, bool> scanFrequency;
     QPair<quint16, bool> angularResolution;
-    QPair<quint16, bool> dataFlags;
+    QPair<QPair<bool, bool>, bool> dataFlags;
 };
 
 #endif

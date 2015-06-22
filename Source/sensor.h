@@ -169,10 +169,12 @@ public:
     QVector<quint16> GetAngularResolutionValues();
 
 private:
+    void Send();
     void Parse();
-    void Write(const QByteArray&);
+    void Push(const QByteArray&);
 
 signals:
+    void OnSending(const QByteArray&);
     void OnPoints(const ScanData&);
     void OnWarnings(const ErrorsWarnings&);
     void OnParameters(const Parameters&);
@@ -183,11 +185,16 @@ signals:
     void OnError();
 
 private slots:
-    void OnReadyRead();
+    void OnSend(const QByteArray&);
+    void OnRead();
 
 private:
-    QByteArray mArray;
-    QTcpSocket mSocket;
+    QQueue<QByteArray> queue;
+    QMutex mutex;
+    QByteArray array;
+    QTcpSocket socket;
+    bool runned;
+    bool aborted;
 };
 
 #endif
