@@ -10,5 +10,8 @@
         <file>Resources/error.ico</file>
         <file>Resources/success.ico</file>
         <file>Resources/loader.GIF</file>
+        <file>Resources/pause.ico</file>
+        <file>Resources/defaults.ico</file>
+        <file>Resources/reset.ico</file>
     </qresource>
 </RCC>

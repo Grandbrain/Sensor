@@ -3,7 +3,7 @@
 #include "ui_window.h"
 #include <QDebug>
 
-Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
+Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window), runned(true)
 {
     QString range = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
     QRegExp regex ("^" + range + "\\." + range + "\\." + range + "\\." + range + "$");
@@ -75,6 +75,10 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window)
     connect(ui->buttonConnect, SIGNAL(released()), SLOT(OnConnect()));
     connect(ui->buttonDisconnect, SIGNAL(released()), SLOT(OnDisconnect()));
     connect(ui->buttonStatus, SIGNAL(released()), SLOT(OnStatus()));
+    connect(ui->actionStartStop, SIGNAL(triggered()), SLOT(OnStart()));
+    connect(ui->actionSave, SIGNAL(triggered()), SLOT(OnSave()));
+    connect(ui->actionReset, SIGNAL(triggered()), SLOT(OnReset()));
+    connect(ui->actionDefaults, SIGNAL(triggered()), SLOT(OnDefaults()));
     connect(&sensor, SIGNAL(OnError()), SLOT(OnSensorError()));
     connect(&sensor, SIGNAL(OnConnected()), SLOT(OnSensorConnected()));
     connect(&sensor, SIGNAL(OnDisconnected()), SLOT(OnSensorDisconnected()));
@@ -98,7 +102,18 @@ void Window::OnAbout()
 
 void Window::OnStart()
 {
-
+    if(runned)
+    {
+        ui->actionStartStop->setIcon(QIcon(":/root/Resources/run.ico"));
+        startStop(false);
+        runned = false;
+    }
+    else
+    {
+        ui->actionStartStop->setIcon(QIcon(":/root/Resources/pause.ico"));
+        startStop(true);
+        runned = true;
+    }
 }
 
 void Window::OnEditChanged()
@@ -313,6 +328,7 @@ void Window::OnSensorConnected()
     ui->widgetMessage->show();
     OnStatus();
     getParameters();
+    startStop(true);
     QTimer::singleShot(20000, ui->widgetMessage, SLOT(hide()));
 }
 
@@ -446,6 +462,21 @@ void Window::OnParameters()
         if(ui->checkScanErrors->palette().button().color() != p.button().color()) ui->checkScanErrors->setPalette(p);
         sensor.SetDataOutputFlags(ui->checkScanData->isChecked(), ui->checkScanErrors->isChecked());
     }
+}
+
+void Window::OnSave()
+{
+    sensor.SaveConfig();
+}
+
+void Window::OnReset()
+{
+    sensor.Reset();
+}
+
+void Window::OnDefaults()
+{
+    sensor.ResetParameters();
 }
 
 void Window::OnSensorStatus(const Status& status)
@@ -861,6 +892,12 @@ void Window::clearFields()
     ui->listErrors->clear();
     ui->checkScanData->blockSignals(false);
     ui->checkScanErrors->blockSignals(false);
+}
+
+void Window::startStop(bool value)
+{
+    if(value) sensor.StartMeasure();
+    else sensor.StopMeasure();
 }
 
 bool Window::eventFilter(QObject* object, QEvent* event)

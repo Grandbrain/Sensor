@@ -20,6 +20,9 @@ public:
     ~Window();
 
 private slots:
+    void OnReset();
+    void OnDefaults();
+    void OnSave();
     void OnAbout();
     void OnStart();
     void OnCheck(bool);
@@ -44,10 +47,12 @@ private:
     bool eventFilter(QObject*, QEvent*);
     void getParameters();
     void clearFields();
+    void startStop(bool);
 
 private:
     Ui::Window* ui;
     Sensor sensor;
+    bool runned;
     QPair<QString, bool> address;
     QPair<QString, bool> port;
     QPair<QString, bool> subnet;
