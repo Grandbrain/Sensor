@@ -1,9 +1,12 @@
-[![Release](https://img.shields.io/badge/Release-v1.0.0-brightgreen.svg)](https://github.com/Grandbrain/Sensor/releases)
-[![Licence](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Grandbrain/Sensor/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/Grandbrain/Sensor.svg)](https://github.com/Grandbrain/Sensor/releases)
+[![GitHub issues](https://img.shields.io/github/issues/Grandbrain/Sensor.svg)](https://github.com/Grandbrain/Sensor/issues)
+[![GitHub forks](https://img.shields.io/github/forks/Grandbrain/Sensor.svg)](https://github.com/Grandbrain/Sensor/network/members)
+[![GitHub stars](https://img.shields.io/github/stars/Grandbrain/Sensor.svg)](https://github.com/Grandbrain/Sensor/stargazers)
+[![GitHub license](https://img.shields.io/github/license/Grandbrain/Sensor.svg)](https://github.com/Grandbrain/Sensor/blob/master/LICENSE)
 
 # Welcome to Sensor project!
 
-[Sensor](https://github.com/Grandbrain/Sensor) is a cross-platform application to use the LD-MRS scanners. The program uses the Ethernet protocol and allows to obtain measurement data, change device settings, as well as track the status of the device and to detect errors and warnings. The program is based on the Qt Framework and can run on all platforms supported by this library.
+[Sensor](https://github.com/Grandbrain/Sensor) is a cross-platform application to use the LD-MRS scanners. The program uses Ethernet protocol and allows to obtain measurement data, change device settings, as well as track the status of the device and to detect errors and warnings. The program is based on the Qt Framework and can run on all platforms supported by this library.
 
 
 ## Contribute
